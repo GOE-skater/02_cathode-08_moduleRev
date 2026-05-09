@@ -1,0 +1,116 @@
+# ============================================================
+# Parameter settings
+# ============================================================
+
+microwave:
+  Pmw: 8.0                # Microwave power [W], previous/example: 8
+  omegam: 26703537556e0   # Microwave angular frequency
+  nu_eff: 2.0e9           # Effective collision frequency, sqrt(vth * omegam / deltaB)
+  deltaECR: 1.0e-3        # Width of the ECR region
+
+plasma:
+  Ti: 300                 # Ion temperature
+  Tn: 300                 # Neutral particle temperature
+  rhon_ini: 2.41432e19    # Constant neutral particle density [m^-3] at 1 Pa
+  DmN: 5.2e19             # Diffusion coefficient of metastable species, Wieme 1974 [1/ms]
+  Te_rep_eV: 0.1          # Representative electron temperature for the ion scheme [eV]
+
+material:
+  epsr_diele: 2.1         # Relative permittivity of the dielectric material
+
+bias:
+  V_bias: 35              # Bias voltage, previous/example: 20
+
+neutral_inlet:
+  Q_neutIn_mgs: 0.069     # Neutral particle flow rate [mg/s], 1 sccm = 0.098 mg/s, previous/example: 0.04881367984087
+  width_neutIn: 0.0055    # Neutral inlet width [m], 0.0055 + 0.0078 = 0.0133
+
+transport_model:
+  icon_Bohm: 1            # Whether to include Bohm diffusion
+  icon_Sagdeev: 1         # Whether to include the Sagdeev model
+  alpha_Bohm: 16          # Bohm diffusion coefficient, previous/example: 16
+  scale_inertia: 1.0      # Scaling factor of the inertia term
+
+# ============================================================
+# SEE: Secondary Electron Emission
+# ============================================================
+
+see:
+  coefIISEE_ts: 0.08        # II true-secondary emission coefficient, previous/example: 0.08
+  coefMISEE_ts: 0.08        # MI true-secondary emission coefficient by Auger process, previous/example: 0.08
+  Te_emitSEE_eV: 2.5        # Electron emission temperature [eV], previous/example: 2.5
+  ratioEngy_EISEE_rd: 0.5   # Energy ratio of EI rediffusion
+
+# ============================================================
+# Fluid scheme settings
+# ============================================================
+
+scheme:
+  icon_PC: 1              # Whether to use the PC method; 0: direct discretization, 1: PC method
+  icon_inertia: 0         # Whether to include inertia; 0: disabled, 1: enabled
+  icon_adp_dt: 0          # Whether to use adaptive dt; 0: fixed dt, 1: variable dt
+  dt_ini: 1.0e-10         # Initial time step, previous/example: 2.0e-10
+  ndt_i: 1                # Ion time-step multiplier relative to the electron time step
+  ndt_m: 1000             # Metastable neutral time-step multiplier relative to the electron time step
+  ndt_n: 1000             # Neutral particle time-step multiplier relative to the electron time step
+  CFL: 1.0                # CFL number, previous/example: 0.001
+
+# ============================================================
+# Solver settings
+#
+# Note:
+# This section is only a category for readability.
+# Each parameter key exactly matches the corresponding C++ variable name.
+# Maximum YAML depth is 2 levels: category -> parameter.
+# ============================================================
+
+solver:
+  error_cnv_SOR_Ui: 1.0e-10      # Convergence criterion for Ui
+  maxITR_SOR_Ui: 30              # Maximum number of iterations for Ui
+  icon_iter_Ui: 1                # Iterative method selection for Ui; 0: SOR, 1: SMG
+
+  error_cnv_SOR_rhoi: 1.0e-10    # Convergence criterion for rhoi
+  maxITR_SOR_rhoi: 30            # Maximum number of iterations for rhoi
+  icon_iter_rhoi: 1              # Iterative method selection for rhoi; 0: SOR, 1: SMG
+
+  error_cnv_SOR_phi: 1.0e-10     # Convergence criterion for phi
+  maxITR_SOR_phi: 30             # Maximum number of iterations for phi
+  icon_iter_phi: 1               # Iterative method selection for phi; 0: SOR, 1: SMG
+  error_cnv_HES_phi: 1.0e-21     # Convergence criterion for the pseudo-time stepping of phi
+  maxITR_HES_phi: 2              # Maximum number of pseudo-time iterations for phi
+
+  error_cnv_SOR_rhoe: 1.0e-10    # Convergence criterion for rhoe
+  maxITR_SOR_rhoe: 30            # Maximum number of iterations for rhoe
+  icon_iter_rhoe: 1              # Iterative method selection for rhoe; 0: GMRES, 1: direct solver, original note: 0:SOR 1:SMG
+  error_cnv_HES_rhoe: 1.0e-21    # Convergence criterion for the pseudo-time stepping of rhoe
+  maxITR_HES_rhoe: 2             # Maximum number of pseudo-time iterations for rhoe
+
+  error_cnv_SOR_rhoeps: 1.0e-10  # Convergence criterion for rhoeps
+  maxITR_SOR_rhoeps: 30          # Maximum number of iterations for rhoeps
+  icon_iter_rhoeps: 1            # Iterative method selection for rhoeps; 0: GMRES, 1: direct solver, original note: 0:SOR 1:SMG
+  error_cnv_HES_rhoeps: 1.0e-21  # Convergence criterion for the pseudo-time stepping of rhoeps
+  maxITR_HES_rhoeps: 2           # Maximum number of pseudo-time iterations for rhoeps
+
+microwave_coupling:
+  ndiv_MW: 1000           # Microwave calculation interval
+
+relaxation:
+  beta_rhoe: 1.0          # Under-relaxation factor for rhoe when inertia is considered
+  beta_rhoUe: 1.0         # Under-relaxation factor for rhoUe when inertia is considered
+
+# ============================================================
+# Global simulation settings
+# ============================================================
+
+simulation:
+  ntime: 200000           # Number of time steps, previous/example: 3000000
+  icon_autoFinish: 1      # Whether to automatically finish the simulation
+
+# ============================================================
+# Output settings
+# ============================================================
+
+output:
+  icon_chk: 0             # Whether to output check files
+  icon_gnuRes: 1          # Whether to display results using gnuplot
+  ndiv_fout: 2000         # Result file output interval

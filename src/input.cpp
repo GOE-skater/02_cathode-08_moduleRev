@@ -16,6 +16,461 @@
 #include "functions.hpp"
 #include <sstream>
 #include <complex>
+#include <yaml-cpp/yaml.h>
+#include <stdexcept>
+//*****************************************************************
+//**                                                             **
+//**           void inputParam                                   **
+//**                                                             **
+//*****************************************************************
+void inputParam()
+{
+    const std::string filename = "input/setup.yaml";
+
+    YAML::Node setup;
+
+    try {
+        setup = YAML::LoadFile(filename);
+    }
+    catch (const YAML::BadFile&) {
+        std::cout << "[" << filename << "] Error! File not found." << std::endl;
+        abort();
+    }
+
+    int count = 0;
+
+    auto readDouble = [&](double& dst,
+                          const std::string& category,
+                          const std::string& key) {
+        const YAML::Node categoryNode = setup[category];
+
+        if (!categoryNode) {
+            throw std::runtime_error("Missing YAML category: " + category);
+        }
+        if (!categoryNode[key]) {
+            throw std::runtime_error("Missing YAML parameter: " + category + "." + key);
+        }
+
+        dst = categoryNode[key].as<double>();
+        count += 1;
+    };
+
+    auto readInt = [&](int& dst,
+                       const std::string& category,
+                       const std::string& key) {
+        const YAML::Node categoryNode = setup[category];
+
+        if (!categoryNode) {
+            throw std::runtime_error("Missing YAML category: " + category);
+        }
+        if (!categoryNode[key]) {
+            throw std::runtime_error("Missing YAML parameter: " + category + "." + key);
+        }
+
+        dst = categoryNode[key].as<int>();
+        count += 1;
+    };
+
+#define READ_DOUBLE(category, var) readDouble((var), (category), #var)
+#define READ_INT(category, var)    readInt((var), (category), #var)
+
+    try {
+        std::string category;
+
+        category = "microwave";
+        READ_DOUBLE(category, Pmw);
+        READ_DOUBLE(category, omegam);
+        READ_DOUBLE(category, nu_eff);
+        READ_DOUBLE(category, deltaECR);
+
+        category = "plasma";
+        READ_DOUBLE(category, Ti);
+        READ_DOUBLE(category, Tn);
+        READ_DOUBLE(category, rhon_ini);
+        READ_DOUBLE(category, DmN);
+        READ_DOUBLE(category, Te_rep_eV);
+
+        category = "material";
+        READ_DOUBLE(category, epsr_diele);
+
+        category = "bias";
+        READ_DOUBLE(category, V_bias);
+
+        category = "neutral_inlet";
+        READ_DOUBLE(category, Q_neutIn_mgs);
+        READ_DOUBLE(category, width_neutIn);
+
+        category = "transport_model";
+        READ_INT(category, icon_Bohm);
+        READ_INT(category, icon_Sagdeev);
+        READ_DOUBLE(category, alpha_Bohm);
+        READ_DOUBLE(category, scale_inertia);
+
+        category = "see";
+        READ_DOUBLE(category, coefIISEE_ts);
+        READ_DOUBLE(category, coefMISEE_ts);
+        READ_DOUBLE(category, Te_emitSEE_eV);
+        READ_DOUBLE(category, ratioEngy_EISEE_rd);
+
+        category = "scheme";
+        READ_INT(category, icon_PC);
+        READ_INT(category, icon_inertia);
+        READ_INT(category, icon_adp_dt);
+        READ_DOUBLE(category, dt_ini);
+        READ_INT(category, ndt_i);
+        READ_INT(category, ndt_m);
+        READ_INT(category, ndt_n);
+        READ_DOUBLE(category, CFL);
+
+        category = "solver";
+        READ_DOUBLE(category, error_cnv_SOR_Ui);
+        READ_INT(category, maxITR_SOR_Ui);
+        READ_INT(category, icon_iter_Ui);
+        READ_DOUBLE(category, error_cnv_SOR_rhoi);
+        READ_INT(category, maxITR_SOR_rhoi);
+        READ_INT(category, icon_iter_rhoi);
+        READ_DOUBLE(category, error_cnv_SOR_phi);
+        READ_INT(category, maxITR_SOR_phi);
+        READ_INT(category, icon_iter_phi);
+        READ_DOUBLE(category, error_cnv_HES_phi);
+        READ_INT(category, maxITR_HES_phi);
+        READ_DOUBLE(category, error_cnv_SOR_rhoe);
+        READ_INT(category, maxITR_SOR_rhoe);
+        READ_INT(category, icon_iter_rhoe);
+        READ_DOUBLE(category, error_cnv_HES_rhoe);
+        READ_INT(category, maxITR_HES_rhoe);
+        READ_DOUBLE(category, error_cnv_SOR_rhoeps);
+        READ_INT(category, maxITR_SOR_rhoeps);
+        READ_INT(category, icon_iter_rhoeps);
+        READ_DOUBLE(category, error_cnv_HES_rhoeps);
+        READ_INT(category, maxITR_HES_rhoeps);
+
+        category = "microwave_coupling";
+        READ_INT(category, ndiv_MW);
+
+        category = "relaxation";
+        READ_DOUBLE(category, beta_rhoe);
+        READ_DOUBLE(category, beta_rhoUe);
+
+        category = "simulation";
+        READ_INT(category, ntime);
+        READ_INT(category, icon_autoFinish);
+
+        category = "output";
+        READ_INT(category, icon_chk);
+        READ_INT(category, icon_gnuRes);
+        READ_INT(category, ndiv_fout);
+    }
+    catch (const std::exception& e) {
+        std::cout << std::endl;
+        std::cout << "[setup.yaml] Error while reading parameters." << std::endl;
+        std::cout << e.what() << std::endl;
+        std::cout << std::endl;
+        abort();
+    }
+
+#undef READ_DOUBLE
+#undef READ_INT
+
+    std::cout << std::endl;
+    std::cout << "[" << count << "/58 parameters are input to simulation]" << std::endl;
+
+    if (count != 58) {
+        std::cout << std::endl;
+        std::cout << "[setup.yaml] Error! Number of input parameters is incorrect." << std::endl;
+        abort();
+    }
+
+    std::cout << std::endl;
+}
+
+
+//*****************************************************************
+//**                                                             **
+//**           void iniparameter                                 **
+//**                                                             **
+//*****************************************************************
+void inputParam_csv()
+{
+
+    //インプットファイル指定
+    std::ifstream ifs("input/setup.csv");
+
+    if (!ifs) {
+        std::cout << "[setup.csv] Error! File not found." << std::endl;
+        abort();
+    }
+
+    std::string line;
+    //std::vector<double> input(10,0.0);
+    int count=0;
+
+    //読み込み
+    while (getline(ifs, line)) {
+        
+        std::vector<std::string> strvec = split(line, ',');
+
+        //パラメータ設定
+        if(strvec[0] == "Pmw"){
+            Pmw = std::stod(strvec[1]);
+            count+=1;
+        }
+        if(strvec[0] == "omegam"){
+            omegam = std::stod(strvec[1]);
+            count+=1;
+        }
+        if(strvec[0] == "nu_eff"){
+            nu_eff = std::stod(strvec[1]);
+            count+=1;
+        }
+        if(strvec[0] == "deltaECR"){
+            deltaECR = std::stod(strvec[1]);
+            count+=1;
+        }
+        if(strvec[0] == "Ti"){
+            Ti = std::stod(strvec[1]);
+            count+=1;
+        }
+        if(strvec[0] == "Tn"){
+            Tn = std::stod(strvec[1]);
+            count+=1;
+        }
+        if(strvec[0] == "rhon_ini"){
+            rhon_ini = std::stod(strvec[1]);
+            count+=1;
+        }
+        if(strvec[0] == "DmN"){
+            DmN = std::stod(strvec[1]);
+            count+=1;
+        }
+        if(strvec[0] == "epsr_diele"){
+            epsr_diele = std::stod(strvec[1]);
+            count+=1;
+        }
+        if(strvec[0] == "V_bias"){
+            V_bias = std::stod(strvec[1]);
+            count+=1;
+        }
+        if(strvec[0] == "Q_neutIn_mgs"){
+            Q_neutIn_mgs = std::stod(strvec[1]);
+            count+=1;
+        }
+        if(strvec[0] == "width_neutIn"){
+            width_neutIn = std::stod(strvec[1]);
+            count+=1;
+        }
+        if(strvec[0] == "Te_rep_eV"){
+            Te_rep_eV = std::stod(strvec[1]);
+            count+=1;
+        }
+        if(strvec[0] == "icon_Bohm"){
+            icon_Bohm = std::stoi(strvec[1]);
+            count+=1;
+        }
+        if(strvec[0] == "icon_Sagdeev"){
+            icon_Sagdeev = std::stoi(strvec[1]);
+            count+=1;
+        }
+        if(strvec[0] == "alpha_Bohm"){
+            alpha_Bohm = std::stod(strvec[1]);
+            count+=1;
+        }
+        if(strvec[0] == "scale_inertia"){
+            scale_inertia = std::stod(strvec[1]);
+            count+=1;
+        }
+        //SEE
+        if(strvec[0] == "coefIISEE_ts"){
+            coefIISEE_ts = std::stod(strvec[1]);
+            count+=1;
+        }
+        if(strvec[0] == "coefMISEE_ts"){
+            coefMISEE_ts = std::stod(strvec[1]);
+            count+=1;
+        }
+        if(strvec[0] == "Te_emitSEE_eV"){
+            Te_emitSEE_eV = std::stod(strvec[1]);
+            count+=1;
+        }
+        if(strvec[0] == "ratioEngy_EISEE_rd"){
+            ratioEngy_EISEE_rd = std::stod(strvec[1]);
+            count+=1;
+        }
+        //流体スキーム設定
+        if(strvec[0] == "icon_PC"){
+            icon_PC = std::stoi(strvec[1]);
+            count+=1;
+        }
+        if(strvec[0] == "icon_inertia"){
+            icon_inertia = std::stoi(strvec[1]);
+            count+=1;
+        }
+        if(strvec[0] == "icon_adp_dt"){
+            icon_adp_dt = std::stoi(strvec[1]);
+            count+=1;
+        }
+        if(strvec[0] == "dt_ini"){
+            dt_ini = std::stod(strvec[1]);
+            count+=1;
+        }
+        if(strvec[0] == "ndt_i"){
+            ndt_i = std::stoi(strvec[1]);
+            count+=1;
+        }
+        if(strvec[0] == "ndt_m"){
+            ndt_m = std::stoi(strvec[1]);
+            count+=1;
+        }
+        if(strvec[0] == "ndt_n"){
+            ndt_n = std::stoi(strvec[1]);
+            count+=1;
+        }
+        if(strvec[0] == "CFL"){
+            CFL = std::stod(strvec[1]);
+            count+=1;
+        }
+        if(strvec[0] == "error_cnv_SOR_Ui"){
+            error_cnv_SOR_Ui = std::stod(strvec[1]);
+            count+=1;
+        }
+        if(strvec[0] == "maxITR_SOR_Ui"){
+            maxITR_SOR_Ui = std::stoi(strvec[1]);
+            count+=1;
+        }
+        if(strvec[0] == "icon_iter_Ui"){
+            icon_iter_Ui = std::stoi(strvec[1]);
+            count+=1;
+        }
+
+        if(strvec[0] == "error_cnv_SOR_rhoi"){
+            error_cnv_SOR_rhoi = std::stod(strvec[1]);
+            count+=1;
+        }
+        if(strvec[0] == "maxITR_SOR_rhoi"){
+            maxITR_SOR_rhoi = std::stoi(strvec[1]);
+            count+=1;
+        }
+        if(strvec[0] == "icon_iter_rhoi"){
+            icon_iter_rhoi = std::stoi(strvec[1]);
+            count+=1;
+        }
+        
+        if(strvec[0] == "error_cnv_SOR_phi"){
+            error_cnv_SOR_phi = std::stod(strvec[1]);
+            count+=1;
+        }
+        if(strvec[0] == "maxITR_SOR_phi"){
+            maxITR_SOR_phi = std::stoi(strvec[1]);
+            count+=1;
+        }
+        if(strvec[0] == "icon_iter_phi"){
+            icon_iter_phi = std::stoi(strvec[1]);
+            count+=1;
+        }
+        if(strvec[0] == "error_cnv_HES_phi"){
+            error_cnv_HES_phi = std::stod(strvec[1]);
+            count+=1;
+        }
+        if(strvec[0] == "maxITR_HES_phi"){
+            maxITR_HES_phi = std::stoi(strvec[1]);
+            count+=1;
+        }
+
+        if(strvec[0] == "error_cnv_SOR_rhoe"){
+            error_cnv_SOR_rhoe = std::stod(strvec[1]);
+            count+=1;
+        }
+        if(strvec[0] == "maxITR_SOR_rhoe"){
+            maxITR_SOR_rhoe = std::stoi(strvec[1]);
+            count+=1;
+        }
+        if(strvec[0] == "icon_iter_rhoe"){
+            icon_iter_rhoe = std::stoi(strvec[1]);
+            count+=1;
+        }
+        if(strvec[0] == "error_cnv_HES_rhoe"){
+            error_cnv_HES_rhoe = std::stod(strvec[1]);
+            count+=1;
+        }
+        if(strvec[0] == "maxITR_HES_rhoe"){
+            maxITR_HES_rhoe = std::stoi(strvec[1]);
+            count+=1;
+        }
+
+        if(strvec[0] == "error_cnv_SOR_rhoeps"){
+            error_cnv_SOR_rhoeps = std::stod(strvec[1]);
+            count+=1;
+        }
+        if(strvec[0] == "maxITR_SOR_rhoeps"){
+            maxITR_SOR_rhoeps = std::stoi(strvec[1]);
+            count+=1;
+        }
+        if(strvec[0] == "icon_iter_rhoeps"){
+            icon_iter_rhoeps = std::stoi(strvec[1]);
+            count+=1;
+        }
+        if(strvec[0] == "error_cnv_HES_rhoeps"){
+            error_cnv_HES_rhoeps = std::stod(strvec[1]);
+            count+=1;
+        }
+        if(strvec[0] == "maxITR_HES_rhoeps"){
+            maxITR_HES_rhoeps = std::stoi(strvec[1]);
+            count+=1;
+        }
+
+        if(strvec[0] == "ndiv_MW"){
+            ndiv_MW = std::stoi(strvec[1]);
+            count+=1;
+        }
+        if(strvec[0] == "beta_rhoe"){
+            beta_rhoe = std::stod(strvec[1]);
+            count+=1;
+        }
+        if(strvec[0] == "beta_rhoUe"){
+            beta_rhoUe = std::stod(strvec[1]);
+            count+=1;
+        }
+
+        //全体の計算設定
+        if(strvec[0] == "ntime"){
+            ntime = std::stoi(strvec[1]);
+            count+=1;
+        }
+        if(strvec[0] == "icon_autoFinish"){
+            icon_autoFinish = std::stoi(strvec[1]);
+            count+=1;
+        }
+
+        //出力設定
+        if(strvec[0] == "icon_chk"){
+            icon_chk = std::stoi(strvec[1]);
+            count+=1;
+        }
+        if(strvec[0] == "icon_gnuRes"){
+            icon_gnuRes = std::stoi(strvec[1]);
+            count+=1;
+        }
+        if(strvec[0] == "ndiv_fout"){
+            ndiv_fout = std::stoi(strvec[1]);
+            count+=1;
+        }
+        
+    }
+
+    //std::cout<<"nPcli = "<<nPcli<<std::endl;
+
+    std::cout<<std::endl;
+    //std::cout << "icon_WF = " << icon_WF << std::endl;
+    std::cout<<"["<<count<<"/58 parameters are input to simulation]"<<std::endl;
+    
+    if(count != 58){
+        std::cout<<std::endl;
+        abort();
+    }
+
+    std::cout<<std::endl;
+}
+
 
 //*****************************************************************
 //**                                                             **
