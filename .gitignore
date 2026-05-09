@@ -21,6 +21,3 @@ __pycache__/
 # Editor / OS
 .vscode/
 .DS_Store
-
-# Github command
-git_push.command
