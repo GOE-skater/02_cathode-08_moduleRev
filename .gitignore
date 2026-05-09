@@ -8,11 +8,11 @@
 
 # Generated results
 results/*
-touch results/.gitkeep
+!touch results/.gitkeep
 
 # Restart files
 restart/*
-touch restart/.gitkeep
+!touch restart/.gitkeep
 
 # Python cache
 __pycache__/
