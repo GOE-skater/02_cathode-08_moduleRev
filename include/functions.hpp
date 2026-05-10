@@ -11,13 +11,14 @@ extern void plotCurrentHistory(FILE* gnuplot_name,std::vector<std::vector<double
 extern void reconst0(std::vector<std::vector<double> > value
     ,std::vector<std::vector<double> > &value_Lx,std::vector<std::vector<double> > &value_Rx
     ,std::vector<std::vector<double> > &value_Lr,std::vector<std::vector<double> > &value_Rr);
+extern double truncate(double c);
 /******************** initial.cpp ********************/
-extern void inputParam();
 extern void iniparameter();
 extern void makeBoundary();
 extern void makeProfile();
 
 /******************** input.cpp ********************/
+extern void inputParam();
 extern void input_Bfield_data();
 extern void input_restart_data();
 extern void input_BOLSIG_data();

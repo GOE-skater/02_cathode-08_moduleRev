@@ -346,11 +346,25 @@ std::vector<std::vector<double> > scx_old(ni+2,std::vector<double>(nj+2,0.0)); /
 std::vector<std::vector<double> > scr(ni+2,std::vector<double>(nj+2,0.0)); //表面電荷
 std::vector<std::vector<double> > scr_old(ni+2,std::vector<double>(nj+2,0.0)); //表面電荷
 
+std::vector<std::vector<double> > rhoUix_wall(ni+2,std::vector<double>(nj+2,0.0)); //イオンフラックス
+std::vector<std::vector<double> > rhoUir_wall(ni+2,std::vector<double>(nj+2,0.0)); //イオンフラックス
+std::vector<std::vector<double> > rhoUex_wall(ni+2,std::vector<double>(nj+2,0.0)); //電子フラックス
+std::vector<std::vector<double> > rhoUer_wall(ni+2,std::vector<double>(nj+2,0.0)); //電子フラックス
+std::vector<std::vector<double> > rhoUmx_wall(ni+2,std::vector<double>(nj+2,0.0)); //準安定フラックス
+std::vector<std::vector<double> > rhoUmr_wall(ni+2,std::vector<double>(nj+2,0.0)); //準安定フラックス
+std::vector<std::vector<double> > rhoUnx_wall(ni+2,std::vector<double>(nj+2,0.0)); //基底フラックス
+std::vector<std::vector<double> > rhoUnr_wall(ni+2,std::vector<double>(nj+2,0.0)); //基底フラックス
+std::vector<std::vector<double> > Gx_wall(ni+2,std::vector<double>(nj+2,0.0)); //エネルギーフラックス
+std::vector<std::vector<double> > Gr_wall(ni+2,std::vector<double>(nj+2,0.0)); //エネルギーフラックス
+
 std::vector<std::vector<double> > Uix(ni+2,std::vector<double>(nj+2,0.0)); //速度
 std::vector<std::vector<double> > Uix_old(ni+2,std::vector<double>(nj+2,0.0)); //速度
+std::vector<std::vector<double> > rhoUix(ni+2,std::vector<double>(nj+2,0.0)); //速度
+
 
 std::vector<std::vector<double> > Uir(ni+2,std::vector<double>(nj+2,0.0)); //速度
 std::vector<std::vector<double> > Uir_old(ni+2,std::vector<double>(nj+2,0.0)); //速度
+std::vector<std::vector<double> > rhoUir(ni+2,std::vector<double>(nj+2,0.0)); //速度
 
 std::vector<std::vector<double> > Uip(ni+2,std::vector<double>(nj+2,0.0)); //速度
 std::vector<std::vector<double> > Uip_old(ni+2,std::vector<double>(nj+2,0.0)); //速度

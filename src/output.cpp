@@ -247,39 +247,493 @@ void output(){
     for(int i=0;i<ni+2;i++){
         for(int j=0;j<nj+2;j++){
             outputfile2<< i << ","<< j << "," << x[i]<< ","<< r[j]
-                << "," << rhoi[i][j] << "," << rhoi_old[i][j] 
-                << "," << Uix[i][j]  << "," << Uix_old[i][j]  
-                << "," << Uir[i][j]<< "," << Uir_old[i][j]
-                << "," << Uip[i][j]<< "," << Uip_old[i][j]
-                << "," << rhoe[i][j] << "," << rhoe_old[i][j] 
-                << "," << rhoUex[i][j] << "," << rhoUex_old[i][j] 
-                << "," << rhoUer[i][j]<< "," << rhoUer_old[i][j]
-                << "," << Te[i][j]*Boltz/e0 << "," << Te_old[i][j]*Boltz/e0
-                << "," << Gx[i][j] << "," << Gx_old[i][j] 
-                << "," << Gr[i][j]<< "," << Gr_old[i][j]
-                << "," << phi[i][j]<< "," << phi_old[i][j]
-                << "," << rhom[i][j]<< "," << rhom_old[i][j]
-                << "," << rhoUmx[i][j]<< "," << rhoUmr[i][j]
-                << "," << rate_ionize[i][j]
-                << "," << scx[i][j]
-                << "," << scr[i][j]
-                << "," << nUex[i][j] << "," << nUex_old[i][j] 
-                << "," << nUer[i][j] << "," << nUer_old[i][j] 
-                << "," << rhon[i][j] << "," << rhon_old[i][j] 
-                << "," << rhoUnx[i][j] << "," << rhoUnr[i][j] 
-                << "," << rhoeps[i][j] << "," << rhoeps_old[i][j] 
+                << "," << truncate(rhoi[i][j]) << "," << truncate(rhoi_old[i][j]) 
+                << "," << truncate(Uix[i][j])  << "," << truncate(Uix_old[i][j])  
+                << "," << truncate(Uir[i][j])<< "," << truncate(Uir_old[i][j])
+                << "," << truncate(Uip[i][j])<< "," << truncate(Uip_old[i][j])
+                << "," << truncate(rhoe[i][j]) << "," << truncate(rhoe_old[i][j]) 
+                << "," << truncate(rhoUex[i][j]) << "," << truncate(rhoUex_old[i][j]) 
+                << "," << truncate(rhoUer[i][j])<< "," << truncate(rhoUer_old[i][j])
+                << "," << truncate(Te[i][j])*Boltz/e0 << "," << truncate(Te_old[i][j])*Boltz/e0
+                << "," << truncate(Gx[i][j]) << "," << truncate(Gx_old[i][j]) 
+                << "," << truncate(Gr[i][j])<< "," << truncate(Gr_old[i][j])
+                << "," << truncate(phi[i][j])<< "," << truncate(phi_old[i][j])
+                << "," << truncate(rhom[i][j])<< "," << truncate(rhom_old[i][j])
+                << "," << truncate(rhoUmx[i][j])<< "," << truncate(rhoUmr[i][j])
+                << "," << truncate(rate_ionize[i][j])
+                << "," << truncate(scx[i][j])
+                << "," << truncate(scr[i][j])
+                << "," << truncate(nUex[i][j]) << "," << truncate(nUex_old[i][j]) 
+                << "," << truncate(nUer[i][j]) << "," << truncate(nUer_old[i][j]) 
+                << "," << truncate(rhon[i][j]) << "," << truncate(rhon_old[i][j]) 
+                << "," << truncate(rhoUnx[i][j]) << "," << truncate(rhoUnr[i][j]) 
+                << "," << truncate(rhoeps[i][j]) << "," << truncate(rhoeps_old[i][j]) 
                 << "," << 0.0<< std::endl;
         }
     }
     outputfile2.close();
 
-
-    //Caluculate Current
+    //File operation
+    //===============================================
+    //setup for sum of current per wall
     //------------------------------------
+    char1="results/current_sum";
+    std::ofstream outputfile3(char1+char2+char_csv);
+    outputfile3 << std::setprecision(std::numeric_limits<double>::max_digits10) << std::scientific;
+
     Ii_Anode = 0.0;
     Ie_Anode = 0.0;
     I_Anode = 0.0;
 
+    //wall current
+    //------------------------------------
+    //ion
+    double Ii_z0_leftInWall = 0.0;
+    double Ii_z1_leftAntBaseWall = 0.0;
+    double Ii_z2_leftAntTopWall = 0.0;
+    double Ii_z3_rightInWall = 0.0;
+    double Ii_z4_leftOutWall = 0.0;
+    double Ii_z5_rightAnodeWall = 0.0;
+    double Ii_x0_botInWall = 0.0;
+    double Ii_x1_topInWall = 0.0;
+    double Ii_x2_botAntSideWall = 0.0;
+    double Ii_x4_topOrfWall = 0.0;
+    double Ii_x5_topOpen = 0.0;
+
+    //electron
+    double Ie_z0_leftInWall = 0.0;
+    double Ie_z1_leftAntBaseWall = 0.0;
+    double Ie_z2_leftAntTopWall = 0.0;
+    double Ie_z3_rightInWall = 0.0;
+    double Ie_z4_leftOutWall = 0.0;
+    double Ie_z5_rightAnodeWall = 0.0;
+    double Ie_x0_botInWall = 0.0;
+    double Ie_x1_topInWall = 0.0;
+    double Ie_x2_botAntSideWall = 0.0;
+    double Ie_x4_topOrfWall = 0.0;
+    double Ie_x5_topOpen = 0.0;
+
+    //metastable
+    double Im_z0_leftInWall = 0.0;
+    double Im_z1_leftAntBaseWall = 0.0;
+    double Im_z2_leftAntTopWall = 0.0;
+    double Im_z3_rightInWall = 0.0;
+    double Im_z4_leftOutWall = 0.0;
+    double Im_z5_rightAnodeWall = 0.0;
+    double Im_x0_botInWall = 0.0;
+    double Im_x1_topInWall = 0.0;
+    double Im_x2_botAntSideWall = 0.0;
+    double Im_x4_topOrfWall = 0.0;
+    double Im_x5_topOpen = 0.0;
+
+    //grand neutral
+    double In_z0_leftInWall = 0.0;
+    double In_z1_leftAntBaseWall = 0.0;
+    double In_z2_leftAntTopWall = 0.0;
+    double In_z3_rightInWall = 0.0;
+    double In_z4_leftOutWall = 0.0;
+    double In_z5_rightAnodeWall = 0.0;
+    double In_x0_botInWall = 0.0;
+    double In_x1_topInWall = 0.0;
+    double In_x2_botAntSideWall = 0.0;
+    double In_x4_topOrfWall = 0.0;
+    double In_x5_topOpen = 0.0;
+    //------------------------------------
+
+    //wall energy flux
+    //------------------------------------
+    //ion
+    double Wi_z0_leftInWall = 0.0;
+    double Wi_z1_leftAntBaseWall = 0.0;
+    double Wi_z2_leftAntTopWall = 0.0;
+    double Wi_z3_rightInWall = 0.0;
+    double Wi_z4_leftOutWall = 0.0;
+    double Wi_z5_rightAnodeWall = 0.0;
+    double Wi_x0_botInWall = 0.0;
+    double Wi_x1_topInWall = 0.0;
+    double Wi_x2_botAntSideWall = 0.0;
+    double Wi_x4_topOrfWall = 0.0;
+    double Wi_x5_topOpen = 0.0;
+
+    //electron
+    double We_z0_leftInWall = 0.0;
+    double We_z1_leftAntBaseWall = 0.0;
+    double We_z2_leftAntTopWall = 0.0;
+    double We_z3_rightInWall = 0.0;
+    double We_z4_leftOutWall = 0.0;
+    double We_z5_rightAnodeWall = 0.0;
+    double We_x0_botInWall = 0.0;
+    double We_x1_topInWall = 0.0;
+    double We_x2_botAntSideWall = 0.0;
+    double We_x4_topOrfWall = 0.0;
+    double We_x5_topOpen = 0.0;
+    //------------------------------------
+
+
+    //setup for boundary current and electric field
+    //------------------------------------
+    char1="results/bnd_I_and_E";
+    std::ofstream outputfile4(char1+char2+char_csv);
+    outputfile4 << std::setprecision(std::numeric_limits<double>::max_digits10) << std::scientific;
+    outputfile4 << "i,j,x,r, Ii (mA), Ie (mA), I (mA), ji (mA/mm^2), je (mA/mm^2), j (mA/mm^2), En, zero"<< std::endl;
+    //------------------------------------
+
+    //setup for boundary velocity for kinetic flux
+    //------------------------------------
+    //char1="results/bnd_KF_shift";
+    //std::ofstream outputfile6(char1+char2+char_csv);
+    //outputfile6 << std::setprecision(std::numeric_limits<double>::max_digits10) << std::scientific;
+    //outputfile6 << "i,j,x,r, uten, Uten, uten_cc,uten_cc, utin, Utin, utin_cc, Utin_cc, utmn, vth2, omega_ce, Larmor, LarmorFactor, angle, sin(angle), LarmorFactor*cos(angle),coef,coef_mirror,zero"<< std::endl;
+    //------------------------------------
+    
+    //setup for sum of current per wall
+    //------------------------------------
+    char1="results/energy_flux_sum";
+    std::ofstream outputfile7(char1+char2+char_csv);
+    outputfile7 << std::setprecision(std::numeric_limits<double>::max_digits10) << std::scientific;
+    //------------------------------------
+    //===============================================
+
+    //Caluculate wall information
+    //===============================================
+    //left-wall-BC (z0)
+    //------------------------------------
+    for (int j=j_flc_bl[0][0];j<=j_flc_bl[0][1];j++){
+        int i=i_flc_bl[0][0];
+        double x_tmp = (x[i] + x[i-1])/2.0;
+
+        double En = (-1.0)*Ex[i][j];
+
+        double ji = (-1.0)*( e0)*rhoUix_wall[i][j];
+        double je = (-1.0)*(-e0)*rhoUex_wall[i][j];
+
+        double Ii = ji*2.0*M_PI*r[j]*dr;
+        double Ie = je*2.0*M_PI*r[j]*dr;
+        
+        outputfile4<< i << ","<< j << "," << x_tmp << "," << r[j] 
+            << ","<< Ii*1000 << ","<< Ie*1000<< ","<< (Ii+Ie)*1000 
+            << ","<< ji/1000 << ","<< je/1000<< ","<< (ji+je)/1000 
+            << ","<< En << ","<< 0 << std::endl;
+
+        Ii_z0_leftInWall = Ii_z0_leftInWall - ( e0)*rhoUix_wall[i][j]*2.0*M_PI*r[j]*dr;
+        Ie_z0_leftInWall = Ie_z0_leftInWall - (-e0)*rhoUex_wall[i][j]*2.0*M_PI*r[j]*dr;
+        Im_z0_leftInWall = Im_z0_leftInWall -       rhoUmx_wall[i][j]*2.0*M_PI*r[j]*dr;
+        In_z0_leftInWall = In_z0_leftInWall -       rhoUnx_wall[i][j]*2.0*M_PI*r[j]*dr;
+
+        double engyi = 0.5*massi*(Uix[i][j]*Uix[i][j] + Uir[i][j]*Uir[i][j] + Uip[i][j]*Uip[i][j]) + 5.0/2.0*Boltz*Ti;
+        Wi_z0_leftInWall = Wi_z0_leftInWall - engyi*rhoUix_wall[i][j]*2.0*M_PI*r[j]*dr;
+        We_z0_leftInWall = We_z0_leftInWall - Gx_wall[i][j]*2.0*M_PI*r[j]*dr;
+    }
+
+    //left-wall-BC (z1)
+    //------------------------------------
+    for (int j=j_flc_bl[2][0];j<=j_flc_bl[0][0]-1;j++){
+        int i=i_flc_bl[2][0];
+        double x_tmp = (x[i] + x[i-1])/2.0;
+
+        double En = (-1.0)*Ex[i][j];
+
+        double ji = (-1.0)*( e0)*rhoUix_wall[i][j];
+        double je = (-1.0)*(-e0)*rhoUex_wall[i][j];
+
+        double Ii = ji*2.0*M_PI*r[j]*dr;
+        double Ie = je*2.0*M_PI*r[j]*dr;
+        
+        outputfile4<< i << ","<< j << "," << x_tmp << "," << r[j] 
+            << ","<< Ii*1000 << ","<< Ie*1000<< ","<< (Ii+Ie)*1000 
+            << ","<< ji/1000 << ","<< je/1000<< ","<< (ji+je)/1000 
+            << ","<< En << ","<< 0 << std::endl;
+
+        Ii_z1_leftAntBaseWall = Ii_z1_leftAntBaseWall - ( e0)*rhoUix_wall[i][j]*2.0*M_PI*r[j]*dr;
+        Ie_z1_leftAntBaseWall = Ie_z1_leftAntBaseWall - (-e0)*rhoUex_wall[i][j]*2.0*M_PI*r[j]*dr;
+        Im_z1_leftAntBaseWall = Im_z1_leftAntBaseWall -       rhoUmx_wall[i][j]*2.0*M_PI*r[j]*dr;
+        In_z1_leftAntBaseWall = In_z1_leftAntBaseWall -       rhoUnx_wall[i][j]*2.0*M_PI*r[j]*dr;
+
+        double engyi = 0.5*massi*(Uix[i][j]*Uix[i][j] + Uir[i][j]*Uir[i][j] + Uip[i][j]*Uip[i][j]) + 5.0/2.0*Boltz*Ti;
+        Wi_z1_leftAntBaseWall = Wi_z1_leftAntBaseWall - engyi*rhoUix_wall[i][j]*2.0*M_PI*r[j]*dr;
+        We_z1_leftAntBaseWall = We_z1_leftAntBaseWall - Gx_wall[i][j]*2.0*M_PI*r[j]*dr;
+    }
+    //------------------------------------
+
+    //left-wall-BC (z2)
+    //------------------------------------
+    for (int j=j_flc_bl[3][0];j<=j_flc_bl[2][0]-1;j++){
+        int i=i_flc_bl[3][0];
+        double x_tmp = (x[i] + x[i-1])/2.0;
+
+        double En = (-1.0)*Ex[i][j];
+
+        double ji = (-1.0)*( e0)*rhoUix_wall[i][j];
+        double je = (-1.0)*(-e0)*rhoUex_wall[i][j];
+
+        double Ii = ji*2.0*M_PI*r[j]*dr;
+        double Ie = je*2.0*M_PI*r[j]*dr;
+        
+        outputfile4<< i << ","<< j << "," << x_tmp << "," << r[j] 
+            << ","<< Ii*1000 << ","<< Ie*1000<< ","<< (Ii+Ie)*1000 
+            << ","<< ji/1000 << ","<< je/1000<< ","<< (ji+je)/1000 
+            << ","<< En << ","<< 0 << std::endl;
+
+        Ii_z2_leftAntTopWall = Ii_z2_leftAntTopWall - ( e0)*rhoUix_wall[i][j]*2.0*M_PI*r[j]*dr;
+        Ie_z2_leftAntTopWall = Ie_z2_leftAntTopWall - (-e0)*rhoUex_wall[i][j]*2.0*M_PI*r[j]*dr;
+        Im_z2_leftAntTopWall = Im_z2_leftAntTopWall -       rhoUmx_wall[i][j]*2.0*M_PI*r[j]*dr;
+        In_z2_leftAntTopWall = In_z2_leftAntTopWall -       rhoUnx_wall[i][j]*2.0*M_PI*r[j]*dr;
+
+        double engyi = 0.5*massi*(Uix[i][j]*Uix[i][j] + Uir[i][j]*Uir[i][j] + Uip[i][j]*Uip[i][j]) + 5.0/2.0*Boltz*Ti;
+        Wi_z2_leftAntTopWall = Wi_z2_leftAntTopWall - engyi*rhoUix_wall[i][j]*2.0*M_PI*r[j]*dr;
+        We_z2_leftAntTopWall = We_z2_leftAntTopWall - Gx_wall[i][j]*2.0*M_PI*r[j]*dr;
+    }
+    //------------------------------------
+
+    //left-wall-BC (z4)
+    //------------------------------------
+    for (int j=j_flc_bl[1][0];j<=j_flc_bl[4][1];j++){
+        int i=i_flc_bl[4][0];
+        double x_tmp = (x[i] + x[i-1])/2.0;
+
+        double En = (-1.0)*Ex[i][j];
+
+        double ji = (-1.0)*( e0)*rhoUix_wall[i][j];
+        double je = (-1.0)*(-e0)*rhoUex_wall[i][j];
+
+        double Ii = ji*2.0*M_PI*r[j]*dr;
+        double Ie = je*2.0*M_PI*r[j]*dr;
+        
+        outputfile4<< i << ","<< j << "," << x_tmp << "," << r[j] 
+            << ","<< Ii*1000 << ","<< Ie*1000<< ","<< (Ii+Ie)*1000 
+            << ","<< ji/1000 << ","<< je/1000<< ","<< (ji+je)/1000 
+            << ","<< En << ","<< 0 << std::endl;
+
+        Ii_z4_leftOutWall = Ii_z4_leftOutWall - ( e0)*rhoUix_wall[i][j]*2.0*M_PI*r[j]*dr;
+        Ie_z4_leftOutWall = Ie_z4_leftOutWall - (-e0)*rhoUex_wall[i][j]*2.0*M_PI*r[j]*dr;
+        Im_z4_leftOutWall = Im_z4_leftOutWall -       rhoUmx_wall[i][j]*2.0*M_PI*r[j]*dr;
+        In_z4_leftOutWall = In_z4_leftOutWall -       rhoUnx_wall[i][j]*2.0*M_PI*r[j]*dr;
+
+        double engyi = 0.5*massi*(Uix[i][j]*Uix[i][j] + Uir[i][j]*Uir[i][j] + Uip[i][j]*Uip[i][j]) + 5.0/2.0*Boltz*Ti;
+        Wi_z4_leftOutWall = Wi_z4_leftOutWall - engyi*rhoUix_wall[i][j]*2.0*M_PI*r[j]*dr;
+        We_z4_leftOutWall = We_z4_leftOutWall - Gx_wall[i][j]*2.0*M_PI*r[j]*dr;
+    }
+    //------------------------------------
+
+    //right-wall-BC (z3)
+    //------------------------------------
+    for (int j=j_flc_bl[1][0];j<=j_flc_bl[1][1];j++){
+        int i=i_flc_bl[1][1];
+
+        double x_tmp = (x[i] + x[i+1])/2.0;
+
+        double En = (+1.0)*Ex[i+1][j];
+        //std::cout << Ex[i+1][j] << ","<<Ex_old[i+1][j] << std::endl;
+
+        double ji = (+1.0)*( e0)*rhoUix_wall[i+1][j];
+        double je = (+1.0)*(-e0)*rhoUex_wall[i+1][j];
+        double Ii = ji*2.0*M_PI*r[j]*dr;
+        double Ie = je*2.0*M_PI*r[j]*dr;
+
+        outputfile4<< i+1 << ","<< j << "," << x_tmp << "," << r[j] 
+            << ","<< Ii*1000 << ","<< Ie*1000<< ","<< (Ii+Ie)*1000 
+            << ","<< ji/1000 << ","<< je/1000<< ","<< (ji+je)/1000 
+            << ","<< En << ","<< 0 << std::endl;
+
+        Ii_z3_rightInWall = Ii_z3_rightInWall + ( e0)*rhoUix_wall[i+1][j]*2.0*M_PI*r[j]*dr;
+        Ie_z3_rightInWall = Ie_z3_rightInWall + (-e0)*rhoUex_wall[i+1][j]*2.0*M_PI*r[j]*dr;
+        Im_z3_rightInWall = Im_z3_rightInWall +       rhoUmx_wall[i+1][j]*2.0*M_PI*r[j]*dr;
+        In_z3_rightInWall = In_z3_rightInWall +       rhoUnx_wall[i+1][j]*2.0*M_PI*r[j]*dr;
+
+        double engyi = 0.5*massi*(Uix[i+1][j]*Uix[i+1][j] + Uir[i][j]*Uir[i][j] + Uip[i][j]*Uip[i][j]) + 5.0/2.0*Boltz*Ti;
+        Wi_z3_rightInWall = Wi_z3_rightInWall + engyi*rhoUix_wall[i+1][j]*2.0*M_PI*r[j]*dr;
+        We_z3_rightInWall = We_z3_rightInWall + Gx_wall[i+1][j]*2.0*M_PI*r[j]*dr;
+    }
+    //------------------------------------
+
+    //right-wall-BC (z5)
+    //------------------------------------
+    for (int j=j_flc_bl[4][0];j<=j_flc_bl[4][1];j++){
+        int i=i_flc_bl[4][1];
+
+        double x_tmp = (x[i] + x[i+1])/2.0;
+
+        double En = (+1.0)*Ex[i+1][j];
+        //std::cout << Ex[i+1][j] << ","<<Ex_old[i+1][j] << std::endl;
+
+        double ji = (+1.0)*( e0)*rhoUix_wall[i+1][j];
+        double je = (+1.0)*(-e0)*rhoUex_wall[i+1][j];
+        double Ii = ji*2.0*M_PI*r[j]*dr;
+        double Ie = je*2.0*M_PI*r[j]*dr;
+
+        outputfile4<< i+1 << ","<< j << "," << x_tmp << "," << r[j] 
+            << ","<< Ii*1000 << ","<< Ie*1000<< ","<< (Ii+Ie)*1000 
+            << ","<< ji/1000 << ","<< je/1000<< ","<< (ji+je)/1000 
+            << ","<< En << ","<< 0 << std::endl;
+
+        Ii_z5_rightAnodeWall = Ii_z5_rightAnodeWall + ( e0)*rhoUix_wall[i+1][j]*2.0*M_PI*r[j]*dr;
+        Ie_z5_rightAnodeWall = Ie_z5_rightAnodeWall + (-e0)*rhoUex_wall[i+1][j]*2.0*M_PI*r[j]*dr;
+        Im_z5_rightAnodeWall = Im_z5_rightAnodeWall +       rhoUmx_wall[i+1][j]*2.0*M_PI*r[j]*dr;
+        In_z5_rightAnodeWall = In_z5_rightAnodeWall +       rhoUnx_wall[i+1][j]*2.0*M_PI*r[j]*dr;
+
+        double engyi = 0.5*massi*(Uix[i+1][j]*Uix[i+1][j] + Uir[i][j]*Uir[i][j] + Uip[i][j]*Uip[i][j]) + 5.0/2.0*Boltz*Ti;
+        Wi_z5_rightAnodeWall = Wi_z5_rightAnodeWall + engyi*rhoUix_wall[i+1][j]*2.0*M_PI*r[j]*dr;
+        We_z5_rightAnodeWall = We_z5_rightAnodeWall + Gx_wall[i+1][j]*2.0*M_PI*r[j]*dr;
+    }
+    //------------------------------------
+    
+    //lower-wall-BC (x0)
+    //------------------------------------
+    for (int i=i_flc_bl[0][0];i<=i_flc_bl[0][1];i++){
+        int j=j_flc_bl[0][0];
+
+        double r_tmp = (r[j]+r[j-1])/2.0;
+
+        double En = (-1.0)*Er[i][j];
+
+        double ji = (-1.0)*( e0)*rhoUir_wall[i][j];
+        double je = (-1.0)*(-e0)*rhoUer_wall[i][j];
+        double Ii = ji*2.0*M_PI*r_tmp*dx;
+        double Ie = je*2.0*M_PI*r_tmp*dx;
+        
+        outputfile4<< i << ","<< j << "," << x[i] << "," << r_tmp 
+            << ","<< Ii*1000 << ","<< Ie*1000<< ","<< (Ii+Ie)*1000 
+            << ","<< ji/1000 << ","<< je/1000<< ","<< (ji+je)/1000 
+            << ","<< En << ","<< 0 << std::endl;
+
+        Ii_x0_botInWall = Ii_x0_botInWall - ( e0)*rhoUir_wall[i][j]*2.0*M_PI*r_tmp*dx;
+        Ie_x0_botInWall = Ie_x0_botInWall - (-e0)*rhoUer_wall[i][j]*2.0*M_PI*r_tmp*dx;
+        Im_x0_botInWall = Im_x0_botInWall -       rhoUmr_wall[i][j]*2.0*M_PI*r_tmp*dx;
+        In_x0_botInWall = In_x0_botInWall -       rhoUnr_wall[i][j]*2.0*M_PI*r_tmp*dx;
+        
+        double engyi = 0.5*massi*(Uix[i][j]*Uix[i][j] + Uir[i][j]*Uir[i][j] + Uip[i][j]*Uip[i][j]) + 5.0/2.0*Boltz*Ti;
+        Wi_x0_botInWall = Wi_x0_botInWall - engyi*rhoUir_wall[i][j]*2.0*M_PI*r_tmp*dx;
+        We_x0_botInWall = We_x0_botInWall - Gr_wall[i][j]*2.0*M_PI*r_tmp*dx;
+    }
+    //------------------------------------
+
+    //lower-wall-BC (x2)
+    //------------------------------------
+    for (int i=i_flc_bl[2][0];i<=i_flc_bl[2][1];i++){
+        int j=j_flc_bl[2][0];
+
+         double r_tmp = (r[j]+r[j-1])/2.0;
+
+        double En = (-1.0)*Er[i][j];
+
+        double ji = (-1.0)*( e0)*rhoUir_wall[i][j];
+        double je = (-1.0)*(-e0)*rhoUer_wall[i][j];
+        double Ii = ji*2.0*M_PI*r_tmp*dx;
+        double Ie = je*2.0*M_PI*r_tmp*dx;
+        
+        outputfile4<< i << ","<< j << "," << x[i] << "," << r_tmp 
+            << ","<< Ii*1000 << ","<< Ie*1000<< ","<< (Ii+Ie)*1000 
+            << ","<< ji/1000 << ","<< je/1000<< ","<< (ji+je)/1000 
+            << ","<< En << ","<< 0 << std::endl;
+
+        Ii_x2_botAntSideWall = Ii_x2_botAntSideWall - ( e0)*rhoUir_wall[i][j]*2.0*M_PI*r_tmp*dx;
+        Ie_x2_botAntSideWall = Ie_x2_botAntSideWall - (-e0)*rhoUer_wall[i][j]*2.0*M_PI*r_tmp*dx;
+        Im_x2_botAntSideWall = Im_x2_botAntSideWall -       rhoUmr_wall[i][j]*2.0*M_PI*r_tmp*dx;
+        In_x2_botAntSideWall = In_x2_botAntSideWall -       rhoUnr_wall[i][j]*2.0*M_PI*r_tmp*dx;
+        
+        double engyi = 0.5*massi*(Uix[i][j]*Uix[i][j] + Uir[i][j]*Uir[i][j] + Uip[i][j]*Uip[i][j]) + 5.0/2.0*Boltz*Ti;
+        Wi_x2_botAntSideWall = Wi_x2_botAntSideWall - engyi*rhoUir_wall[i][j]*2.0*M_PI*r_tmp*dx;
+        We_x2_botAntSideWall = We_x2_botAntSideWall - Gr_wall[i][j]*2.0*M_PI*r_tmp*dx;
+    }
+    //------------------------------------
+
+    //upper-wall-BC (x1)
+    //------------------------------------
+    for (int i=i_flc_bl[0][0];i<=i_flc_bl[1][1];i++){
+        int j=j_flc_bl[0][1];
+
+        double r_tmp = (r[j]+r[j+1])/2.0;
+
+        double En = (+1.0)*Er[i][j+1];
+
+        double ji = (+1.0)*( e0)*rhoUir_wall[i][j+1];
+        double je = (+1.0)*(-e0)*rhoUer_wall[i][j+1];
+        double Ii = ji*2.0*M_PI*r_tmp*dx;
+        double Ie = je*2.0*M_PI*r_tmp*dx;
+        
+        outputfile4<< i << ","<< j+1 << "," << x[i] << "," << r_tmp 
+            << ","<< Ii*1000 << ","<< Ie*1000<< ","<< (Ii+Ie)*1000 
+            << ","<< ji/1000 << ","<< je/1000<< ","<< (ji+je)/1000 
+            << ","<< En << ","<< 0 << std::endl;
+
+        Ii_x1_topInWall = Ii_x1_topInWall + ( e0)*rhoUir_wall[i][j+1]*2.0*M_PI*r_tmp*dx;
+        Ie_x1_topInWall = Ie_x1_topInWall + (-e0)*rhoUer_wall[i][j+1]*2.0*M_PI*r_tmp*dx;
+        Im_x1_topInWall = Im_x1_topInWall +       rhoUmr_wall[i][j+1]*2.0*M_PI*r_tmp*dx;
+        In_x1_topInWall = In_x1_topInWall +       rhoUnr_wall[i][j+1]*2.0*M_PI*r_tmp*dx;
+
+        double engyi = 0.5*massi*(Uix[i][j]*Uix[i][j] + Uir[i][j+1]*Uir[i][j+1] + Uip[i][j]*Uip[i][j]) + 5.0/2.0*Boltz*Ti;
+        Wi_x1_topInWall = Wi_x1_topInWall + engyi*rhoUir_wall[i][j+1]*2.0*M_PI*r_tmp*dx;
+        We_x1_topInWall = We_x1_topInWall + Gr_wall[i][j+1]*2.0*M_PI*r_tmp*dx;
+    }
+    //------------------------------------
+
+
+    //upper-wall-BC (x4)
+    //------------------------------------
+    for (int i=i_flc_bl[1][1]+1;i<=i_flc_bl[3][1];i++){
+        int j=j_flc_bl[3][1];
+
+        double r_tmp = (r[j]+r[j+1])/2.0;
+
+        double En = (+1.0)*Er[i][j+1];
+
+        double ji = (+1.0)*( e0)*rhoUir_wall[i][j+1];
+        double je = (+1.0)*(-e0)*rhoUer_wall[i][j+1];
+        double Ii = ji*2.0*M_PI*r_tmp*dx;
+        double Ie = je*2.0*M_PI*r_tmp*dx;
+        
+        outputfile4<< i << ","<< j+1 << "," << x[i] << "," << r_tmp 
+            << ","<< Ii*1000 << ","<< Ie*1000<< ","<< (Ii+Ie)*1000 
+            << ","<< ji/1000 << ","<< je/1000<< ","<< (ji+je)/1000 
+            << ","<< En << ","<< 0 << std::endl;
+
+        Ii_x4_topOrfWall = Ii_x4_topOrfWall + ( e0)*rhoUir_wall[i][j+1]*2.0*M_PI*r_tmp*dx;
+        Ie_x4_topOrfWall = Ie_x4_topOrfWall + (-e0)*rhoUer_wall[i][j+1]*2.0*M_PI*r_tmp*dx;
+        Im_x4_topOrfWall = Im_x4_topOrfWall +       rhoUmr_wall[i][j+1]*2.0*M_PI*r_tmp*dx;
+        In_x4_topOrfWall = In_x4_topOrfWall +       rhoUnr_wall[i][j+1]*2.0*M_PI*r_tmp*dx;
+
+        double engyi = 0.5*massi*(Uix[i][j]*Uix[i][j] + Uir[i][j+1]*Uir[i][j+1] + Uip[i][j]*Uip[i][j]) + 5.0/2.0*Boltz*Ti;
+        Wi_x4_topOrfWall = Wi_x4_topOrfWall + engyi*rhoUir_wall[i][j+1]*2.0*M_PI*r_tmp*dx;
+        We_x4_topOrfWall = We_x4_topOrfWall + Gr_wall[i][j+1]*2.0*M_PI*r_tmp*dx;
+    }
+
+
+    //upper-open-BC (x5)
+    //------------------------------------
+    for (int i=i_flc_bl[4][0];i<=i_flc_bl[4][1];i++){
+        int j=j_flc_bl[4][1];
+
+        double r_tmp = (r[j]+r[j+1])/2.0;
+
+        double En = (+1.0)*Er[i][j+1];
+
+        double rhoUir_Rr = rhoi[i][j]*Uir[i][j+1];
+        double ji = (+1.0)*( e0)*rhoUir_Rr;
+        double je = (+1.0)*(-e0)*rhoUer[i][j+1];
+        double Ii = ji*2.0*M_PI*r_tmp*dx;
+        double Ie = je*2.0*M_PI*r_tmp*dx;
+
+        outputfile4<< i << ","<< j+1 << "," << x[i] << "," << r_tmp 
+            << ","<< Ii*1000 << ","<< Ie*1000<< ","<< (Ii+Ie)*1000 
+            << ","<< ji/1000 << ","<< je/1000<< ","<< (ji+je)/1000 
+            << ","<< En << ","<< 0 << std::endl;
+
+        Ii_x5_topOpen = Ii_x5_topOpen + ( e0)*rhoUir_Rr*2.0*M_PI*r_tmp*dx;
+        Ie_x5_topOpen = Ie_x5_topOpen + (-e0)*rhoUer[i][j+1]*2.0*M_PI*r_tmp*dx;
+        Im_x5_topOpen = Im_x5_topOpen +       rhoUmr[i][j+1]*2.0*M_PI*r_tmp*dx;
+        In_x5_topOpen = In_x5_topOpen +       rhoUnr[i][j+1]*2.0*M_PI*r_tmp*dx;
+
+        double engyi = 0.5*massi*(Uix[i][j]*Uix[i][j] + Uir[i][j+1]*Uir[i][j+1] + Uip[i][j]*Uip[i][j]) + 5.0/2.0*Boltz*Ti;
+        Wi_x5_topOpen = Wi_x5_topOpen + engyi*rhoUir_Rr*2.0*M_PI*r_tmp*dx;
+        We_x5_topOpen = We_x5_topOpen + Gr[i][j+1]*2.0*M_PI*r_tmp*dx;
+    }
+    //------------------------------------
+
+    outputfile4.close();
+    //outputfile6.close();
+
+    /*
+    //------------------------------------
     for (int j=j_flc_bl[4][0];j<=j_flc_bl[4][1];j++){
         int i=i_flc_bl[4][1];
         double vth = sqrt(8.0*Boltz*Ti/(M_PI*massi));
@@ -296,12 +750,19 @@ void output(){
         I_Anode =  I_Anode + delta_Ii + delta_Ie;
     }
     //------------------------------------
+    */
 
-     //Caluculate Current
+    Ii_Anode = Ii_z5_rightAnodeWall;
+    Ie_Anode = Ie_z5_rightAnodeWall;
+    I_Anode =  Ii_Anode + Ie_Anode;
+
+    //Caluculate nozzle Current
     //------------------------------------
     Ii_Nozzle = 0.0;
     Ie_Nozzle = 0.0;
     I_Nozzle = 0.0;
+    double Im_Nozzle = 0.0;
+    double In_Nozzle = 0.0;
 
     for (int j=j_flc_bl[3][0];j<=j_flc_bl[3][1];j++){
         int i=i_flc_bl[1][1];
@@ -310,95 +771,68 @@ void output(){
         
         double delta_Ii = rhoUix_tmp  *2.0*M_PI*r[j]*dr*( e0);
         double delta_Ie = rhoUex[i][j]*2.0*M_PI*r[j]*dr*(-e0);
+        double delta_Im = rhoUmx[i][j]*2.0*M_PI*r[j]*dr;
+        double delta_In = rhoUnx[i][j]*2.0*M_PI*r[j]*dr;
 
         Ii_Nozzle = Ii_Nozzle + delta_Ii;
         Ie_Nozzle = Ie_Nozzle + delta_Ie;
         I_Nozzle =  I_Nozzle + delta_Ii + delta_Ie;
+
+        Im_Nozzle = Im_Nozzle + delta_Im;
+        In_Nozzle = In_Nozzle + delta_In;
     }
     //------------------------------------
 
-    char1="results/current";
-    char2=std::to_string(nOut);
-    char_csv=".csv";
-
-    std::ofstream outputfile3(char1+char2+char_csv);
-    outputfile3 << std::setprecision(std::numeric_limits<double>::max_digits10) << std::scientific;
-      
+    //output current sum
+    //------------------------------------
+    double Ii_sum = Ii_z0_leftInWall + Ii_z1_leftAntBaseWall + Ii_z2_leftAntTopWall + Ii_z3_rightInWall + Ii_z4_leftOutWall + Ii_z5_rightAnodeWall 
+            + Ii_x0_botInWall+ Ii_x1_topInWall + Ii_x2_botAntSideWall + Ii_x4_topOrfWall + Ii_x5_topOpen;
+    double Ie_sum = Ie_z0_leftInWall + Ie_z1_leftAntBaseWall + Ie_z2_leftAntTopWall + Ie_z3_rightInWall + Ie_z4_leftOutWall + Ie_z5_rightAnodeWall 
+            + Ie_x0_botInWall+ Ie_x1_topInWall + Ie_x2_botAntSideWall + Ie_x4_topOrfWall + Ie_x5_topOpen;
+    double Im_sum = Im_z0_leftInWall + Im_z1_leftAntBaseWall + Im_z2_leftAntTopWall + Im_z3_rightInWall + Im_z4_leftOutWall + Im_z5_rightAnodeWall 
+            + Im_x0_botInWall+ Im_x1_topInWall + Im_x2_botAntSideWall + Im_x4_topOrfWall + Im_x5_topOpen;
+    double In_sum = In_z0_leftInWall + In_z1_leftAntBaseWall + In_z2_leftAntTopWall + In_z3_rightInWall + In_z4_leftOutWall + In_z5_rightAnodeWall 
+            + In_x0_botInWall+ In_x1_topInWall + In_x2_botAntSideWall + In_x4_topOrfWall + In_x5_topOpen;
     
-    //double Ii2 = 0.0;
-    //double Ie2 = 0.0;
-    //double Ii3 = 0.0;
-    //double Ie3 = 0.0;
-
-    /*
-    //左の壁 1
-    for (int j=j_flc_bl[0][0];j<=j_flc_bl[0][1];j++){
-        int i=i_flc_bl[0][0];
-        double vth = sqrt(8.0*Boltz*Ti/(M_PI*massi));
-        double um = sqrt(2.0*Boltz*Ti/massi);
-        double utx = Uix[i][j]/(um + 1e-100); //無次元化速度 Uixはmu_i*Eになっている
-        Ii1 = Ii1 + rhoi[i][j]*0.25*vth*(exp(-utx*utx) + utx*sqrt(M_PI)*(erf(utx) - 1.0))*2.0*M_PI*r[j]*dr*e0;
-        Ie1 = Ie1 - rhoUex[i][j]*2.0*M_PI*r[j]*dr*e0;
-    }
-
-    //左の壁 2
-    for (int j=j_flc_bl[1][0];j<=j_flc_bl[0][0]-1;j++){
-        int i=i_flc_bl[1][0];
-        double vth = sqrt(8.0*Boltz*Ti/(M_PI*massi));
-        double um = sqrt(2.0*Boltz*Ti/massi);
-        double utx = Uix[i][j]/(um + 1e-100); //無次元化速度 Uixはmu_i*Eになっている
-        Ii3 = Ii3 + rhoi[i][j]*0.25*vth*(exp(-utx*utx) + utx*sqrt(M_PI)*(erf(utx) - 1.0))*2.0*M_PI*r[j]*dr*e0;
-        Ie3 = Ie3 - rhoUex[i][j]*2.0*M_PI*r[j]*dr*e0;
-    }
-    */
-
-    /*
-    //右の壁 z5
-    for (int j=j_flc_bl[4][0];j<=j_flc_bl[4][1];j++){
-        int i=i_flc_bl[4][0];
-        double vth = sqrt(8.0*Boltz*Ti/(M_PI*massi));
-        double um = sqrt(2.0*Boltz*Ti/massi);
-        double utx_R = Uix[i+1][j]/(um + 1e-100); //無次元化速度 Uixはmu_i*Eになっている
-        double rhoUix_tmp = rhoi[i][j]*0.25*vth*(exp(-utx_R*utx_R) + utx_R*sqrt(M_PI)*(erf(utx_R) + 1.0));
-        
-        double delta_Ii = rhoUix_tmp  *2.0*M_PI*r[j]*dr*( e0);
-        double delta_Ie = rhoUex[i][j]*2.0*M_PI*r[j]*dr*(-e0);
-
-        Ii_Anode = Ii_Anode + delta_Ii;
-        Ie_Anode = Ie_Anode + delta_Ie;
-        I_Anode =  I_Anode + delta_Ii + delta_Ie;
-    }
-    */
-
-    /*
-    //下の壁
-    for (int i=i_flc_bl[0][0];i<=i_flc_bl[0][1];i++){ 
-        int j = j_flc_bl[0][0];
-        double qL = (r[j]+r[j-1])/(2.0*r[j]);
-        double qR = (r[j]+r[j+1])/(2.0*r[j]);
-        double rL = (r[j]+r[j-1])/2.0;
-        double rR = (r[j]+r[j+1])/2.0;
-
-        double vth = sqrt(8.0*Boltz*Ti/(M_PI*massi));
-        double um = sqrt(2.0*Boltz*Ti/massi);
-        double utr = Uir[i][j]/(um + 1e-100); //無次元化速度 Uirはmu_i*Eになっている
-        Ii2 = Ii2 + rhoi[i][j]*0.25*vth*(exp(-utr*utr) + utr*sqrt(M_PI)*(erf(utr) - 1.0))*2.0*M_PI*rL*dx*e0;
-        Ie2 = Ie2 - rhoUer[i][j]*2.0*M_PI*rL*dx*e0;
-    }
-    */
-
-    outputfile3<< "wall_No., Ii (mA), Ie (mA), I (mA)"<< std::endl;
-    outputfile3<< "Anode , "<< Ii_Anode*1000 << "," << Ie_Anode*1000 << "," << Ii_Anode*1000 + Ie_Anode*1000 << std::endl;
-    outputfile3<< "Nozzle , "<< Ii_Nozzle*1000 << "," << Ie_Nozzle*1000 << "," << Ii_Nozzle*1000 + Ie_Nozzle*1000 << std::endl;
-    //outputfile3<< "2 , "<< Ii2*1000 << "," << Ie2*1000 << std::endl;
-    //outputfile3<< "3 , "<< Ii3*1000 << "," << Ie3*1000 << std::endl;
-
-    std::cout << "wall_No., Ii (mA), Ie (mA), I (mA)"<< std::endl;
-    std::cout << "Anode , "<< Ii_Anode*1000 << "," << Ie_Anode*1000 << "," << Ii_Anode*1000 + Ie_Anode*1000 << std::endl;
-    std::cout<< "Nozzle , "<< Ii_Nozzle*1000 << "," << Ie_Nozzle*1000 << "," << Ii_Nozzle*1000 + Ie_Nozzle*1000 << std::endl;
-
-
+    outputfile3<< "No, wall, Ii (mA), Ie (mA), I (mA), Ndoti (pcl/s), Ndote (pcl/s), Ndotm (pcl/s), Ndotn (pcl/s)"<< std::endl;
+    outputfile3<< "z0 , leftInWall, " << Ii_z0_leftInWall*1000 << "," << Ie_z0_leftInWall*1000 << "," << (Ii_z0_leftInWall + Ie_z0_leftInWall)*1000 << "," << 1.0/e0*Ii_z0_leftInWall << "," << 1.0/(-e0)*Ie_z0_leftInWall << "," << Im_z0_leftInWall << "," << In_z0_leftInWall  << std::endl;
+    outputfile3<< "z1 , leftAntBaseWall, " << Ii_z1_leftAntBaseWall*1000 << "," << Ie_z1_leftAntBaseWall*1000 << "," << (Ii_z1_leftAntBaseWall + Ie_z1_leftAntBaseWall)*1000 << "," << 1.0/e0*Ii_z1_leftAntBaseWall << "," << 1.0/(-e0)*Ie_z1_leftAntBaseWall << "," << Im_z1_leftAntBaseWall << "," << In_z1_leftAntBaseWall  << std::endl;
+    outputfile3<< "z2 , leftAntTopWall, " << Ii_z2_leftAntTopWall*1000 << "," << Ie_z2_leftAntTopWall*1000 << "," << (Ii_z2_leftAntTopWall + Ie_z2_leftAntTopWall)*1000 << "," << 1.0/e0*Ii_z2_leftAntTopWall << "," << 1.0/(-e0)*Ie_z2_leftAntTopWall << "," << Im_z2_leftAntTopWall << "," << In_z2_leftAntTopWall  << std::endl;
+    outputfile3<< "z3 , rightInWall, " << Ii_z3_rightInWall*1000 << "," << Ie_z3_rightInWall*1000 << "," << (Ii_z3_rightInWall + Ie_z3_rightInWall)*1000 << "," << 1.0/e0*Ii_z3_rightInWall << "," << 1.0/(-e0)*Ie_z3_rightInWall << "," << Im_z3_rightInWall << "," << In_z3_rightInWall  << std::endl;
+    outputfile3<< "z4 , leftOutWall, " << Ii_z4_leftOutWall*1000 << "," << Ie_z4_leftOutWall*1000 << "," << (Ii_z4_leftOutWall + Ie_z4_leftOutWall)*1000 << "," << 1.0/e0*Ii_z4_leftOutWall << "," << 1.0/(-e0)*Ie_z4_leftOutWall << "," << Im_z4_leftOutWall << "," << In_z4_leftOutWall  << std::endl;
+    outputfile3<< "z5 , rightAnodeWall, " << Ii_z5_rightAnodeWall*1000 << "," << Ie_z5_rightAnodeWall*1000 << "," << (Ii_z5_rightAnodeWall + Ie_z5_rightAnodeWall)*1000 << "," << 1.0/e0*Ii_z5_rightAnodeWall << "," << 1.0/(-e0)*Ie_z5_rightAnodeWall << "," << Im_z5_rightAnodeWall << "," << In_z5_rightAnodeWall  << std::endl;
+    outputfile3<< "x0 , botInWall, " << Ii_x0_botInWall*1000 << "," << Ie_x0_botInWall*1000 << "," << (Ii_x0_botInWall + Ie_x0_botInWall)*1000 << "," << 1.0/e0*Ii_x0_botInWall << "," << 1.0/(-e0)*Ie_x0_botInWall << "," << Im_x0_botInWall << "," << In_x0_botInWall  << std::endl;
+    outputfile3<< "x1 , topInWall, " << Ii_x1_topInWall*1000 << "," << Ie_x1_topInWall*1000 << "," << (Ii_x1_topInWall + Ie_x1_topInWall)*1000 << "," << 1.0/e0*Ii_x1_topInWall << "," << 1.0/(-e0)*Ie_x1_topInWall << "," << Im_x1_topInWall << "," << In_x1_topInWall  << std::endl;
+    outputfile3<< "x2 , botAntSideWall, " << Ii_x2_botAntSideWall*1000 << "," << Ie_x2_botAntSideWall*1000 << "," << (Ii_x2_botAntSideWall + Ie_x2_botAntSideWall)*1000 << "," << 1.0/e0*Ii_x2_botAntSideWall << "," << 1.0/(-e0)*Ie_x2_botAntSideWall << "," << Im_x2_botAntSideWall << "," << In_x2_botAntSideWall  << std::endl;
+    outputfile3<< "x4 , topOrfWall, " << Ii_x4_topOrfWall*1000 << "," << Ie_x4_topOrfWall*1000 << "," << (Ii_x4_topOrfWall + Ie_x4_topOrfWall)*1000 << "," << 1.0/e0*Ii_x4_topOrfWall << "," << 1.0/(-e0)*Ie_x4_topOrfWall << "," << Im_x4_topOrfWall << "," << In_x4_topOrfWall  << std::endl;
+    outputfile3<< "x5 , topOpen, " << Ii_x5_topOpen*1000 << "," << Ie_x5_topOpen*1000 << "," << (Ii_x5_topOpen + Ie_x5_topOpen)*1000 << "," << 1.0/e0*Ii_x5_topOpen << "," << 1.0/(-e0)*Ie_x5_topOpen << "," << Im_x5_topOpen << "," << In_x5_topOpen  << std::endl;
+    outputfile3<< "*  , Nozzle , " << Ii_Nozzle*1000 << "," << Ie_Nozzle*1000 << "," << (Ii_Nozzle + Ie_Nozzle)*1000 << "," << 1.0/e0*Ii_Nozzle << "," << 1.0/(-e0)*Ie_Nozzle << "," << Im_Nozzle << "," << In_Nozzle  << std::endl;
+    outputfile3<< "*  , sum, " << Ii_sum*1000 << "," << Ie_sum*1000 << "," << (Ii_sum + Ie_sum)*1000 << "," << 1.0/e0*Ii_sum << "," << 1.0/(-e0)*Ie_sum << "," << Im_sum << "," << In_sum  << std::endl;
     outputfile3.close();
+    //------------------------------------
+
+    //output energy sum
+    //------------------------------------
+    double Wi_sum = Wi_z0_leftInWall + Wi_z1_leftAntBaseWall + Wi_z3_rightInWall + Wi_z4_leftOutWall + Wi_z5_rightAnodeWall 
+            + Wi_x0_botInWall+ Wi_x1_topInWall + Wi_x2_botAntSideWall + Wi_x4_topOrfWall + Wi_x5_topOpen;
+    double We_sum = We_z0_leftInWall + We_z1_leftAntBaseWall + We_z3_rightInWall + We_z4_leftOutWall + We_z5_rightAnodeWall 
+            + We_x0_botInWall+ We_x1_topInWall + We_x2_botAntSideWall + We_x4_topOrfWall + We_x5_topOpen;
+
+    outputfile7<< "No, wall, Wi (J/s), We (J/s), W (J/s)"<< std::endl;
+    outputfile7<< "z0 , leftInWall, "      << Wi_z0_leftInWall      << "," << We_z0_leftInWall      << "," << (Wi_z0_leftInWall      + We_z0_leftInWall)       << std::endl;
+    outputfile7<< "z1 , leftAntBaseWall, " << Wi_z1_leftAntBaseWall << "," << We_z1_leftAntBaseWall << "," << (Wi_z1_leftAntBaseWall + We_z1_leftAntBaseWall)  << std::endl;
+    outputfile7<< "z2 , leftAntTopWall, "  << Wi_z2_leftAntTopWall  << "," << We_z2_leftAntTopWall  << "," << (Wi_z2_leftAntTopWall  + We_z2_leftAntTopWall)   << std::endl;
+    outputfile7<< "z3 , rightInWall, "     << Wi_z3_rightInWall     << "," << We_z3_rightInWall     << "," << (Wi_z3_rightInWall     + We_z3_rightInWall)      << std::endl;
+    outputfile7<< "z4 , leftOutWall, "     << Wi_z4_leftOutWall     << "," << We_z4_leftOutWall     << "," << (Wi_z4_leftOutWall     + We_z4_leftOutWall)      << std::endl;
+    outputfile7<< "z5 , rightAnodeWall, "  << Wi_z5_rightAnodeWall  << "," << We_z5_rightAnodeWall  << "," << (Wi_z5_rightAnodeWall  + We_z5_rightAnodeWall)   << std::endl;
+    outputfile7<< "x0 , botInWall, "       << Wi_x0_botInWall       << "," << We_x0_botInWall       << "," << (Wi_x0_botInWall       + We_x0_botInWall)        << std::endl;
+    outputfile7<< "x1 , topInWall, "       << Wi_x1_topInWall       << "," << We_x1_topInWall       << "," << (Wi_x1_topInWall       + We_x1_topInWall)        << std::endl;
+    outputfile7<< "x2 , botAntSideWall, "  << Wi_x2_botAntSideWall  << "," << We_x2_botAntSideWall  << "," << (Wi_x2_botAntSideWall  + We_x2_botAntSideWall)   << std::endl;
+    outputfile7<< "x4 , topOrfWall, "      << Wi_x4_topOrfWall      << "," << We_x4_topOrfWall      << "," << (Wi_x4_topOrfWall      + We_x4_topOrfWall)       << std::endl;
+    outputfile7<< "x5 , topOpen, "         << Wi_x5_topOpen         << "," << We_x5_topOpen         << "," << (Wi_x5_topOpen         + We_x5_topOpen)          << std::endl;
+    outputfile7<< "*  , sum,"              << Wi_sum                << "," << We_sum                << "," << (Wi_sum                + We_sum)                 << std::endl;
+    outputfile7.close();
+    //------------------------------------
 
     double direct_ionz_sum = 0.0;
     double stepwise_ionz_sum = 0.0;
@@ -416,7 +850,6 @@ void output(){
         << std::endl;
 
     nOut = nOut + 1;
-
 }
 
 //*****************************************************************

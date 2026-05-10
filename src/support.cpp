@@ -343,3 +343,18 @@ void reconst0(std::vector<std::vector<double> > value
 
 } //end reconst0
 
+
+//*****************************************************************
+//**                                                             **
+//**           double truncate                                   **
+//**                                                             **
+//*****************************************************************
+double truncate(double c){
+
+    if(fabs(c) <1e-100){
+        return 0.0;
+    }else{
+        return c;
+    }
+
+}

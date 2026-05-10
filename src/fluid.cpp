@@ -2836,6 +2836,140 @@ void solve_rhoi_constTe(){
     }
     //=====================================================================
 
+    //left-wall-BC (z0)
+    //------------------------------------
+    for (int j=j_flc_bl[0][0];j<=j_flc_bl[0][1];j++){
+        int i=i_flc_bl[0][0];
+
+        double vth = sqrt(8.0*Boltz*Ti/(M_PI*massi));
+        double um = sqrt(2.0*Boltz*Ti/massi);
+        double utx = Uix[i][j]/(um + 1e-100);
+        double GammaPerN_wall_Lx = -0.25*vth*(exp(-utx*utx) + utx*sqrt(M_PI)*(erf(utx) - 1.0));
+        rhoUix_wall[i][j] = rhoi[i][j]*GammaPerN_wall_Lx;
+    }
+
+    //left-wall-BC (z1)
+    //------------------------------------
+    for (int j=j_flc_bl[2][0];j<=j_flc_bl[0][0]-1;j++){
+        int i=i_flc_bl[2][0];
+        
+        double vth = sqrt(8.0*Boltz*Ti/(M_PI*massi));
+        double um = sqrt(2.0*Boltz*Ti/massi);
+        double utx = Uix[i][j]/(um + 1e-100);
+        double GammaPerN_wall_Lx = -0.25*vth*(exp(-utx*utx) + utx*sqrt(M_PI)*(erf(utx) - 1.0));
+        rhoUix_wall[i][j] = rhoi[i][j]*GammaPerN_wall_Lx;
+    }
+    //------------------------------------
+
+    //left-wall-BC (z2)
+    //------------------------------------
+    for (int j=j_flc_bl[3][0];j<=j_flc_bl[2][0]-1;j++){
+        int i=i_flc_bl[3][0];
+        
+        double vth = sqrt(8.0*Boltz*Ti/(M_PI*massi));
+        double um = sqrt(2.0*Boltz*Ti/massi);
+        double utx = Uix[i][j]/(um + 1e-100);
+        double GammaPerN_wall_Lx = -0.25*vth*(exp(-utx*utx) + utx*sqrt(M_PI)*(erf(utx) - 1.0));
+        rhoUix_wall[i][j] = rhoi[i][j]*GammaPerN_wall_Lx;
+    }
+    //------------------------------------
+
+    //left-wall-BC (z4)
+    //------------------------------------
+    for (int j=j_flc_bl[1][0];j<=j_flc_bl[4][1];j++){
+        int i=i_flc_bl[4][0];
+        double vth = sqrt(8.0*Boltz*Ti/(M_PI*massi));
+        double um = sqrt(2.0*Boltz*Ti/massi);
+        double utx = Uix[i][j]/(um + 1e-100);
+        double GammaPerN_wall_Lx = -0.25*vth*(exp(-utx*utx) + utx*sqrt(M_PI)*(erf(utx) - 1.0));
+        rhoUix_wall[i][j] = rhoi[i][j]*GammaPerN_wall_Lx;
+    }
+    //------------------------------------
+
+    //right-wall-BC (z3)
+    //------------------------------------
+    for (int j=j_flc_bl[1][0];j<=j_flc_bl[1][1];j++){
+        int i=i_flc_bl[1][1];
+        double vth = sqrt(8.0*Boltz*Ti/(M_PI*massi));
+        double um = sqrt(2.0*Boltz*Ti/massi);
+        double utx = Uix[i+1][j]/(um + 1e-100);
+        double GammaPerN_wall_Rx = 0.25*vth*(exp(-utx*utx) + utx*sqrt(M_PI)*(erf(utx) + 1.0));
+        rhoUix_wall[i+1][j] = rhoi[i][j]*GammaPerN_wall_Rx;
+    }
+    //------------------------------------
+
+    //right-wall-BC (z5)
+    //------------------------------------
+    for (int j=j_flc_bl[4][0];j<=j_flc_bl[4][1];j++){
+        int i=i_flc_bl[4][1];
+        double vth = sqrt(8.0*Boltz*Ti/(M_PI*massi));
+        double um = sqrt(2.0*Boltz*Ti/massi);
+        double utx = Uix[i+1][j]/(um + 1e-100);
+        double GammaPerN_wall_Rx = 0.25*vth*(exp(-utx*utx) + utx*sqrt(M_PI)*(erf(utx) + 1.0));
+        rhoUix_wall[i+1][j] = rhoi[i][j]*GammaPerN_wall_Rx;
+    }
+    //=====================================================================================
+
+    //lower-wall-BC (x0)
+    //------------------------------------
+    for (int i=i_flc_bl[0][0];i<=i_flc_bl[0][1];i++){
+        int j=j_flc_bl[0][0];
+        double vth = sqrt(8.0*Boltz*Ti/(M_PI*massi));
+        double um = sqrt(2.0*Boltz*Ti/massi);
+        double utr = Uir[i][j]/(um + 1e-100);
+        double GammaPerN_wall_Lr = -0.25*vth*(exp(-utr*utr) + utr*sqrt(M_PI)*(erf(utr) - 1.0));
+        rhoUir_wall[i][j] = rhoi[i][j]*GammaPerN_wall_Lr;
+    }
+    //------------------------------------
+
+    //lower-wall-BC (x2)
+    //------------------------------------
+    for (int i=i_flc_bl[2][0];i<=i_flc_bl[2][1];i++){
+        int j=j_flc_bl[2][0];
+        double vth = sqrt(8.0*Boltz*Ti/(M_PI*massi));
+        double um = sqrt(2.0*Boltz*Ti/massi);
+        double utr = Uir[i][j]/(um + 1e-100);
+        double GammaPerN_wall_Lr = -0.25*vth*(exp(-utr*utr) + utr*sqrt(M_PI)*(erf(utr) - 1.0));
+        rhoUir_wall[i][j] = rhoi[i][j]*GammaPerN_wall_Lr;
+    }
+    //------------------------------------
+
+    //upper-wall-BC (x1)
+    //------------------------------------
+    for (int i=i_flc_bl[0][0];i<=i_flc_bl[1][1];i++){
+        int j=j_flc_bl[0][1];
+        double vth = sqrt(8.0*Boltz*Ti/(M_PI*massi));
+        double um = sqrt(2.0*Boltz*Ti/massi);
+        double utr = Uir[i][j+1]/(um + 1e-100);
+        double GammaPerN_wall_Rr = 0.25*vth*(exp(-utr*utr) + utr*sqrt(M_PI)*(erf(utr) + 1.0));
+        rhoUir_wall[i][j+1] = rhoi[i][j]*GammaPerN_wall_Rr;
+    }
+    //------------------------------------
+
+    //upper-wall-BC (x4)
+    //------------------------------------
+    for (int i=i_flc_bl[1][1]+1;i<=i_flc_bl[3][1];i++){
+        int j=j_flc_bl[3][1];
+        double vth = sqrt(8.0*Boltz*Ti/(M_PI*massi));
+        double um = sqrt(2.0*Boltz*Ti/massi);
+        double utr = Uir[i][j+1]/(um + 1e-100);
+        double GammaPerN_wall_Rr = 0.25*vth*(exp(-utr*utr) + utr*sqrt(M_PI)*(erf(utr) + 1.0));
+        rhoUir_wall[i][j+1] = rhoi[i][j]*GammaPerN_wall_Rr;
+    }
+
+    //------------------------------------
+
+    //upper-open-BC (x5)
+    //------------------------------------
+    for (int i=i_flc_bl[4][0];i<=i_flc_bl[4][1];i++){
+        int j=j_flc_bl[4][1];
+        double rhoUir_Rr = rhoi[i][j]*Uir[i][j+1];
+        double Gamma_open_Rr = rhoUir_Rr;
+        rhoUir[i][j+1] =  Gamma_open_Rr;
+        rhoUir_wall[i][j+1] = 0.0;
+    }
+    //------------------------------------
+
     //Don’t update unless the value is positive.
     //------------------------------------
     int ncount = 0;
@@ -3324,8 +3458,15 @@ void update_Ui_constTe(){
                 double dndx = (rhoi[i][j] - rhoi[i-1][j])/dx;
                 //------------------------------------
 
+                //temporary flux
+                //------------------------------------
+                double rhoUix_tmp =  rhoi[i-1][j]*(Uix[i][j] + fabs(Uix[i][j]))/2.0
+                    + rhoi[i][j]*(Uix[i][j] - fabs(Uix[i][j]))/2.0;
+                //------------------------------------
+
                 //Update Uix
                 //----------------------------------------------------
+                rhoUix[i][j] = rhoUix_tmp - D_tmp*(dndx - dndx_old);
                 Uix[i][j] = Uix[i][j] - D_tmp/(rhoi_tmp+1e-100)*(dndx - dndx_old);
                 //----------------------------------------------------
             }
@@ -3359,8 +3500,15 @@ void update_Ui_constTe(){
                 double dndr     = (rhoi[i][j]     - rhoi[i][j-1]    )/dr;
                 //------------------------------------
 
+                //temporary flux
+                //------------------------------------
+                double rhoUir_tmp =  rhoi[i][j-1]*(Uir[i][j] + fabs(Uir[i][j]))/2.0
+                    + rhoi[i][j]*(Uir[i][j] - fabs(Uir[i][j]))/2.0;
+                //------------------------------------
+
                 //Update Uir
                 //----------------------------------------------------
+                rhoUir[i][j] = rhoUir_tmp - D_tmp*(dndr - dndr_old);
                 Uir[i][j] = Uir[i][j] - D_tmp/(rhoi_tmp+1e-100)*(dndr - dndr_old);
                 //----------------------------------------------------
             }
@@ -3373,6 +3521,93 @@ void update_Ui_constTe(){
     // No process due to absense of density gradient in azimuthal direction
     //=================================================================================
 
+    //calculation of particle balance
+    //------------------------------------
+    if(itime%ndiv_fout == 0 || itime == ntime){
+        
+        //volume integrated values
+        //------------------------------------
+        double dNidt_sum         = 0.0;
+        double nabla_rhoUi_sum   = 0.0;
+        double rate_d_ionz_sum   = 0.0;
+        double rate_s_ionz_sum   = 0.0;
+        //------------------------------------
+    
+        //calculate volume integrated of each term
+        //------------------------------------
+        for (int iblock=0;iblock<n_bl-1;iblock++){
+            for (int i=i_flx_bl[iblock][0];i<=i_flx_bl[iblock][1];i++){
+                for (int j=j_flx_bl[iblock][0];j<=j_flx_bl[iblock][1];j++){
+                    
+                    //radial position at upper and lower cell interface
+                    //------------------------------------
+                    double rR = (r[j]+r[j+1])/2.0;
+                    double rL = (r[j]+r[j-1])/2.0;
+                    //------------------------------------
+
+                    //normalized radial position at upper and lower cell interface
+                    //------------------------------------
+                    double qR = (r[j]+r[j+1])/2.0/r[j];
+                    double qL = (r[j]+r[j-1])/2.0/r[j];
+                    //------------------------------------
+
+                    //BC - set flag for adjacent to the wall, open, or central axis (adjacent = 0, others = 1)
+                    //------------------------------------
+                    //left
+                    double bLx_wall  = double(i!=i_flc_bl[0][0] || iblock != 0); //z0
+                    bLx_wall = bLx_wall*double(i!=i_flc_bl[2][0] || j>j_flc_bl[0][0]-1); //z1
+                    bLx_wall = bLx_wall*double(i!=i_flc_bl[3][0] || j>j_flc_bl[2][0]-1); //z2
+                    bLx_wall = bLx_wall*double(i!=i_flc_bl[4][0] || j<j_flc_bl[1][0]); //z4
+                    double bLx  = bLx_wall;
+                    
+                    //right
+                    double bRx_wall  = double(i!=i_flc_bl[1][1] || j<j_flc_bl[1][0]); //z3
+                    bRx_wall = bRx_wall*double(i!=i_flc_bl[4][1]); //z5
+                    double bRx  = bRx_wall;
+                    
+                    //lower
+                    double bLr_wall  = double(j!=j_flc_bl[0][0] || i>i_flc_bl[0][1]); //x0
+                    bLr_wall = bLr_wall*double(j!=j_flc_bl[2][0] || i>i_flc_bl[2][1]); //x2
+                    double bLr_cen = double(j!=j_flc_bl[3][0]); //x6
+                    double bLr  = bLr_wall*bLr_cen;
+                    
+                    //upper
+                    double bRr_wall  = double(j!=j_flc_bl[0][1] || iblock > 2); //x1
+                    bRr_wall = bRr_wall*double(j!=j_flc_bl[3][1] || i<i_flc_bl[1][1]+1 || i>i_flc_bl[3][1]); //x4
+                    //w/o x5
+                    double bRr = bRr_wall;
+                    //------------------------------------
+
+                    double nabla_rhoUi = (rhoUix[i+1][j]*bRx_wall - rhoUix[i][j]*bLx_wall)/dx 
+                                       + (qR*rhoUir[i][j+1]*bRr_wall -qL*rhoUir[i][j]*bLr_wall)/dr
+                                       + (rhoUix_wall[i+1][j] - rhoUix_wall[i][j])/dx 
+                                       + (qR*rhoUir_wall[i][j+1] - qL*rhoUir_wall[i][j])/dr;
+                    
+                    double volume = 2.0*M_PI*r[j]*dr*dx;
+                    
+                    dNidt_sum         = dNidt_sum         + volume*(rhoi[i][j] - rhoi_old[i][j])/dt;
+                    nabla_rhoUi_sum   = nabla_rhoUi_sum   + volume*nabla_rhoUi;
+                    rate_d_ionz_sum   = rate_d_ionz_sum   + volume*rhoe[i][j]*nu_ionz[i][j];
+                    rate_s_ionz_sum   = rate_s_ionz_sum   + volume*rhoe[i][j]*nu_ionzStep[i][j];
+                }
+            }
+        }
+
+        //output particle balance for ion
+        //------------------------------------
+        std::string char1="results/particle_balance_ion";
+        std::string char2=std::to_string(nOut);
+        std::string char_csv=".csv";
+        std::ofstream outputfile9(char1+char2+char_csv);
+        outputfile9 << std::setprecision(std::numeric_limits<double>::max_digits10) << std::scientific;
+        outputfile9<< "dN/dt (pcl/s), loss_to_bnd (pcl/s), direct-iz (pcl/s), sw-iz (pcl/s), sum (pcl/s)"<< std::endl;
+        double sum = -dNidt_sum + (-nabla_rhoUi_sum + rate_d_ionz_sum + rate_s_ionz_sum);
+        outputfile9<< dNidt_sum << "," << -nabla_rhoUi_sum << "," << rate_d_ionz_sum << ","<< rate_s_ionz_sum 
+            << "," << -dNidt_sum + (-nabla_rhoUi_sum + rate_d_ionz_sum + rate_s_ionz_sum)<< std::endl;
+        outputfile9.close();
+        //------------------------------------
+    }
+    //------------------------------------
 
     //Caluculate residuals
     //=====================================================================================
@@ -20050,6 +20285,7 @@ void solve_rhoe_wdTe_wSEE_PC(){
                             -(coefEISEE_eb + coefEISEE_rd + coefEISEE_ts)*rhoe_old[i][j]*GammaPerN_wall_Lx //EISEE
                             -coefMISEE_ts*rhoUmx[i][j]; //MISEE
             rhoUex[i][j] = rhoe[i][j]*GammaPerN_wall_Lx + Gamma_wallSEE_Lx;
+            rhoUex_wall[i][j] = rhoUex[i][j];
         }
         //------------------------------------
     
@@ -20069,6 +20305,7 @@ void solve_rhoe_wdTe_wSEE_PC(){
                             -(coefEISEE_eb + coefEISEE_rd + coefEISEE_ts)*rhoe_old[i][j]*GammaPerN_wall_Lx //EISEE
                             -coefMISEE_ts*rhoUmx[i][j]; //MISEE
             rhoUex[i][j] = rhoe[i][j]*GammaPerN_wall_Lx + Gamma_wallSEE_Lx;
+            rhoUex_wall[i][j] = rhoUex[i][j];
         }
         //------------------------------------
     
@@ -20088,6 +20325,7 @@ void solve_rhoe_wdTe_wSEE_PC(){
                             -(coefEISEE_eb + coefEISEE_rd + coefEISEE_ts)*rhoe_old[i][j]*GammaPerN_wall_Lx //EISEE
                             -coefMISEE_ts*rhoUmx[i][j]; //MISEE
             rhoUex[i][j] = rhoe[i][j]*GammaPerN_wall_Lx + Gamma_wallSEE_Lx;
+            rhoUex_wall[i][j] = rhoUex[i][j];
         }
         //------------------------------------
     
@@ -20107,6 +20345,7 @@ void solve_rhoe_wdTe_wSEE_PC(){
                             -(coefEISEE_eb + coefEISEE_rd + coefEISEE_ts)*rhoe_old[i][j]*GammaPerN_wall_Lx //EISEE
                             -coefMISEE_ts*rhoUmx[i][j]; //MISEE
             rhoUex[i][j] = rhoe[i][j]*GammaPerN_wall_Lx + Gamma_wallSEE_Lx;
+            rhoUex_wall[i][j] = rhoUex[i][j];
         }
         //------------------------------------
     
@@ -20126,6 +20365,7 @@ void solve_rhoe_wdTe_wSEE_PC(){
                             -(coefEISEE_eb + coefEISEE_rd + coefEISEE_ts)*rhoe_old[i][j]*GammaPerN_wall_Rx //EISEE
                             -coefMISEE_ts*rhoUmx[i+1][j]; //MISEE
             rhoUex[i+1][j] =  rhoe[i][j]*GammaPerN_wall_Rx + Gamma_wallSEE_Rx;
+            rhoUex_wall[i+1][j] = rhoUex[i+1][j];
         }
         //------------------------------------
     
@@ -20145,6 +20385,7 @@ void solve_rhoe_wdTe_wSEE_PC(){
                             -(coefEISEE_eb + coefEISEE_rd + coefEISEE_ts)*rhoe_old[i][j]*GammaPerN_wall_Rx //EISEE
                             -coefMISEE_ts*rhoUmx[i+1][j]; //MISEE
             rhoUex[i+1][j] =  rhoe[i][j]*GammaPerN_wall_Rx + Gamma_wallSEE_Rx;
+            rhoUex_wall[i+1][j] = rhoUex[i+1][j];
         }
         //=====================================================================================
 
@@ -20247,6 +20488,7 @@ void solve_rhoe_wdTe_wSEE_PC(){
                             -(coefEISEE_eb + coefEISEE_rd + coefEISEE_ts)*rhoe_old[i][j]*GammaPerN_wall_Lr //EISEE
                             -coefMISEE_ts*rhoUmr[i][j]; //MISEE
             rhoUer[i][j] = rhoe[i][j]*GammaPerN_wall_Lr + Gamma_wallSEE_Lr;
+            rhoUer_wall[i][j] = rhoUer[i][j];
         }
         //------------------------------------
 
@@ -20266,6 +20508,7 @@ void solve_rhoe_wdTe_wSEE_PC(){
                             -(coefEISEE_eb + coefEISEE_rd + coefEISEE_ts)*rhoe_old[i][j]*GammaPerN_wall_Lr //EISEE
                             -coefMISEE_ts*rhoUmr[i][j]; //MISEE
             rhoUer[i][j] = rhoe[i][j]*GammaPerN_wall_Lr + Gamma_wallSEE_Lr;
+            rhoUer_wall[i][j] = rhoUer[i][j];
         }
         //------------------------------------
 
@@ -20285,6 +20528,7 @@ void solve_rhoe_wdTe_wSEE_PC(){
                             -(coefEISEE_eb + coefEISEE_rd + coefEISEE_ts)*rhoe_old[i][j]*GammaPerN_wall_Rr //EISEE
                             -coefMISEE_ts*rhoUmr[i][j+1]; //MISEE
             rhoUer[i][j+1] = rhoe[i][j]*GammaPerN_wall_Rr + Gamma_wallSEE_Rr;
+            rhoUer_wall[i][j+1] = rhoUer[i][j+1];
         }
         //------------------------------------
 
@@ -20304,6 +20548,7 @@ void solve_rhoe_wdTe_wSEE_PC(){
                             -(coefEISEE_eb + coefEISEE_rd + coefEISEE_ts)*rhoe_old[i][j]*GammaPerN_wall_Rr //EISEE
                             -coefMISEE_ts*rhoUmr[i][j+1]; //MISEE
             rhoUer[i][j+1] = rhoe[i][j]*GammaPerN_wall_Rr + Gamma_wallSEE_Rr;
+            rhoUer_wall[i][j+1] = rhoUer[i][j+1];
         }
         //------------------------------------
 
@@ -20314,6 +20559,7 @@ void solve_rhoe_wdTe_wSEE_PC(){
             double rhoUir_Rr = rhoi[i][j]*Uir[i][j+1];
             double Gamma_open_Rr = rhoUir_Rr;
             rhoUer[i][j+1] =  Gamma_open_Rr;
+            rhoUer_wall[i][j+1] = 0.0;
         }
         //------------------------------------
 
@@ -20637,7 +20883,91 @@ void solve_rhoe_wdTe_wSEE_PC(){
 
     } while (icon_end == 0);
 
-    //std::cout << "ncount_rhoe = "<<ncount<<std::endl;
+    
+    //calculation of particle balance
+    //------------------------------------
+    if(itime%ndiv_fout == 0 || itime == ntime){
+        
+        //volume integrated values
+        //------------------------------------
+        double dNedt_sum         = 0.0;
+        double nabla_rhoUe_sum   = 0.0;
+        double rate_d_ionz_sum   = 0.0;
+        double rate_s_ionz_sum   = 0.0;
+        //------------------------------------
+    
+        //calculate volume integrated of each term
+        //------------------------------------
+        for (int iblock=0;iblock<n_bl-1;iblock++){ 
+            for (int i=i_flc_bl[iblock][0];i<=i_flc_bl[iblock][1];i++){ 
+                for (int j=j_flc_bl[iblock][0];j<=j_flc_bl[iblock][1];j++){
+                    
+                    //radial position at upper and lower cell interface
+                    //------------------------------------
+                    double rR = (r[j]+r[j+1])/2.0;
+                    double rL = (r[j]+r[j-1])/2.0;
+                    //------------------------------------
+
+                    //normalized radial position at upper and lower cell interface
+                    //------------------------------------
+                    double qR = (r[j]+r[j+1])/2.0/r[j];
+                    double qL = (r[j]+r[j-1])/2.0/r[j];
+                    //------------------------------------
+
+                    //BC - set adjacent flag (adjacent = 0, others = 1)
+                    //adjacent "cell" to the wall for setting zero-flux on the wall
+                    //------------------------------------
+                    //left
+                    double bLx_wall  = double(i!=i_flc_bl[0][0] || iblock != 0); //z0
+                    bLx_wall = bLx_wall*double(i!=i_flc_bl[2][0] || j>j_flc_bl[0][0]-1); //z1
+                    bLx_wall = bLx_wall*double(i!=i_flc_bl[3][0] || j>j_flc_bl[2][0]-1); //z2
+                    bLx_wall = bLx_wall*double(i!=i_flc_bl[4][0] || j<j_flc_bl[1][0]); //z4
+                    double bLx  = bLx_wall;
+                    
+                    //right
+                    double bRx_wall  = double(i!=i_flc_bl[1][1] || j<j_flc_bl[1][0]); //z3
+                    bRx_wall = bRx_wall*double(i!=i_flc_bl[4][1]); //z5
+                    double bRx  = bRx_wall;
+                    
+                    //lower
+                    double bLr_wall  = double(j!=j_flc_bl[0][0] || i>i_flc_bl[0][1]); //x0
+                    bLr_wall = bLr_wall*double(j!=j_flc_bl[2][0] || i>i_flc_bl[2][1]); //x2
+                    double bLr_cen = double(j!=j_flc_bl[3][0]); //x6
+                    double bLr  = bLr_wall*bLr_cen;
+                    
+                    //upper
+                    double bRr_wall  = double(j!=j_flc_bl[0][1] || iblock > 2); //x1
+                    bRr_wall = bRr_wall*double(j!=j_flc_bl[3][1] || i<i_flc_bl[1][1]+1 || i>i_flc_bl[3][1]); //x4
+                    double bRr_open  = (j!=j_flc_bl[4][1] || iblock != 4); //x5
+                    double bRr = bRr_wall*bRr_open;
+                    //------------------------------------
+
+                    double nabla_rhoUe = (rhoUex[i+1][j]-rhoUex[i][j])/dx + (qR*rhoUer[i][j+1]-qL*rhoUer[i][j])/dr;
+                    
+                    double volume = 2.0*M_PI*r[j]*dr*dx;
+                    
+                    dNedt_sum         = dNedt_sum         + volume*(rhoe[i][j] - rhoe_old[i][j])/dt;
+                    nabla_rhoUe_sum   = nabla_rhoUe_sum   + volume*nabla_rhoUe;
+                    rate_d_ionz_sum   = rate_d_ionz_sum   + volume*rhoe_old[i][j]*nu_ionz[i][j];
+                    rate_s_ionz_sum   = rate_s_ionz_sum   + volume*rhoe_old[i][j]*nu_ionzStep[i][j];
+                }
+            }
+        }
+
+        //output particle balance for electron
+        //------------------------------------
+        std::string char1="results/particle_balance_electron";
+        std::string char2=std::to_string(nOut);
+        std::string char_csv=".csv";
+        std::ofstream outputfile8(char1+char2+char_csv);
+        outputfile8 << std::setprecision(std::numeric_limits<double>::max_digits10) << std::scientific;
+        outputfile8<< "dN/dt (pcl/s), loss_to_bnd (pcl/s), direct-iz (pcl/s), sw-iz (pcl/s), sum (pcl/s)"<< std::endl;
+        outputfile8<< dNedt_sum << "," << -nabla_rhoUe_sum << "," << rate_d_ionz_sum << ","<< rate_s_ionz_sum 
+            << ","<< -dNedt_sum + (-nabla_rhoUe_sum + rate_d_ionz_sum + rate_s_ionz_sum)<< std::endl;
+        outputfile8.close();
+        //------------------------------------
+    }
+    //------------------------------------
 
     //set values of ghost cells for ES-potential calculation
     //=====================================================================================
@@ -33744,6 +34074,7 @@ void solve_Te_wdTe_wSEE_PC(){
                             - eps_emitSEE*coefMISEE_ts*rhoUmx[i][j]; //MISEE
 
             Gx[i][j] = rhoeps[i][j]*GammaPerNeps_wall_Lx + Gamma_wallSEE_Lx;
+            Gx_wall[i][j] = Gx[i][j];
         }
         //------------------------------------
 
@@ -33767,6 +34098,7 @@ void solve_Te_wdTe_wSEE_PC(){
                             - eps_emitSEE*coefMISEE_ts*rhoUmx[i][j]; //MISEE
 
             Gx[i][j] = rhoeps[i][j]*GammaPerNeps_wall_Lx + Gamma_wallSEE_Lx;
+            Gx_wall[i][j] = Gx[i][j];
         }
         //------------------------------------
 
@@ -33790,6 +34122,7 @@ void solve_Te_wdTe_wSEE_PC(){
                             - eps_emitSEE*coefMISEE_ts*rhoUmx[i][j]; //MISEE
 
             Gx[i][j] = rhoeps[i][j]*GammaPerNeps_wall_Lx + Gamma_wallSEE_Lx;
+            Gx_wall[i][j] = Gx[i][j];
         }
         //------------------------------------
 
@@ -33813,6 +34146,7 @@ void solve_Te_wdTe_wSEE_PC(){
                             - eps_emitSEE*coefMISEE_ts*rhoUmx[i][j]; //MISEE
 
             Gx[i][j] = rhoeps[i][j]*GammaPerNeps_wall_Lx + Gamma_wallSEE_Lx;
+            Gx_wall[i][j] = Gx[i][j];
         }
         //------------------------------------
 
@@ -33836,6 +34170,7 @@ void solve_Te_wdTe_wSEE_PC(){
                 - eps_emitSEE*coefMISEE_ts*rhoUmx[i+1][j]; //MISEE
 
             Gx[i+1][j] = rhoeps[i][j]*GammaPerNeps_wall_Rx + Gamma_wallSEE_Rx;
+            Gx_wall[i+1][j] = Gx[i+1][j];
         }
         //------------------------------------
 
@@ -33859,6 +34194,7 @@ void solve_Te_wdTe_wSEE_PC(){
                 - eps_emitSEE*coefMISEE_ts*rhoUmx[i+1][j]; //MISEE
 
             Gx[i+1][j] = rhoeps[i][j]*GammaPerNeps_wall_Rx + Gamma_wallSEE_Rx;
+            Gx_wall[i+1][j] = Gx[i+1][j];
         }
         //------------------------------------
 
@@ -33967,6 +34303,7 @@ void solve_Te_wdTe_wSEE_PC(){
                 - eps_emitSEE*coefMISEE_ts*rhoUmr[i][j]; //MISEE
              
             Gr[i][j] = rhoeps[i][j]*GammaPerNeps_wall_Lr + Gamma_wallSEE_Lr;
+            Gr_wall[i][j] = Gr[i][j];
         }
         //------------------------------------
     
@@ -34013,6 +34350,7 @@ void solve_Te_wdTe_wSEE_PC(){
                 - eps_emitSEE*coefMISEE_ts*rhoUmr[i][j+1]; //MISEE
         
             Gr[i][j+1] = rhoeps[i][j]*GammaPerNeps_wall_Rr + Gamma_wallSEE_Rr;
+            Gr_wall[i][j+1] = Gr[i][j+1];
         }
         //------------------------------------
     
@@ -34036,6 +34374,7 @@ void solve_Te_wdTe_wSEE_PC(){
                 - eps_emitSEE*coefMISEE_ts*rhoUmr[i][j+1]; //MISEE
         
             Gr[i][j+1] = rhoeps[i][j]*GammaPerNeps_wall_Rr + Gamma_wallSEE_Rr;
+            Gr_wall[i][j+1] = Gr[i][j+1];
         }
         //------------------------------------
     
@@ -34045,6 +34384,7 @@ void solve_Te_wdTe_wSEE_PC(){
             int j=j_flc_bl[4][1];
             double Gamma_open_Rr = 5.0/2.0*Boltz*Te_old[i][j]*fmax(rhoUer[i][j+1],0.0);
             Gr[i][j+1] = Gamma_open_Rr;
+            Gr_wall[i][j+1] = 0.0;
         }
         //------------------------------------
 
@@ -37413,52 +37753,62 @@ void update_rhom(){
     for (int j=j_flc_bl[0][0];j<=j_flc_bl[0][1];j++){
         int i=i_flc_bl[0][0];
         rhoUmx[i][j] = -0.25*rhom[i][j]*vth;
+        rhoUmx_wall[i][j] = rhoUmx[i][j];
     }
     //左 壁 z1
     for (int j=j_flc_bl[2][0];j<=j_flc_bl[0][0]-1;j++){
         int i=i_flc_bl[2][0];
         rhoUmx[i][j] = -0.25*rhom[i][j]*vth;
+        rhoUmx_wall[i][j] = rhoUmx[i][j];
     }
     //左 壁 z2
     for (int j=j_flc_bl[3][0];j<=j_flc_bl[2][0]-1;j++){
         int i=i_flc_bl[3][0];
         rhoUmx[i][j] = -0.25*rhom[i][j]*vth;
+        rhoUmx_wall[i][j] = rhoUmx[i][j];
     }
     //左 壁 z4
     for (int j=j_flc_bl[1][0];j<=j_flc_bl[4][1];j++){
         int i=i_flc_bl[4][0];
         rhoUmx[i][j] = -0.25*rhom[i][j]*vth;
+        rhoUmx_wall[i][j] = rhoUmx[i][j];
     }
     //右 壁 z3
     for (int j=j_flc_bl[1][0];j<=j_flc_bl[1][1];j++){
         int i=i_flc_bl[1][1];
         rhoUmx[i+1][j] = 0.25*rhom[i][j]*vth;
+        rhoUmx_wall[i+1][j] = rhoUmx[i+1][j];
     }
     //右 壁 z5
     for (int j=j_flc_bl[4][0];j<=j_flc_bl[4][1];j++){
         int i=i_flc_bl[4][1];
         rhoUmx[i+1][j] = 0.25*rhom[i][j]*vth;
+        rhoUmx_wall[i+1][j] = rhoUmx[i+1][j];
     }
     //下 壁 x0
     for (int i=i_flc_bl[0][0];i<=i_flc_bl[0][1];i++){
         int j=j_flc_bl[0][0];
         rhoUmr[i][j] = -0.25*rhom[i][j]*vth;
+        rhoUmr_wall[i][j] = rhoUmr[i][j];
     }
     //下 壁 x2
     for (int i=i_flc_bl[2][0];i<=i_flc_bl[2][1];i++){
         int j=j_flc_bl[2][0];
         rhoUmr[i][j] = -0.25*rhom[i][j]*vth;
+        rhoUmr_wall[i][j] = rhoUmr[i][j];
     }
 
     //上 壁 x1
     for (int i=i_flc_bl[0][0];i<=i_flc_bl[1][1];i++){
         int j=j_flc_bl[0][1];
         rhoUmr[i][j+1] = 0.25*rhom[i][j]*vth;
+        rhoUmr_wall[i][j+1] = rhoUmr[i][j+1];
     }
     //上 壁 x4
     for (int i=i_flc_bl[1][1]+1;i<=i_flc_bl[3][1];i++){
         int j=j_flc_bl[3][1];
         rhoUmr[i][j+1] = 0.25*rhom[i][j]*vth;
+        rhoUmr_wall[i][j+1] = rhoUmr[i][j+1];
     }
     //上 開放 x5
     for (int i=i_flc_bl[4][0];i<=i_flc_bl[4][1];i++){
@@ -37468,8 +37818,105 @@ void update_rhom(){
         double rR = (r[j]+r[j+1])/2.0;
         double rhoUmr_Rr = rhoUmr_old[i][j]*rL/rR;
         rhoUmr[i][j+1] = rhoUmr_Rr;
+        rhoUmr_wall[i][j+1] = 0.0;
     }
 
+    
+    //calculation of particle balance
+    //------------------------------------
+    if(itime%ndiv_fout == 0 || itime == ntime){
+        
+        //volume integrated values
+        //------------------------------------
+        double dNmdt_sum         = 0.0;
+        double nabla_rhoUm_sum   = 0.0;
+        double rate_exc_to_h_sum = 0.0;
+        double rate_super_sum    = 0.0;
+        double rate_exc_to_m_sum = 0.0;
+        double rate_drop_sum     = 0.0;
+        double rate_s_ionz_sum   = 0.0;
+        //------------------------------------
+    
+        //calculate volume integrated of each term
+        //------------------------------------
+        for (int iblock=0;iblock<2;iblock++){ 
+            for (int i=i_flc_bl[iblock][0];i<=i_flc_bl[iblock][1];i++){ 
+                for (int j=j_flc_bl[iblock][0];j<=j_flc_bl[iblock][1];j++){
+                    
+                    //radial position at upper and lower cell interface
+                    //------------------------------------
+                    double rR = (r[j]+r[j+1])/2.0;
+                    double rL = (r[j]+r[j-1])/2.0;
+                    //------------------------------------
+
+                    //normalized radial position at upper and lower cell interface
+                    //------------------------------------
+                    double qR = (r[j]+r[j+1])/2.0/r[j];
+                    double qL = (r[j]+r[j-1])/2.0/r[j];
+                    //------------------------------------
+
+                    //BC - set adjacent flag (adjacent = 0, others = 1)
+                    //adjacent "cell" to the wall for setting zero-flux on the wall
+                    //------------------------------------
+                    //left
+                    double bLx_wall  = double(i!=i_flc_bl[0][0] || iblock != 0); //z0
+                    bLx_wall = bLx_wall*double(i!=i_flc_bl[2][0] || j>j_flc_bl[0][0]-1); //z1
+                    bLx_wall = bLx_wall*double(i!=i_flc_bl[3][0] || j>j_flc_bl[2][0]-1); //z2
+                    bLx_wall = bLx_wall*double(i!=i_flc_bl[4][0] || j<j_flc_bl[1][0]); //z4
+                    double bLx  = bLx_wall;
+                    
+                    //right
+                    double bRx_wall  = double(i!=i_flc_bl[1][1] || j<j_flc_bl[1][0]); //z3
+                    bRx_wall = bRx_wall*double(i!=i_flc_bl[4][1]); //z5
+                    double bRx  = bRx_wall;
+                    
+                    //lower
+                    double bLr_wall  = double(j!=j_flc_bl[0][0] || i>i_flc_bl[0][1]); //x0
+                    bLr_wall = bLr_wall*double(j!=j_flc_bl[2][0] || i>i_flc_bl[2][1]); //x2
+                    double bLr_cen = double(j!=j_flc_bl[3][0]); //x6
+                    double bLr  = bLr_wall*bLr_cen;
+                    
+                    //upper
+                    double bRr_wall  = double(j!=j_flc_bl[0][1] || iblock > 2); //x1 not inlet
+                    bRr_wall = bRr_wall*double(j!=j_flc_bl[3][1] || i<i_flc_bl[1][1]+1 || i>i_flc_bl[3][1]); //x4
+                    double bRr_open  = (j!=j_flc_bl[4][1] || iblock != 4); //x5
+                    double bRr = bRr_wall*bRr_open;
+                    //------------------------------------
+
+                    double nabla_rhoUm = (rhoUmx[i+1][j]*bRx_wall - rhoUmx[i][j]*bLx_wall)/dx 
+                                       + (qR*rhoUmr[i][j+1]*bRr_wall - qL*rhoUmr[i][j]*bLr_wall)/dr
+                                       + (rhoUmx_wall[i+1][j] -rhoUmx_wall[i][j])/dx 
+                                       + (qR*rhoUmr_wall[i][j+1] - qL*rhoUmr_wall[i][j])/dr;
+
+                    double volume = 2.0*M_PI*r[j]*dr*dx;
+                    
+                    dNmdt_sum         = dNmdt_sum         + volume*(rhom[i][j] - rhom_old[i][j])/dt;
+                    nabla_rhoUm_sum   = nabla_rhoUm_sum   + volume*nabla_rhoUm;
+                    rate_s_ionz_sum   = rate_s_ionz_sum   + volume*rhoe[i][j]*nu_ionzStep[i][j];
+                    rate_exc_to_h_sum = rate_exc_to_h_sum + volume*rhoe[i][j]*nu_excStep[i][j];
+                    rate_super_sum    = rate_super_sum    + volume*rhoe[i][j]*nu_super[i][j];
+                    rate_exc_to_m_sum = rate_exc_to_m_sum + volume*rhoe[i][j]*nu_excMeta[i][j];
+                    rate_drop_sum     = rate_drop_sum     + volume*rhoe[i][j]*0.5*nu_exc[i][j];
+                }
+            }
+        }
+
+        //output particle balance for metastable
+        //------------------------------------
+        std::string char1="results/particle_balance_meta";
+        std::string char2=std::to_string(nOut);
+        std::string char_csv=".csv";
+        std::ofstream outputfile10(char1+char2+char_csv);
+        outputfile10 << std::setprecision(std::numeric_limits<double>::max_digits10) << std::scientific;
+        outputfile10<< "dN/dt (pcl/s), loss_to_bnd (pcl/s), sw-iz (pcl/s), sw-ex (pcl/s), super (pcl/s), direct-ex (pcl/s), drop (pcl/s), sum (pcl/s)"<< std::endl;
+        outputfile10<< dNmdt_sum << ","<< -nabla_rhoUm_sum <<  ","<< -rate_s_ionz_sum  
+            <<"," << -rate_exc_to_h_sum << "," << -rate_super_sum << "," <<  rate_exc_to_m_sum << "," <<  rate_drop_sum
+            << "," << -dNmdt_sum + (-nabla_rhoUm_sum - rate_s_ionz_sum - rate_exc_to_h_sum - rate_super_sum + rate_exc_to_m_sum + rate_drop_sum)<< std::endl;
+        outputfile10.close();
+        //------------------------------------
+    }
+    //------------------------------------
+    
     //エラー計算
     error_rhom = 0.0;
     if(icon_error == 0){
@@ -38501,6 +38948,7 @@ void update_rhon(){
 
                 //metaからのstepwise-excitationとsuper-elasticのde-excitationによる生成
                 double G = (nu_excStep[i][j] + nu_super[i][j])*rhoe[i][j]; 
+                
                 //metaに行ってしまう分と「direct」-ionizationによる分
                 double L = (nu_excMeta[i][j] + 0.5*nu_exc[i][j] + nu_ionz[i][j])*rhoe[i][j];
 
@@ -38579,6 +39027,7 @@ void update_rhon(){
         //rhoUnx[i][j] = -rhoi[i][j]*Uix[i][j]; //Recombination
         double Gamma_wall_Lx = -rhoi[i][j]*Uix[i][j]   - rhoUmx[i][j];
         rhoUnx[i][j] = Gamma_wall_Lx;
+        rhoUnx_wall[i][j] = rhoUnx[i][j];
     }
     //左 壁 z1
     for (int j=j_flc_bl[2][0];j<=j_flc_bl[0][0]-1;j++){
@@ -38587,6 +39036,7 @@ void update_rhon(){
         //rhoUnx[i][j] = -rhoi[i][j]*Uix[i][j]; //Recombination
         double Gamma_wall_Lx = -rhoi[i][j]*Uix[i][j]   - rhoUmx[i][j];
         rhoUnx[i][j] = Gamma_wall_Lx;
+        rhoUnx_wall[i][j] = rhoUnx[i][j];
     }
     //左 壁 z2
     for (int j=j_flc_bl[3][0];j<=j_flc_bl[2][0]-1;j++){
@@ -38595,6 +39045,7 @@ void update_rhon(){
         //rhoUnx[i][j] = -rhoi[i][j]*Uix[i][j]; //Recombination
         double Gamma_wall_Lx = -rhoi[i][j]*Uix[i][j]   - rhoUmx[i][j];
         rhoUnx[i][j] = Gamma_wall_Lx;
+        rhoUnx_wall[i][j] = rhoUnx[i][j];
     }
     //左 壁 z4
     for (int j=j_flc_bl[1][0];j<=j_flc_bl[4][1];j++){
@@ -38603,6 +39054,7 @@ void update_rhon(){
         //rhoUnx[i][j] = -rhoi[i][j]*Uix[i][j]; //Recombination
         double Gamma_wall_Lx = -rhoi[i][j]*Uix[i][j]   - rhoUmx[i][j];
         rhoUnx[i][j] = Gamma_wall_Lx;
+        rhoUnx_wall[i][j] = rhoUnx[i][j];
     }
     //右 壁 z3
     for (int j=j_flc_bl[1][0];j<=j_flc_bl[1][1];j++){
@@ -38610,6 +39062,7 @@ void update_rhon(){
         //rhoUnx[i+1][j] = 0.25*rhon[i][j]*vth;
         double Gamma_wall_Rx = -rhoi[i][j]*Uix[i+1][j] - rhoUmx[i+1][j];
         rhoUnx[i+1][j] = Gamma_wall_Rx;
+        rhoUnx_wall[i+1][j] = rhoUnx[i+1][j];
     }
     //右 壁 z5
     for (int j=j_flc_bl[4][0];j<=j_flc_bl[4][1];j++){
@@ -38617,6 +39070,7 @@ void update_rhon(){
         //rhoUnx[i+1][j] = 0.25*rhon[i][j]*vth;
         double Gamma_wall_Rx = -rhoi[i][j]*Uix[i+1][j] - rhoUmx[i+1][j];
         rhoUnx[i+1][j] = Gamma_wall_Rx;
+        rhoUnx_wall[i+1][j] = rhoUnx[i+1][j];
     }
     //下 壁 x0
     for (int i=i_flc_bl[0][0];i<=i_flc_bl[0][1];i++){
@@ -38625,6 +39079,7 @@ void update_rhon(){
         //rhoUnr[i][j] = -rhoi[i][j]*Uir[i][j]; //Recombination
         double Gamma_wall_Lr = -rhoi[i][j]*Uir[i][j]   - rhoUmr[i][j];
         rhoUnr[i][j] = Gamma_wall_Lr;
+        rhoUnr_wall[i][j] = rhoUnr[i][j];
     }
     //下 壁 x2
     for (int i=i_flc_bl[2][0];i<=i_flc_bl[2][1];i++){
@@ -38633,6 +39088,7 @@ void update_rhon(){
         //rhoUnr[i][j] = -rhoi[i][j]*Uir[i][j]; //Recombination
         double Gamma_wall_Lr = -rhoi[i][j]*Uir[i][j]   - rhoUmr[i][j];
         rhoUnr[i][j] = Gamma_wall_Lr;
+        rhoUnr_wall[i][j] = rhoUnr[i][j];
     }
     //上 壁 x1
     for (int i=i_flc_bl[0][0];i<=i_flc_bl[1][1];i++){
@@ -38645,6 +39101,7 @@ void update_rhon(){
             //rhoUnr[i][j+1] = 0.25*rhon[i][j]*vth;
             double Gamma_wall_Rr = -rhoi[i][j]*Uir[i][j+1] - rhoUmr[i][j+1];
             rhoUnr[i][j+1] = Gamma_wall_Rr;
+            rhoUnr_wall[i][j+1] = rhoUnr[i][j+1];
         }
     }
     //上 壁 x4
@@ -38654,6 +39111,7 @@ void update_rhon(){
         //rhoUnr[i][j+1] = -rhoi[i][j]*Uir[i][j+1]; //Recombination
         double Gamma_wall_Rr = -rhoi[i][j]*Uir[i][j+1] - rhoUmr[i][j+1];
         rhoUnr[i][j+1] = Gamma_wall_Rr;
+        rhoUnr_wall[i][j+1] = rhoUnr[i][j+1];
     }
     //上 開放 x5
     for (int i=i_flc_bl[4][0];i<=i_flc_bl[4][1];i++){
@@ -38663,6 +39121,7 @@ void update_rhon(){
         double rR = (r[j]+r[j+1])/2.0;
         double Gamma_open_Rr = fmax(rL/rR*rhoUnr_old[i][j],0.0);
         rhoUnr[i][j+1] = Gamma_open_Rr;
+        rhoUnr_wall[i][j+1] = 0.0;
 
         //double vth = sqrt(8.0*Boltz*Te[i][j]/(M_PI*masse));
         //double GammaPerN_open_Rr = 0.25*vth;
@@ -38670,6 +39129,116 @@ void update_rhon(){
         
         //std::cout << Gamma_open_Rr << std::endl;
     }
+
+    //calculation of particle balance
+    //------------------------------------
+    if(itime%ndiv_fout == 0 || itime == ntime){
+        
+        //volume integrated values
+        //------------------------------------
+        double dNndt_sum         = 0.0;
+        double nabla_rhoUn_sum   = 0.0;
+        double rate_exc_m_to_h_sum = 0.0;
+        double rate_super_sum    = 0.0;
+        double rate_exc_g_to_m_sum = 0.0;
+        double rate_exc_g_to_h_sum     = 0.0;
+        double rate_d_ionz_sum   = 0.0;
+        //------------------------------------
+    
+        //calculate volume integrated of each term
+        //------------------------------------
+        for (int iblock=0;iblock<2;iblock++){ 
+            for (int i=i_flc_bl[iblock][0];i<=i_flc_bl[iblock][1];i++){ 
+                for (int j=j_flc_bl[iblock][0];j<=j_flc_bl[iblock][1];j++){
+                    
+                    //radial position at upper and lower cell interface
+                    //------------------------------------
+                    double rR = (r[j]+r[j+1])/2.0;
+                    double rL = (r[j]+r[j-1])/2.0;
+                    //------------------------------------
+
+                    //normalized radial position at upper and lower cell interface
+                    //------------------------------------
+                    double qR = (r[j]+r[j+1])/2.0/r[j];
+                    double qL = (r[j]+r[j-1])/2.0/r[j];
+                    //------------------------------------
+
+                    //BC - set adjacent flag (adjacent = 0, others = 1)
+                    //adjacent "cell" to the wall for setting zero-flux on the wall
+                    //------------------------------------
+                    //left
+                    double bLx_wall  = double(i!=i_flc_bl[0][0] || iblock != 0); //z0
+                    bLx_wall = bLx_wall*double(i!=i_flc_bl[2][0] || j>j_flc_bl[0][0]-1); //z1
+                    bLx_wall = bLx_wall*double(i!=i_flc_bl[3][0] || j>j_flc_bl[2][0]-1); //z2
+                    bLx_wall = bLx_wall*double(i!=i_flc_bl[4][0] || j<j_flc_bl[1][0]); //z4
+                    double bLx  = bLx_wall;
+                    
+                    //right
+                    double bRx_wall  = double(i!=i_flc_bl[1][1] || j<j_flc_bl[1][0]); //z3
+                    bRx_wall = bRx_wall*double(i!=i_flc_bl[4][1]); //z5
+                    double bRx  = bRx_wall;
+                    
+                    //lower
+                    double bLr_wall  = double(j!=j_flc_bl[0][0] || i>i_flc_bl[0][1]); //x0
+                    bLr_wall = bLr_wall*double(j!=j_flc_bl[2][0] || i>i_flc_bl[2][1]); //x2
+                    double bLr_cen = double(j!=j_flc_bl[3][0]); //x6
+                    double bLr  = bLr_wall*bLr_cen;
+                    
+                    //upper
+                    double bRr_wall  = double(j!=j_flc_bl[0][1] || iblock > 2); //x1 not inlet
+                    bRr_wall = bRr_wall*double(j!=j_flc_bl[3][1] || i<i_flc_bl[1][1]+1 || i>i_flc_bl[3][1]); //x4
+                    double bRr_open  = (j!=j_flc_bl[4][1] || iblock != 4); //x5
+                    double bRr = bRr_wall*bRr_open;
+                    //------------------------------------
+
+                    double nabla_rhoUn = (rhoUnx[i+1][j]*bRx_wall - rhoUnx[i][j]*bLx_wall)/dx 
+                                       + (qR*rhoUnr[i][j+1]*bRr_wall - qL*rhoUnr[i][j]*bLr_wall)/dr
+                                       + (rhoUnx_wall[i+1][j] -rhoUnx_wall[i][j])/dx 
+                                       + (qR*rhoUnr_wall[i][j+1] - qL*rhoUnr_wall[i][j])/dr;
+
+                    double volume = 2.0*M_PI*r[j]*dr*dx;
+                    
+                    dNndt_sum         = dNndt_sum         + volume*(rhon[i][j] - rhon_old[i][j])/dt;
+                    nabla_rhoUn_sum   = nabla_rhoUn_sum   + volume*nabla_rhoUn;
+
+                    //generation
+                    rate_exc_m_to_h_sum = rate_exc_m_to_h_sum  + volume*rhoe[i][j]*nu_excStep[i][j];
+                    rate_super_sum      = rate_super_sum       + volume*rhoe[i][j]*nu_super[i][j];
+                    rate_exc_g_to_m_sum = rate_exc_g_to_m_sum  - volume*rhoe[i][j]*nu_excMeta[i][j];
+                    rate_exc_g_to_h_sum = rate_exc_g_to_h_sum  - volume*rhoe[i][j]*0.5*nu_exc[i][j];
+                    rate_d_ionz_sum     = rate_d_ionz_sum      - volume*rhoe[i][j]*nu_ionz[i][j];
+                }
+            }
+        }
+
+        //output particle balance for metastable
+        //------------------------------------
+        std::string char1="results/particle_balance_ground";
+        std::string char2=std::to_string(nOut);
+        std::string char_csv=".csv";
+        std::ofstream outputfile10(char1+char2+char_csv);
+        outputfile10 << std::setprecision(std::numeric_limits<double>::max_digits10) << std::scientific;
+        outputfile10<< "dN/dt (pcl/s), loss_to_bnd (pcl/s), sw-ex (pcl/s), super (pcl/s), ex-to-m (pcl/s), ex-to-h (pcl/s), iz (pcl/s), sum (pcl/s)"<< std::endl;
+        outputfile10 << dNndt_sum 
+            << "," << -nabla_rhoUn_sum 
+            << "," << rate_exc_m_to_h_sum  
+            << "," << rate_super_sum 
+            << "," << rate_exc_g_to_m_sum 
+            << "," << rate_exc_g_to_h_sum
+            << "," << rate_d_ionz_sum
+            << "," << -dNndt_sum 
+                + (
+                    + rate_exc_m_to_h_sum 
+                    + rate_super_sum 
+                    + rate_exc_g_to_m_sum 
+                    + rate_exc_g_to_h_sum 
+                    + rate_d_ionz_sum
+                )
+            << std::endl;
+        outputfile10.close();
+        //------------------------------------
+    }
+    //------------------------------------
 
     //エラー計算
     error_rhon = 0.0;

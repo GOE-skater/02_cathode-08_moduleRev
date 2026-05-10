@@ -326,10 +326,23 @@ extern std::vector<std::vector<double> > scx_old; //表面電荷
 extern std::vector<std::vector<double> > scr; //表面電荷
 extern std::vector<std::vector<double> > scr_old; //表面電荷
 
+extern std::vector<std::vector<double> > rhoUix_wall; //イオンフラックス
+extern std::vector<std::vector<double> > rhoUir_wall; //イオンフラックス
+extern std::vector<std::vector<double> > rhoUex_wall; //電子フラックス
+extern std::vector<std::vector<double> > rhoUer_wall; //電子フラックス
+extern std::vector<std::vector<double> > rhoUmx_wall; //準安定フラック
+extern std::vector<std::vector<double> > rhoUmr_wall; //準安定フラック
+extern std::vector<std::vector<double> > rhoUnx_wall; //基底フラックス
+extern std::vector<std::vector<double> > rhoUnr_wall; //基底フラックス
+extern std::vector<std::vector<double> > Gx_wall; //エネルギーフラックス
+extern std::vector<std::vector<double> > Gr_wall; //エネルギーフラックス
+
 extern std::vector<std::vector<double> > Uix; //速度
 extern std::vector<std::vector<double> > Uix_old; //速度
+extern std::vector<std::vector<double> > rhoUix; //速度
 extern std::vector<std::vector<double> > Uir; //速度
 extern std::vector<std::vector<double> > Uir_old; //速度
+extern std::vector<std::vector<double> > rhoUir; //速度
 
 extern std::vector<std::vector<double> > Uip; //速度
 extern std::vector<std::vector<double> > Uip_old; //速度

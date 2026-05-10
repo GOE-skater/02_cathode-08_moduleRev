@@ -51,8 +51,8 @@ scheme:
   icon_adp_dt: 0          # (int) Whether to use adaptive dt; 0: fixed dt, 1: variable dt
   dt_ini: 1.0e-10         # (double) Initial time step, previous/example: 2.0e-10
   ndt_i: 1                # (int) Ion time-step multiplier relative to the electron time step
-  ndt_m: 1000             # (int) Metastable neutral time-step multiplier relative to the electron time step
-  ndt_n: 1000             # (int) Neutral particle time-step multiplier relative to the electron time step
+  ndt_m: 1             # (int) Metastable neutral time-step multiplier relative to the electron time step
+  ndt_n: 1             # (int) Neutral particle time-step multiplier relative to the electron time step
   CFL: 1.0                # (double) CFL number, previous/example: 0.001
 
 # ============================================================
@@ -98,7 +98,7 @@ relaxation:
 # ============================================================
 
 simulation:
-  ntime: 200000           # (int) Number of time steps, previous/example: 3000000
+  ntime: 1           # (int) Number of time steps, previous/example: 3000000
   icon_autoFinish: 1      # (int) Whether to automatically finish the simulation
 
 # ============================================================
