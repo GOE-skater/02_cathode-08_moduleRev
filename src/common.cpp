@@ -35,7 +35,7 @@ double rmin= 0.0; //計算領域r左端
 double rmax= 0.014; //計算領域r右端 2.0e-3 0.014
 
 //パラメータ設定
-std::complex<double> J1r_exc(776530.1154*sqrt(1.34895*0.91779*1.79268E-14),0.0); //励起電流
+std::complex<double> J1r_exc(0.212687,0.0); //励起電流
 double Pmw = 5.0; //マイクロ波電力 (W)
 int icon_mwRef = 1; //反射を解くか
 int icon_impTest= 1;      // (int) conduct impedance test

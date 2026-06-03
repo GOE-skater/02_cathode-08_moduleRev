@@ -26,10 +26,10 @@
 //*****************************************************************
 void solve_Microwave(){
 
-    //テスト用
+    //テスト用 ※ 通常はコメントアウトすること
     for (int i=0;i<ni+2;i++){
         for (int j=0;j<nj+2;j++){
-            //rhoe[i][j] = 0.0;
+            rhoe[i][j] = 0.0;
             nu_m1[i][j] = nu_eff;
         }
     }
@@ -2539,8 +2539,12 @@ void update_energy_profile(){
         
         
         double ratio = Pmw/P_fwd;
-        std::cout << "ratio =" << ratio << std::endl;
 
+        std::cout << "power ratio = " << ratio << std::endl;
+        std::cout << "J1r_exc ="  << J1r_exc;
+        J1r_exc = J1r_exc*sqrt(ratio);
+        std::cout << " -> " << J1r_exc << std::endl;
+        
         //電力調整
         for (int i=0;i<ni+1;i++){
             for (int j=0;j<nj+1;j++){
@@ -2548,19 +2552,26 @@ void update_energy_profile(){
                 J1r[i][j] = J1r[i][j]*sqrt(ratio);
             }
         }
-
+       
     }else{
 
         double ratio = Pmw/power_sum;
-        std::cout << "ratio =" << ratio << std::endl;
-
+        
+        //std::cout << "J1r_exc1 =" << J1r_exc <<","<<std::real(J1r_exc) <<","<<sqrt(ratio)<<","<<J1r_exc*sqrt(ratio)<< std::endl;
         //電力調整
+        std::cout << "power ratio = " << ratio << std::endl;
+        std::cout << "J1r_exc = " << J1r_exc;
+        J1r_exc = J1r_exc*sqrt(ratio);
+        std::cout << " -> " << J1r_exc << std::endl;
+
         for (int i=0;i<ni+1;i++){
             for (int j=0;j<nj+1;j++){
                 Pabs[i][j] = Pabs[i][j]*ratio;
                 J1r[i][j] = J1r[i][j]*sqrt(ratio);
             }
         }
+        //std::cout << "J1r_exc2 =" << J1r_exc <<","<<std::real(J1r_exc) <<","<<sqrt(ratio)<<","<<J1r_exc*sqrt(ratio)<< std::endl;
+        
 
     }
 

@@ -95,8 +95,9 @@ int main(int argc, char *argv[])
     //マイクロ波計算
     {
         solve_Microwave(); //マイクロ波更新
-        update_energy_profile(); //電力吸収プロファイル更新
+        //update_energy_profile(); //電力吸収プロファイル更新
     }
+    
 
     /*
     //初期の準安定種のプロファイルを生成
@@ -106,6 +107,7 @@ int main(int argc, char *argv[])
     */
     output_phase();
     output(); //ファイルにアウトプット
+    return 0;
 
     std::ofstream outputfile1("results/residuals.csv");
     outputfile1 << "itime,time,rhoi,Uix,Uir,Uip,phi,rhoe,rhoUex,rhoUer,rhoeps,Gx,Gr,rhom,rhon" << std::endl;
