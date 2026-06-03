@@ -588,7 +588,7 @@ struct BolsigVec{
 
 //for SEE table
 //--------------------------------
-struct SEEVec{
+struct SeeVec{
     
     vector<double> coefEISEE_eb_table; //EI elastic-backscattering
     vector<double> coefEISEE_rd_table; //EI rediffusion
