@@ -12,10 +12,14 @@
 #include <fstream>
 #include <time.h>
 #include <vector>
-#include "common.hpp"
-#include "functions.hpp"
 #include <sstream>
 #include <mpi.h>
+
+#include "constants.hpp"
+#include "params.hpp"
+#include "arrays.hpp"
+#include "inputFuncs.hpp"
+#include "initialFuncs.hpp"
 
 //*****************************************************************
 //**                                                             **
@@ -24,6 +28,28 @@
 //*****************************************************************
 int main(int argc, char *argv[])
 {
+
+    //input data
+    //-------------------------------------
+    Params prm;
+    BolsigVec bolv;
+    //-------------------------------------
+
+    //general functions
+    //-------------------------------------
+    InputFuncs inputF;
+    InitialFuncs iniF;
+    //OutputFuncs outF;
+    //-------------------------------------
+
+    //modules
+    //-------------------------------------
+    //FluidModule fluidM;
+    //FieldModule fieldM;
+    //SolverModule solverM;
+    //ParticleModule pclM;
+    //-------------------------------------
+
     int ndiv_out = 10;
     int icon_end = 0;
     double GnuFactor = 0.1;
@@ -47,7 +73,7 @@ int main(int argc, char *argv[])
     FILE* rhoi_plot;
     FILE* Uex_plot;
 
-    if(icon_gnuRes == 1){
+    if(prm.icon_gnuRes == 1){
         error_plot = popen("gnuplot", "w"); 
         fprintf(error_plot, "set title 'Error History'\n");
 
@@ -70,11 +96,23 @@ int main(int argc, char *argv[])
 
     MPI_Init(&argc, &argv); //hypre用
 
-    //初期化
-    inputParam(); //setup.csvからインプットパラメータを読み込み
-    iniparameter(); //パラメータ初期化
+    //parameter input
+    //-------------------------------------
+    inputF.inputParam(prm,"setup.yaml");
+    //-------------------------------------
+
+    //initialization of arrays
+    //-------------------------------------
+    GridCenter gc(prm.ni,prm.nj);
+    GridInterface gi(prm.ni,prm.nj);
+    //-------------------------------------
+
+    //initialization of parameters
+    //-------------------------------------
+    iniF.iniParam(prm,gc,gi); 
+    //-------------------------------------
     
-    if(icon_impTest == 1){
+    if(prm.icon_impTest == 1){
         
         makeBoundary_impedanceTest(); //形状の生成
     

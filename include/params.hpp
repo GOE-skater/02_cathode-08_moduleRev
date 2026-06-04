@@ -1,5 +1,4 @@
 #pragma once
-#include "constants.hpp"
 #include <complex>
 
 struct Params{ 
@@ -138,7 +137,7 @@ struct Params{
     // ============================================================
     // Do not read
     // ============================================================
-    
+
     double masse=9.10938356e-31; //電子質量
     double massi = 131.293e-3/6.02214076e23; //イオン質量 Xe 131.293
     double ri = 216e-12; //イオン半径 Xe = 216pm
@@ -155,5 +154,72 @@ struct Params{
     std::complex<double> J1r_exc = std::complex<double>(0.212687,0.0); //励起電流
     
     int icon_error = 1; //errorの種類 0:max 1:rms
+
+    double Lx=0.0; //計算領域のx方向の大きさ
+    double Lr=0.0; //計算領域のx方向の大きさ
+    
+    double gtime=0.0; //時間
+    int itime=0; //時間(整数)
+    
+    double dx=0.0; //x方向の刻み
+    double dr=0.0; //r方向の刻み
+    double dt=0.0; //時間刻み
+    
+    double I_Anode = 0.0; //アノード電流
+    double Ii_Anode = 0.0; //アノード電流
+    double Ie_Anode = 0.0; //アノード電流
+    
+    double I_Nozzle = 0.0; //ノズル電流
+    double Ii_Nozzle = 0.0; //アノード電流
+    double Ie_Nozzle = 0.0; //アノード電流
+    
+    int nOut = 0; //ファイルアウトプット回数
+    
+    int icon_restart = 0;
+    
+    double error_rhoi = 0.0;
+    double error_rhoe = 0.0;
+    
+    double error_rhoUex = 0.0;
+    double error_rhoUer = 0.0;
+    double error_rhoeps = 0.0;
+    double error_Gx = 0.0;
+    double error_Gr = 0.0;
+    
+    double error_Uix = 0.0;
+    double error_Uir = 0.0;
+    double error_Uip = 0.0;
+    double error_phi = 0.0;
+    double error_rhom = 0.0;
+    double error_rhon = 0.0;
+    
+    //反応レート係数データ
+    double dTe = 0.0; //電子温度の刻み幅
+    double dEi = 0.0; //イオンドリフトエネルギーの刻み幅
+    double dTe_SEE = 0.0; //SEE用の電子温度の刻み幅
+    
+    //BiCGSTAB用変数
+    int nk = 0; //kの数 (ExとErの合計)
+    int nkx = 0; //kの数 (Ex)
+    int nkr = 0; //kの数 (Er)
+    int nkp = 0; //kの数 (Ep)
+    
+    //流入条件
+    double fn_In = 0.0; //中性粒子の流入フラックス
+    
+    //ジオメトリ
+    double x1 = 0.0;
+    double x2 = 0.0;
+    double x3 = 0.0;
+    double x4 = 0.0;
+    double x5 = 0.0;
+    double x6 = 0.0;
+    
+    double r1 = 0.0;
+    double r2 = 0.0;
+    double r3 = 0.0;
+    double r4 = 0.0;
+    double r5 = 0.0;
+    double r6 = 0.0;
     
 };
