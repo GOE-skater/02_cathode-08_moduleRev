@@ -33,6 +33,8 @@ int main(int argc, char *argv[])
     //-------------------------------------
     Params pm;
     BolsigVec bolv;
+    GridK gk;
+    MicrowaveBC mb;
     //-------------------------------------
 
     //general functions
@@ -115,15 +117,14 @@ int main(int argc, char *argv[])
     
     if(pm.icon_impTest == 1){
         
-        makeBoundary_impedanceTest(); //形状の生成
-    
+        iniF.makeBoundary_impedanceTest(pm, gc, gx, gr, gk, mb);
         solve_Microwave_impedanceTest(); //マイクロ波更新
         output_phase();
         //output(); //ファイルにアウトプット
         return 0;
     }
 
-    makeBoundary(); //形状の生成
+    iniF.makeBoundary(pm, gc, gx, gr, gk, mb);
     input_Bfield_data(); //磁場の読み込み
     input_SEE_data();
     makeProfile(); //事前定義プロファイルの作成

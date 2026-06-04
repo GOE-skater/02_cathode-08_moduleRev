@@ -22,12 +22,13 @@ class InitialFuncs
 
     public:
         void iniParam(Params &pm,GridCenter &gc,GridInterfaceX &gx,GridInterfaceR &gr);
-        void makeBoundary(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr);
+        void makeBoundary(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr, GridK &gk, MicrowaveBC &mb);
+        void makeBoundary_impedanceTest(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr, GridK &gk, MicrowaveBC &mb);
 };
 
 //*****************************************************************
 //**                                                             **
-//**           void param                                        **
+//**           void iniParam                                     **
 //**                                                             **
 //*****************************************************************
 void InitialFuncs::iniParam(Params &pm,GridCenter &gc,GridInterfaceX &gx,GridInterfaceR &gr)
@@ -82,7 +83,7 @@ void InitialFuncs::iniParam(Params &pm,GridCenter &gc,GridInterfaceX &gx,GridInt
 //**           void makeBoundary                                 **
 //**                                                             **
 //*****************************************************************
-void InitialFuncs::makeBoundary(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr)
+void InitialFuncs::makeBoundary(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr, GridK &gk, MicrowaveBC &mb)
 {
     
     double x_tmp = 0.0;
@@ -145,12 +146,12 @@ void InitialFuncs::makeBoundary(Params &pm, GridCenter &gc, GridInterfaceX &gx, 
     gc.j_flc_bl[5][1] = int(pm.r2/pm.dr - 0.5) + 1; //10
 
     //std::cout << "flc" << std::endl;
-    //std::cout << i_flc_bl[0][0] << " , "<<j_flc_bl[0][0] << " , "<< i_flc_bl[0][1] << " , "<<j_flc_bl[0][1] << std::endl;
-    //std::cout << i_flc_bl[1][0] << " , "<<j_flc_bl[1][0] << " , "<< i_flc_bl[1][1] << " , "<<j_flc_bl[1][1] << std::endl;
-    //std::cout << i_flc_bl[2][0] << " , "<<j_flc_bl[2][0] << " , "<< i_flc_bl[2][1] << " , "<<j_flc_bl[2][1] << std::endl;
-    //std::cout << i_flc_bl[3][0] << " , "<<j_flc_bl[3][0] << " , "<< i_flc_bl[3][1] << " , "<<j_flc_bl[3][1] << std::endl;
-    //std::cout << i_flc_bl[4][0] << " , "<<j_flc_bl[4][0] << " , "<< i_flc_bl[4][1] << " , "<<j_flc_bl[4][1] << std::endl;
-    //std::cout << i_flc_bl[5][0] << " , "<<j_flc_bl[5][0] << " , "<< i_flc_bl[5][1] << " , "<<j_flc_bl[5][1] << std::endl;
+    //std::cout << gc.i_flc_bl[0][0] << " , "<<gc.j_flc_bl[0][0] << " , "<< gc.i_flc_bl[0][1] << " , "<<gc.j_flc_bl[0][1] << std::endl;
+    //std::cout << gc.i_flc_bl[1][0] << " , "<<gc.j_flc_bl[1][0] << " , "<< gc.i_flc_bl[1][1] << " , "<<gc.j_flc_bl[1][1] << std::endl;
+    //std::cout << gc.i_flc_bl[2][0] << " , "<<gc.j_flc_bl[2][0] << " , "<< gc.i_flc_bl[2][1] << " , "<<gc.j_flc_bl[2][1] << std::endl;
+    //std::cout << gc.i_flc_bl[3][0] << " , "<<gc.j_flc_bl[3][0] << " , "<< gc.i_flc_bl[3][1] << " , "<<gc.j_flc_bl[3][1] << std::endl;
+    //std::cout << gc.i_flc_bl[4][0] << " , "<<gc.j_flc_bl[4][0] << " , "<< gc.i_flc_bl[4][1] << " , "<<gc.j_flc_bl[4][1] << std::endl;
+    //std::cout << gc.i_flc_bl[5][0] << " , "<<gc.j_flc_bl[5][0] << " , "<< gc.i_flc_bl[5][1] << " , "<<gc.j_flc_bl[5][1] << std::endl;
 
     gx.i_flx_bl[0][0] = int(pm.x6/pm.dx + 0.5) + 2; //2
     gx.j_flx_bl[0][0] = int(pm.r3/pm.dr + 0.5) + 1; //21
@@ -284,50 +285,50 @@ void InitialFuncs::makeBoundary(Params &pm, GridCenter &gc, GridInterfaceX &gx, 
     int kfx_tmp = 0;
     int kfr_tmp = 0;
 
-    for (int i=0;i<=ni+1;i++){
-        for (int j=0;j<=nj+1;j++){
-            if(jdgBnd_Ex[i][j]==1){
-                kx[i][j] = kx_tmp;
+    for (int i=0;i<=pm.ni+1;i++){
+        for (int j=0;j<=pm.nj+1;j++){
+            if(gx.jdgBnd_Ex[i][j]==1){
+                gx.kx[i][j] = kx_tmp;
                 kx_tmp++;
-                ikx.push_back(i);
-                jkx.push_back(j);
+                gk.ikx.push_back(i);
+                gk.jkx.push_back(j);
             }
 
-            if(jdgBnd_Er[i][j]==1){
-                kr[i][j] = kr_tmp;
+            if(gr.jdgBnd_Er[i][j]==1){
+                gr.kr[i][j] = kr_tmp;
                 kr_tmp++;
-                ikr.push_back(i);
-                jkr.push_back(j);
+                gk.ikr.push_back(i);
+                gk.jkr.push_back(j);
             }
 
-            if(jdgBnd_Ep[i][j]==1){
-                kp[i][j] = kp_tmp;
+            if(gc.jdgBnd_Ep[i][j]==1){
+                gc.kp[i][j] = kp_tmp;
                 kp_tmp++;
-                ikp.push_back(i);
-                jkp.push_back(j);
+                gk.ikp.push_back(i);
+                gk.jkp.push_back(j);
             }
         }
     }
 
 
-    nkx = ikx.size();
-    nkr = ikr.size();
-    nkp = ikp.size();
-    nk = nkx + nkr + nkp;
-    std::cout << "nkx = " << nkx << " nkr = " << nkr << " nkp = " << nkp << " nk = " << nk  << std::endl;
+    pm.nkx = gk.ikx.size();
+    pm.nkr = gk.ikr.size();
+    pm.nkp = gk.ikp.size();
+    pm.nk = pm.nkx + pm.nkr + pm.nkp;
+    std::cout << "nkx = " << pm.nkx << " nkr = " << pm.nkr << " nkp = " << pm.nkp << " nk = " << pm.nk  << std::endl;
 
     //Output boundary check file
-    if(icon_chk == 1){
+    if(pm.icon_chk == 1){
 
         std::ofstream outputfile1("results/boundary0.csv");
         outputfile1<<"i,j,x,r,jdgBnd_Ep,jdgBnd_Ex,jdgBnd_Er,jdgBnd_flc,jdgBnd_flx,jdgBnd_flr,kx,kr,kp,zero" << std::endl;
 
-        for(int i=0;i<=ni+1;i++){
-            for(int j=0;j<=nj+1;j++){
-                outputfile1<< i << ","<< j << "," << x[i]<< ","<< r[j]
-                    << "," << jdgBnd_Ep[i][j] << "," << jdgBnd_Ex[i][j]<< "," << jdgBnd_Er[i][j]
-                    << "," << jdgBnd_flc[i][j]<< "," << jdgBnd_flx[i][j]<< "," << jdgBnd_flr[i][j]
-                    << "," << kx[i][j]<< "," << kr[i][j]<< "," << kp[i][j]
+        for(int i=0;i<=pm.ni+1;i++){
+            for(int j=0;j<=pm.nj+1;j++){
+                outputfile1<< i << ","<< j << "," << gc.x[i]<< ","<< gc.r[j]
+                    << "," << gc.jdgBnd_Ep[i][j] << "," << gx.jdgBnd_Ex[i][j]<< "," << gr.jdgBnd_Er[i][j]
+                    << "," << gc.jdgBnd_flc[i][j]<< "," << gx.jdgBnd_flx[i][j]<< "," << gr.jdgBnd_flr[i][j]
+                    << "," << gx.kx[i][j]<< "," << gr.kr[i][j]<< "," << gc.kp[i][j]
                     << "," << 0.0<< std::endl;
             }
         }
@@ -338,239 +339,239 @@ void InitialFuncs::makeBoundary(Params &pm, GridCenter &gc, GridInterfaceX &gx, 
     //**************** 境界条件保持配列作成 ****************
     //********* Ex境界条件 (左) *********
     //z0
-    for (int j=j_flc_bl[0][0]+1;j<=j_flc_bl[0][1]-1;j++){
-        int i=i_flc_bl[0][0]+1;
-        iBndWx.push_back(i);
-        jBndWx.push_back(j);
-        sBndWx.push_back(2); //ガウス
+    for (int j=gc.j_flc_bl[0][0]+1;j<=gc.j_flc_bl[0][1]-1;j++){
+        int i=gc.i_flc_bl[0][0]+1;
+        mb.iBndWx.push_back(i);
+        mb.jBndWx.push_back(j);
+        mb.sBndWx.push_back(2); //ガウス
     }
     //z0
     {
-        int i=i_flc_bl[0][0]+1;
-        int j=j_flc_bl[0][0];
-        iBndWx.push_back(i);
-        jBndWx.push_back(j);
-        sBndWx.push_back(3); //凹角 下側壁
+        int i=gc.i_flc_bl[0][0]+1;
+        int j=gc.j_flc_bl[0][0];
+        mb.iBndWx.push_back(i);
+        mb.jBndWx.push_back(j);
+        mb.sBndWx.push_back(3); //凹角 下側壁
     }
     //z0
     {
-        int i=i_flc_bl[0][0]+1;
-        int j=j_flc_bl[1][1];
-        iBndWx.push_back(i);
-        jBndWx.push_back(j);
-        sBndWx.push_back(4); //凹角 上側壁
+        int i=gc.i_flc_bl[0][0]+1;
+        int j=gc.j_flc_bl[1][1];
+        mb.iBndWx.push_back(i);
+        mb.jBndWx.push_back(j);
+        mb.sBndWx.push_back(4); //凹角 上側壁
     }
     //z1
-    for (int j=j_flc_bl[5][1]+1;j<=j_flc_bl[0][0]-1;j++){
-        int i=i_flc_bl[2][0]+1;
-        iBndWx.push_back(i);
-        jBndWx.push_back(j);
-        sBndWx.push_back(2); //ガウス
+    for (int j=gc.j_flc_bl[5][1]+1;j<=gc.j_flc_bl[0][0]-1;j++){
+        int i=gc.i_flc_bl[2][0]+1;
+        mb.iBndWx.push_back(i);
+        mb.jBndWx.push_back(j);
+        mb.sBndWx.push_back(2); //ガウス
     }
     //z2
-    for (int j=j_flc_bl[3][0];j<=j_flc_bl[2][0]-1;j++){
-        int i=i_flc_bl[3][0]+1;
-        iBndWx.push_back(i);
-        jBndWx.push_back(j);
-        sBndWx.push_back(2); //ガウス
+    for (int j=gc.j_flc_bl[3][0];j<=gc.j_flc_bl[2][0]-1;j++){
+        int i=gc.i_flc_bl[3][0]+1;
+        mb.iBndWx.push_back(i);
+        mb.jBndWx.push_back(j);
+        mb.sBndWx.push_back(2); //ガウス
     }
     //z4
-    for (int j=j_flc_bl[1][0];j<=j_flc_bl[4][1]-1;j++){
-        int i=i_flc_bl[4][0]+1;
-        iBndWx.push_back(i);
-        jBndWx.push_back(j);
-        sBndWx.push_back(2); //ガウス
+    for (int j=gc.j_flc_bl[1][0];j<=gc.j_flc_bl[4][1]-1;j++){
+        int i=gc.i_flc_bl[4][0]+1;
+        mb.iBndWx.push_back(i);
+        mb.jBndWx.push_back(j);
+        mb.sBndWx.push_back(2); //ガウス
     }
     //z4
     {
-        int i=i_flc_bl[4][0]+1;
-        int j=j_flc_bl[4][1];
-        iBndWx.push_back(i);
-        jBndWx.push_back(j);
-        sBndWx.push_back(4); //凹角 上側壁
+        int i=gc.i_flc_bl[4][0]+1;
+        int j=gc.j_flc_bl[4][1];
+        mb.iBndWx.push_back(i);
+        mb.jBndWx.push_back(j);
+        mb.sBndWx.push_back(4); //凹角 上側壁
     }
     //z6
-    for (int j=j_flc_bl[5][0];j<=j_flc_bl[5][1];j++){
-        int i=i_flc_bl[5][0]+1;
-        iBndWx.push_back(i);
-        jBndWx.push_back(j);
-        sBndWx.push_back(0); //ディリクレ
+    for (int j=gc.j_flc_bl[5][0];j<=gc.j_flc_bl[5][1];j++){
+        int i=gc.i_flc_bl[5][0]+1;
+        mb.iBndWx.push_back(i);
+        mb.jBndWx.push_back(j);
+        mb.sBndWx.push_back(0); //ディリクレ
     }
     //出力
-    if(icon_chk == 1){
+    if(pm.icon_chk == 1){
         std::ofstream outputfileWx("results/BCx0.csv");
         outputfileWx <<"i,j,x,r,BC,zero" << std::endl;
-        for (int k=0;k<iBndWx.size();k++){
-            int i = iBndWx[k];
-            int j = jBndWx[k];
+        for (int k=0;k<mb.iBndWx.size();k++){
+            int i = mb.iBndWx[k];
+            int j = mb.jBndWx[k];
             
             outputfileWx << i << ","<< j 
-                << ","<< x[i] << ","<<r[j] << ","<<sBndWx[k] 
+                << ","<< gc.x[i] << ","<<gc.r[j] << ","<<mb.sBndWx[k] 
                 << ","<<0.0 << std::endl;
         }
         outputfileWx.close();
     }
     //********* Ex境界条件 (右) *********
     //z3
-    for (int j=j_flc_bl[1][0];j<=j_flc_bl[1][1]-1;j++){
-        int i=i_flc_bl[1][1];
-        iBndEx.push_back(i);
-        jBndEx.push_back(j);
-        sBndEx.push_back(2); //ガウス
+    for (int j=gc.j_flc_bl[1][0];j<=gc.j_flc_bl[1][1]-1;j++){
+        int i=gc.i_flc_bl[1][1];
+        mb.iBndEx.push_back(i);
+        mb.jBndEx.push_back(j);
+        mb.sBndEx.push_back(2); //ガウス
     }
     //z3
     {
-        int i=i_flc_bl[1][1];
-        int j=j_flc_bl[1][1];
-        iBndEx.push_back(i);
-        jBndEx.push_back(j);
-        sBndEx.push_back(4); //凹角 上側壁
+        int i=gc.i_flc_bl[1][1];
+        int j=gc.j_flc_bl[1][1];
+        mb.iBndEx.push_back(i);
+        mb.jBndEx.push_back(j);
+        mb.sBndEx.push_back(4); //凹角 上側壁
     }
     //z5
-    for (int j=j_flc_bl[4][0];j<=j_flc_bl[4][1]-1;j++){
-        int i=i_flc_bl[4][1];
-        iBndEx.push_back(i);
-        jBndEx.push_back(j);
-        sBndEx.push_back(2); //ガウス
+    for (int j=gc.j_flc_bl[4][0];j<=gc.j_flc_bl[4][1]-1;j++){
+        int i=gc.i_flc_bl[4][1];
+        mb.jBndEx.push_back(j);
+        mb.iBndEx.push_back(i);
+        mb.sBndEx.push_back(2); //ガウス
     }
     //z5
     {
-        int i=i_flc_bl[4][1];
-        int j=j_flc_bl[4][1];
-        iBndEx.push_back(i);
-        jBndEx.push_back(j);
-        sBndEx.push_back(4); //凹角 上側壁
+        int i=gc.i_flc_bl[4][1];
+        int j=gc.j_flc_bl[4][1];
+        mb.iBndEx.push_back(i);
+        mb.jBndEx.push_back(j);
+        mb.sBndEx.push_back(4); //凹角 上側壁
     }
     //出力
-    if(icon_chk == 1){
+    if(pm.icon_chk == 1){
         std::ofstream outputfileEx("results/BCx1.csv");
         outputfileEx <<"i,j,x,r,BC,zero" << std::endl;
-        for (int k=0;k<iBndEx.size();k++){
-            int i = iBndEx[k];
-            int j = jBndEx[k];
+        for (int k=0;k<mb.iBndEx.size();k++){
+            int i = mb.iBndEx[k];
+            int j = mb.jBndEx[k];
             
             outputfileEx << i << ","<< j 
-                << ","<< x[i] << ","<<r[j] << ","<<sBndEx[k] 
+                << ","<< gc.x[i] << ","<<gc.r[j] << ","<<mb.sBndEx[k] 
                 << ","<<0.0 << std::endl;
         }
         outputfileEx.close();
     }
     //********* Ex境界条件 (下) *********
     //x0
-    for (int i=i_flc_bl[0][0]+1;i<=i_flc_bl[0][1];i++){
-        int j=j_flc_bl[0][0];
-        iBndSx.push_back(i);
-        jBndSx.push_back(j);
-        sBndSx.push_back(0); //ディリクレ
+    for (int i=gc.i_flc_bl[0][0]+1;i<=gc.i_flc_bl[0][1];i++){
+        int j=gc.j_flc_bl[0][0];
+        mb.iBndSx.push_back(i);
+        mb.jBndSx.push_back(j);
+        mb.sBndSx.push_back(0); //ディリクレ
     }
     //x0
     {
-        int i=i_flc_bl[0][1]+1;
-        int j=j_flc_bl[0][0];
-        iBndSx.push_back(i);
-        jBndSx.push_back(j);
-        sBndSx.push_back(6); //凸角 右側Open
+        int i=gc.i_flc_bl[0][1]+1;
+        int j=gc.j_flc_bl[0][0];
+        mb.iBndSx.push_back(i);
+        mb.jBndSx.push_back(j);
+        mb.sBndSx.push_back(6); //凸角 右側Open
     }
     //x2
-    for (int i=i_flc_bl[5][0]+1;i<=i_flc_bl[2][1];i++){
-        int j=j_flc_bl[5][0];
-        iBndSx.push_back(i);
-        jBndSx.push_back(j);
-        sBndSx.push_back(0); //ディリクレ
+    for (int i=gc.i_flc_bl[5][0]+1;i<=gc.i_flc_bl[2][1];i++){
+        int j=gc.j_flc_bl[5][0];
+        mb.iBndSx.push_back(i);
+        mb.jBndSx.push_back(j);
+        mb.sBndSx.push_back(0); //ディリクレ
     }
     //x2
     {
-        int i=i_flc_bl[2][1]+1;
-        int j=j_flc_bl[5][0];
-        iBndSx.push_back(i);
-        jBndSx.push_back(j);
-        sBndSx.push_back(6); //凸角 右側Open
+        int i=gc.i_flc_bl[2][1]+1;
+        int j=gc.j_flc_bl[5][0];
+        mb.iBndSx.push_back(i);
+        mb.jBndSx.push_back(j);
+        mb.sBndSx.push_back(6); //凸角 右側Open
     }
     //出力
-    if(icon_chk == 1){
+    if(pm.icon_chk == 1){
         std::ofstream outputfileSx("results/BCx2.csv");
         outputfileSx <<"i,j,x,r,BC,zero" << std::endl;
-        for (int k=0;k<iBndSx.size();k++){
-            int i = iBndSx[k];
-            int j = jBndSx[k];
+        for (int k=0;k<mb.iBndSx.size();k++){
+            int i = mb.iBndSx[k];
+            int j = mb.jBndSx[k];
             
             outputfileSx << i << ","<< j 
-                << ","<< x[i] << ","<<r[j] << ","<<sBndSx[k] 
+                << ","<< gc.x[i] << ","<<gc.r[j] << ","<<mb.sBndSx[k] 
                 << ","<<0.0 << std::endl;
         }
         outputfileSx.close();
     }
     //********* Ex境界条件 (上) *********
     //x1
-    for (int i=i_flc_bl[0][0]+1;i<=i_flc_bl[1][1];i++){
-        int j=j_flc_bl[0][1];
-        iBndNx.push_back(i);
-        jBndNx.push_back(j);
-        sBndNx.push_back(0); //ディリクレ
+    for (int i=gc.i_flc_bl[0][0]+1;i<=gc.i_flc_bl[1][1];i++){
+        int j=gc.j_flc_bl[0][1];
+        mb.iBndNx.push_back(i);
+        mb.jBndNx.push_back(j);
+        mb.sBndNx.push_back(0); //ディリクレ
     }
     //x3
-    for (int i=i_flc_bl[5][0]+1;i<=i_flc_bl[5][1];i++){
-        int j=j_flc_bl[5][1];
-        iBndNx.push_back(i);
-        jBndNx.push_back(j);
-        sBndNx.push_back(0); //ディリクレ
+    for (int i=gc.i_flc_bl[5][0]+1;i<=gc.i_flc_bl[5][1];i++){
+        int j=gc.j_flc_bl[5][1];
+        mb.iBndNx.push_back(i);
+        mb.jBndNx.push_back(j);
+        mb.sBndNx.push_back(0); //ディリクレ
     }
     //x3
     {
-        int i=i_flc_bl[5][1]+1;
-        int j=j_flc_bl[5][1];
-        iBndNx.push_back(i);
-        jBndNx.push_back(j);
-        sBndNx.push_back(6); //凸角 右側Open
+        int i=gc.i_flc_bl[5][1]+1;
+        int j=gc.j_flc_bl[5][1];
+        mb.iBndNx.push_back(i);
+        mb.jBndNx.push_back(j);
+        mb.sBndNx.push_back(6); //凸角 右側Open
     }
     //x4
-    for (int i=i_flc_bl[1][1]+2;i<=i_flc_bl[3][1];i++){
-        int j=j_flc_bl[3][1];
-        iBndNx.push_back(i);
-        jBndNx.push_back(j);
-        sBndNx.push_back(0); //ディリクレ
-    }
-    //x4
-    {
-        int i=i_flc_bl[1][1]+1;
-        int j=j_flc_bl[3][1];
-        iBndNx.push_back(i);
-        jBndNx.push_back(j);
-        sBndNx.push_back(5); //凸角 左側Open
+    for (int i=gc.i_flc_bl[1][1]+2;i<=gc.i_flc_bl[3][1];i++){
+        int j=gc.j_flc_bl[3][1];
+        mb.iBndNx.push_back(i);
+        mb.jBndNx.push_back(j);
+        mb.sBndNx.push_back(0); //ディリクレ
     }
     //x4
     {
-        int i=i_flc_bl[3][1]+1;
-        int j=j_flc_bl[3][1];
-        iBndNx.push_back(i);
-        jBndNx.push_back(j);
-        sBndNx.push_back(6); //凸角 右側Open
+        int i=gc.i_flc_bl[1][1]+1;
+        int j=gc.j_flc_bl[3][1];
+        mb.iBndNx.push_back(i);
+        mb.jBndNx.push_back(j);
+        mb.sBndNx.push_back(5); //凸角 左側Open
+    }
+    //x4
+    {
+        int i=gc.i_flc_bl[3][1]+1;
+        int j=gc.j_flc_bl[3][1];
+        mb.iBndNx.push_back(i);
+        mb.jBndNx.push_back(j);
+        mb.sBndNx.push_back(6); //凸角 右側Open
     }
     //x5
-    //for (int i=i_flc_bl[4][0]+1;i<=i_flc_bl[4][1];i++){
-    //    int j=j_flc_bl[4][1];
-    //    iBndNx.push_back(i);
-    //    jBndNx.push_back(j);
-    //    sBndNx.push_back(1); //開放
+    //for (int i=gc.i_flc_bl[4][0]+1;i<=gc.i_flc_bl[4][1];i++){
+    //    int j=gc.j_flc_bl[4][1];
+    //    mb.iBndNx.push_back(i);
+    //    mb.jBndNx.push_back(j);
+    //    mb.sBndNx.push_back(1); //開放
     //}
     //x5 (仮)
-    for (int i=i_flc_bl[4][0]+1;i<=i_flc_bl[4][1];i++){
-        int j=j_flc_bl[4][1];
-        iBndNx.push_back(i);
-        jBndNx.push_back(j);
-        sBndNx.push_back(0); //ディリクレ
+    for (int i=gc.i_flc_bl[4][0]+1;i<=gc.i_flc_bl[4][1];i++){
+        int j=gc.j_flc_bl[4][1];
+        mb.iBndNx.push_back(i);
+        mb.jBndNx.push_back(j);
+        mb.sBndNx.push_back(0); //ディリクレ
     }
 
     //出力
-    if(icon_chk == 1){
+    if(pm.icon_chk == 1){
         std::ofstream outputfileNx("results/BCx3.csv");
         outputfileNx <<"i,j,x,r,BC,zero" << std::endl;
-        for (int k=0;k<iBndNx.size();k++){
-            int i = iBndNx[k];
-            int j = jBndNx[k];
+        for (int k=0;k<mb.iBndNx.size();k++){
+            int i = mb.iBndNx[k];
+            int j = mb.jBndNx[k];
             
             outputfileNx << i << ","<< j 
-                << ","<< x[i] << ","<<r[j] << ","<<sBndNx[k] 
+                << ","<< gc.x[i] << ","<<gc.r[j] << ","<<mb.sBndNx[k] 
                 << ","<<0.0 << std::endl;
         }
         outputfileNx.close();
@@ -578,231 +579,231 @@ void InitialFuncs::makeBoundary(Params &pm, GridCenter &gc, GridInterfaceX &gx, 
 
     //********* Er境界条件 (左) *********
     //z0
-    for (int j=j_flc_bl[0][0]+1;j<=j_flc_bl[0][1];j++){
-        int i=i_flc_bl[0][0];
-        iBndWr.push_back(i);
-        jBndWr.push_back(j);
-        sBndWr.push_back(0); //ディリクレ
+    for (int j=gc.j_flc_bl[0][0]+1;j<=gc.j_flc_bl[0][1];j++){
+        int i=gc.i_flc_bl[0][0];
+        mb.iBndWr.push_back(i);
+        mb.jBndWr.push_back(j);
+        mb.sBndWr.push_back(0); //ディリクレ
     }
     //z1
-    for (int j=j_flc_bl[5][1]+2;j<=j_flc_bl[0][0]-1;j++){
-        int i=i_flc_bl[1][0];
-        iBndWr.push_back(i);
-        jBndWr.push_back(j);
-        sBndWr.push_back(0); //ディリクレ
-    }
-    //z1
-    {
-        int i=i_flc_bl[1][0];
-        int j=j_flc_bl[5][1]+1;
-        iBndWr.push_back(i);
-        jBndWr.push_back(j);
-        sBndWr.push_back(5); //凸角 下側Open
+    for (int j=gc.j_flc_bl[5][1]+2;j<=gc.j_flc_bl[0][0]-1;j++){
+        int i=gc.i_flc_bl[1][0];
+        mb.iBndWr.push_back(i);
+        mb.jBndWr.push_back(j);
+        mb.sBndWr.push_back(0); //ディリクレ
     }
     //z1
     {
-        int i=i_flc_bl[1][0];
-        int j=j_flc_bl[0][0];
-        iBndWr.push_back(i);
-        jBndWr.push_back(j);
-        sBndWr.push_back(6); //凸角 上側Open
+        int i=gc.i_flc_bl[1][0];
+        int j=gc.j_flc_bl[5][1]+1;
+        mb.iBndWr.push_back(i);
+        mb.jBndWr.push_back(j);
+        mb.sBndWr.push_back(5); //凸角 下側Open
+    }
+    //z1
+    {
+        int i=gc.i_flc_bl[1][0];
+        int j=gc.j_flc_bl[0][0];
+        mb.iBndWr.push_back(i);
+        mb.jBndWr.push_back(j);
+        mb.sBndWr.push_back(6); //凸角 上側Open
     }
     //z2
-    for (int j=j_flc_bl[3][0]+1;j<=j_flc_bl[2][0]-1;j++){
-        int i=i_flc_bl[3][0];
-        iBndWr.push_back(i);
-        jBndWr.push_back(j);
-        sBndWr.push_back(0); //ディリクレ
+    for (int j=gc.j_flc_bl[3][0]+1;j<=gc.j_flc_bl[2][0]-1;j++){
+        int i=gc.i_flc_bl[3][0];
+        mb.iBndWr.push_back(i);
+        mb.jBndWr.push_back(j);
+        mb.sBndWr.push_back(0); //ディリクレ
     }
     //z2
     {
-        int i=i_flc_bl[3][0];
-        int j=j_flc_bl[2][0];
-        iBndWr.push_back(i);
-        jBndWr.push_back(j);
-        sBndWr.push_back(6); //凸角 上側Open
+        int i=gc.i_flc_bl[3][0];
+        int j=gc.j_flc_bl[2][0];
+        mb.iBndWr.push_back(i);
+        mb.jBndWr.push_back(j);
+        mb.sBndWr.push_back(6); //凸角 上側Open
     }
     //z4
-    for (int j=j_flc_bl[1][0]+1;j<=j_flc_bl[4][1];j++){
-        int i=i_flc_bl[4][0];
-        iBndWr.push_back(i);
-        jBndWr.push_back(j);
-        sBndWr.push_back(0); //ディリクレ
+    for (int j=gc.j_flc_bl[1][0]+1;j<=gc.j_flc_bl[4][1];j++){
+        int i=gc.i_flc_bl[4][0];
+        mb.iBndWr.push_back(i);
+        mb.jBndWr.push_back(j);
+        mb.sBndWr.push_back(0); //ディリクレ
     }
     //z4
     {
-        int i=i_flc_bl[4][0];
-        int j=j_flc_bl[1][0];
-        iBndWr.push_back(i);
-        jBndWr.push_back(j);
-        sBndWr.push_back(5); //凸角 下側Open
+        int i=gc.i_flc_bl[4][0];
+        int j=gc.j_flc_bl[1][0];
+        mb.iBndWr.push_back(i);
+        mb.jBndWr.push_back(j);
+        mb.sBndWr.push_back(5); //凸角 下側Open
     }
     //z6
-    for (int j=j_flc_bl[5][0]+1;j<=j_flc_bl[5][1];j++){
-        int i=i_flc_bl[5][0];
-        iBndWr.push_back(i);
-        jBndWr.push_back(j);
-        sBndWr.push_back(1); //開放
+    for (int j=gc.j_flc_bl[5][0]+1;j<=gc.j_flc_bl[5][1];j++){
+        int i=gc.i_flc_bl[5][0];
+        mb.iBndWr.push_back(i);
+        mb.jBndWr.push_back(j);
+        mb.sBndWr.push_back(1); //開放
     }
     //出力
-    if(icon_chk == 1){
+    if(pm.icon_chk == 1){
         std::ofstream outputfileWr("results/BCr0.csv");
         outputfileWr <<"i,j,x,r,BC,zero" << std::endl;
-        for (int k=0;k<iBndWr.size();k++){
-            int i = iBndWr[k];
-            int j = jBndWr[k];
+        for (int k=0;k<mb.iBndWr.size();k++){
+            int i = mb.iBndWr[k];
+            int j = mb.jBndWr[k];
             
             outputfileWr << i << ","<< j 
-                << ","<< x[i] << ","<<r[j] << ","<<sBndWr[k] 
+                << ","<< gc.x[i] << ","<< gc.r[j] << ","<<mb.sBndWr[k] 
                 << ","<<0.0 << std::endl;
         }
         outputfileWr.close();
     }
     //********* Er境界条件 (右) *********
     //z3
-    for (int j=j_flc_bl[1][0]+1;j<=j_flc_bl[1][1];j++){
-        int i=i_flc_bl[1][1];
-        iBndEr.push_back(i);
-        jBndEr.push_back(j);
-        sBndEr.push_back(0); //ディリクレ
+    for (int j=gc.j_flc_bl[1][0]+1;j<=gc.j_flc_bl[1][1];j++){
+        int i=gc.i_flc_bl[1][1];
+        mb.iBndEr.push_back(i);
+        mb.jBndEr.push_back(j);
+        mb.sBndEr.push_back(0); //ディリクレ
     }
     //z3
     {
-        int i=i_flc_bl[1][1];
-        int j=j_flc_bl[1][0];
-        iBndEr.push_back(i);
-        jBndEr.push_back(j);
-        sBndEr.push_back(5); //凸角 下側Open
+        int i=gc.i_flc_bl[1][1];
+        int j=gc.j_flc_bl[1][0];
+        mb.iBndEr.push_back(i);
+        mb.jBndEr.push_back(j);
+        mb.sBndEr.push_back(5); //凸角 下側Open
     }
     //z5
-    for (int j=j_flc_bl[4][0]+1;j<=j_flc_bl[4][1];j++){
-        int i=i_flc_bl[4][1];
-        iBndEr.push_back(i);
-        jBndEr.push_back(j);
-        sBndEr.push_back(0); //ディリクレ
+    for (int j=gc.j_flc_bl[4][0]+1;j<=gc.j_flc_bl[4][1];j++){
+        int i=gc.i_flc_bl[4][1];
+        mb.iBndEr.push_back(i);
+        mb.jBndEr.push_back(j);
+        mb.sBndEr.push_back(0); //ディリクレ
     }
     //出力
-    if(icon_chk == 1){
+    if(pm.icon_chk == 1){
         std::ofstream outputfileEr("results/BCr1.csv");
         outputfileEr <<"i,j,x,r,BC,zero" << std::endl;
-        for (int k=0;k<iBndEr.size();k++){
-            int i = iBndEr[k];
-            int j = jBndEr[k];
+        for (int k=0;k<mb.iBndEr.size();k++){
+            int j = mb.jBndEr[k];
+            int i = mb.iBndEr[k];
             
             outputfileEr << i << ","<< j 
-                << ","<< x[i] << ","<<r[j] << ","<<sBndEr[k] 
+                << ","<< gc.x[i] << ","<< gc.r[j] << ","<<mb.sBndEr[k] 
                 << ","<<0.0 << std::endl;
         }
         outputfileEr.close();
     }
     //********* Er境界条件 (下) *********
     //x0
-    for (int i=i_flc_bl[0][0]+1;i<=i_flc_bl[0][1];i++){
-        int j=j_flc_bl[0][0]+1;
-        iBndSr.push_back(i);
-        jBndSr.push_back(j);
-        sBndSr.push_back(2); //ガウス
+    for (int i=gc.i_flc_bl[0][0]+1;i<=gc.i_flc_bl[0][1];i++){
+        int j=gc.j_flc_bl[0][0]+1;
+        mb.iBndSr.push_back(i);
+        mb.jBndSr.push_back(j);
+        mb.sBndSr.push_back(2); //ガウス
     }
     //x0
     {
-        int i=i_flc_bl[0][0];
-        int j=j_flc_bl[0][0]+1;
-        iBndSr.push_back(i);
-        jBndSr.push_back(j);
-        sBndSr.push_back(3); //凹角 左側壁
+        int i=gc.i_flc_bl[0][0];
+        int j=gc.j_flc_bl[0][0]+1;
+        mb.iBndSr.push_back(i);
+        mb.jBndSr.push_back(j);
+        mb.sBndSr.push_back(3); //凹角 左側壁
     }
     //x2
-    for (int i=i_flc_bl[5][0];i<=i_flc_bl[2][1];i++){
-        int j=j_flc_bl[5][0]+1;
-        iBndSr.push_back(i);
-        jBndSr.push_back(j);
-        sBndSr.push_back(2); //ガウス
+    for (int i=gc.i_flc_bl[5][0];i<=gc.i_flc_bl[2][1];i++){
+        int j=gc.j_flc_bl[5][0]+1;
+        mb.iBndSr.push_back(i);
+        mb.jBndSr.push_back(j);
+        mb.sBndSr.push_back(2); //ガウス
     }
     //出力
-    if(icon_chk == 1){
+    if(pm.icon_chk == 1){
         std::ofstream outputfileSr("results/BCr2.csv");
         outputfileSr <<"i,j,x,r,BC,zero" << std::endl;
-        for (int k=0;k<iBndSr.size();k++){
-            int i = iBndSr[k];
-            int j = jBndSr[k];
+        for (int k=0;k<mb.iBndSr.size();k++){
+            int i = mb.iBndSr[k];
+            int j = mb.jBndSr[k];
             
             outputfileSr << i << ","<< j 
-                << ","<< x[i] << ","<<r[j] << ","<<sBndSr[k] 
+                << ","<< gc.x[i] << ","<< gc.r[j] << ","<< mb.sBndSr[k] 
                 << ","<<0.0 << std::endl;
         }
         outputfileSr.close();
     }
     //********* Er境界条件 (上) *********
     //x1
-    for (int i=i_flc_bl[0][0]+1;i<=i_flc_bl[1][1]-1;i++){
-        int j=j_flc_bl[0][1];
-        iBndNr.push_back(i);
-        jBndNr.push_back(j);
-        sBndNr.push_back(2); //ガウス
+    for (int i=gc.i_flc_bl[0][0]+1;i<=gc.i_flc_bl[1][1]-1;i++){
+        int j=gc.j_flc_bl[0][1];
+        mb.iBndNr.push_back(i);
+        mb.jBndNr.push_back(j);
+        mb.sBndNr.push_back(2); //ガウス
     }
     //x1
     {
-        int i=i_flc_bl[0][0];
-        int j=j_flc_bl[0][1];
-        iBndNr.push_back(i);
-        jBndNr.push_back(j);
-        sBndNr.push_back(3); //凹角 左側壁
+        int i=gc.i_flc_bl[0][0];
+        int j=gc.j_flc_bl[0][1];
+        mb.iBndNr.push_back(i);
+        mb.jBndNr.push_back(j);
+        mb.sBndNr.push_back(3); //凹角 左側壁
     }
     //x1
     {
-        int i=i_flc_bl[1][1];
-        int j=j_flc_bl[0][1];
-        iBndNr.push_back(i);
-        jBndNr.push_back(j);
-        sBndNr.push_back(4); //凹角 右側壁
+        int i=gc.i_flc_bl[1][1];
+        int j=gc.j_flc_bl[0][1];
+        mb.iBndNr.push_back(i);
+        mb.jBndNr.push_back(j);
+        mb.sBndNr.push_back(4); //凹角 右側壁
     }
     //x3
-    for (int i=i_flc_bl[5][0];i<=i_flc_bl[5][1];i++){
-        int j=j_flc_bl[5][1];
-        iBndNr.push_back(i);
-        jBndNr.push_back(j);
-        sBndNr.push_back(2); //ガウス
+    for (int i=gc.i_flc_bl[5][0];i<=gc.i_flc_bl[5][1];i++){
+        int j=gc.j_flc_bl[5][1];
+        mb.iBndNr.push_back(i);
+        mb.jBndNr.push_back(j);
+        mb.sBndNr.push_back(2); //ガウス
     }
     //x4
-    for (int i=i_flc_bl[1][1]+1;i<=i_flc_bl[3][1];i++){
-        int j=j_flc_bl[3][1];
-        iBndNr.push_back(i);
-        jBndNr.push_back(j);
-        sBndNr.push_back(2); //ガウス
+    for (int i=gc.i_flc_bl[1][1]+1;i<=gc.i_flc_bl[3][1];i++){
+        int j=gc.j_flc_bl[3][1];
+        mb.iBndNr.push_back(i);
+        mb.jBndNr.push_back(j);
+        mb.sBndNr.push_back(2); //ガウス
     }
     //x5
-    for (int i=i_flc_bl[4][0]+1;i<=i_flc_bl[4][1]-1;i++){
-        int j=j_flc_bl[4][1];
-        iBndNr.push_back(i);
-        jBndNr.push_back(j);
-        sBndNr.push_back(2); //ガウス
-    }
-    //x5
-    {
-        int i=i_flc_bl[4][0];
-        int j=j_flc_bl[4][1];
-        iBndNr.push_back(i);
-        jBndNr.push_back(j);
-        sBndNr.push_back(3); //凹角 左側壁
+    for (int i=gc.i_flc_bl[4][0]+1;i<=gc.i_flc_bl[4][1]-1;i++){
+        int j=gc.j_flc_bl[4][1];
+        mb.iBndNr.push_back(i);
+        mb.jBndNr.push_back(j);
+        mb.sBndNr.push_back(2); //ガウス
     }
     //x5
     {
-        int i=i_flc_bl[4][1];
-        int j=j_flc_bl[4][1];
-        iBndNr.push_back(i);
-        jBndNr.push_back(j);
-        sBndNr.push_back(4); //凹角 右側壁
+        int i=gc.i_flc_bl[4][0];
+        int j=gc.j_flc_bl[4][1];
+        mb.iBndNr.push_back(i);
+        mb.jBndNr.push_back(j);
+        mb.sBndNr.push_back(3); //凹角 左側壁
+    }
+    //x5
+    {
+        int i=gc.i_flc_bl[4][1];
+        int j=gc.j_flc_bl[4][1];
+        mb.iBndNr.push_back(i);
+        mb.jBndNr.push_back(j);
+        mb.sBndNr.push_back(4); //凹角 右側壁
     }
     //出力
-    if(icon_chk == 1){
+    if(pm.icon_chk == 1){
         std::ofstream outputfileNr("results/BCr3.csv");
         outputfileNr <<"i,j,x,r,BC,zero" << std::endl;
-        for (int k=0;k<iBndNr.size();k++){
-            int i = iBndNr[k];
-            int j = jBndNr[k];
+        for (int k=0;k<mb.iBndNr.size();k++){
+            int i = mb.iBndNr[k];
+            int j = mb.jBndNr[k];
             
             outputfileNr << i << ","<< j 
-                << ","<< x[i] << ","<<r[j] << ","<<sBndNr[k] 
+                << ","<< gc.x[i] << ","<< gc.r[j] << ","<<mb.sBndNr[k] 
                 << ","<<0.0 << std::endl;
         }
         outputfileNr.close();
@@ -810,161 +811,162 @@ void InitialFuncs::makeBoundary(Params &pm, GridCenter &gc, GridInterfaceX &gx, 
 
     //********* Ep境界条件 (左) *********
     //z0
-    for (int j=j_flc_bl[0][0];j<=j_flc_bl[0][1];j++){
-        int i=i_flc_bl[0][0];
-        iBndWp.push_back(i);
-        jBndWp.push_back(j);
-        sBndWp.push_back(0); //ディリクレ
+    for (int j=gc.j_flc_bl[0][0];j<=gc.j_flc_bl[0][1];j++){
+        int i=gc.i_flc_bl[0][0];
+        mb.iBndWp.push_back(i);
+        mb.jBndWp.push_back(j);
+        mb.sBndWp.push_back(0); //ディリクレ
     }
     //z1
-    for (int j=j_flc_bl[5][1]+1;j<=j_flc_bl[0][0]-1;j++){
-        int i=i_flc_bl[2][0];
-        iBndWp.push_back(i);
-        jBndWp.push_back(j);
-        sBndWp.push_back(0); //ディリクレ
+    for (int j=gc.j_flc_bl[5][1]+1;j<=gc.j_flc_bl[0][0]-1;j++){
+        int i=gc.i_flc_bl[2][0];
+        mb.iBndWp.push_back(i);
+        mb.jBndWp.push_back(j);
+        mb.sBndWp.push_back(0); //ディリクレ
     }
     //z2
-    for (int j=j_flc_bl[3][0];j<=j_flc_bl[2][0]-1;j++){
-        int i=i_flc_bl[3][0];
-        iBndWp.push_back(i);
-        jBndWp.push_back(j);
-        sBndWp.push_back(0); //ディリクレ
+    for (int j=gc.j_flc_bl[3][0];j<=gc.j_flc_bl[2][0]-1;j++){
+        int i=gc.i_flc_bl[3][0];
+        mb.iBndWp.push_back(i);
+        mb.jBndWp.push_back(j);
+        mb.sBndWp.push_back(0); //ディリクレ
     }
     //z4
-    for (int j=j_flc_bl[1][0];j<=j_flc_bl[4][1];j++){
-        int i=i_flc_bl[4][0];
-        iBndWp.push_back(i);
-        jBndWp.push_back(j);
-        sBndWp.push_back(0); //ディリクレ
+    for (int j=gc.j_flc_bl[1][0];j<=gc.j_flc_bl[4][1];j++){
+        int i=gc.i_flc_bl[4][0];
+        mb.iBndWp.push_back(i);
+        mb.jBndWp.push_back(j);
+        mb.sBndWp.push_back(0); //ディリクレ
     }
     //z6
-    for (int j=j_flc_bl[5][0];j<=j_flc_bl[5][1];j++){
-        int i=i_flc_bl[5][0];
-        iBndWp.push_back(i);
-        jBndWp.push_back(j);
-        sBndWp.push_back(1); //開放
+    for (int j=gc.j_flc_bl[5][0];j<=gc.j_flc_bl[5][1];j++){
+        int i=gc.i_flc_bl[5][0];
+        mb.iBndWp.push_back(i);
+        mb.jBndWp.push_back(j);
+        mb.sBndWp.push_back(1); //開放
     }
     //出力
-    if(icon_chk == 1){
+    if(pm.icon_chk == 1){
         std::ofstream outputfileWp("results/BCp0.csv");
         outputfileWp <<"i,j,x,r,BC,zero" << std::endl;
-        for (int k=0;k<iBndWp.size();k++){
-            int i = iBndWp[k];
-            int j = jBndWp[k];
+        for (int k=0;k<mb.iBndWp.size();k++){
+            int i = mb.iBndWp[k];
+            int j = mb.jBndWp[k];
             
             outputfileWp << i << ","<< j 
-                << ","<< x[i] << ","<<r[j] << ","<<sBndWp[k] 
+                << ","<< gc.x[i] << ","<< gc.r[j] << ","<<mb.sBndWp[k] 
                 << ","<<0.0 << std::endl;
         }
         outputfileWp.close();
     }
     //********* Ep境界条件 (右) *********
     //z3
-    for (int j=j_flc_bl[1][0];j<=j_flc_bl[1][1];j++){
-        int i=i_flc_bl[1][1];
-        iBndEp.push_back(i);
-        jBndEp.push_back(j);
-        sBndEp.push_back(0); //ディリクレ
+    for (int j=gc.j_flc_bl[1][0];j<=gc.j_flc_bl[1][1];j++){
+        int i=gc.i_flc_bl[1][1];
+        mb.iBndEp.push_back(i);
+        mb.jBndEp.push_back(j);
+        mb.sBndEp.push_back(0); //ディリクレ
     }
     //z5
-    for (int j=j_flc_bl[4][0];j<=j_flc_bl[4][1];j++){
-        int i=i_flc_bl[4][1];
-        iBndEp.push_back(i);
-        jBndEp.push_back(j);
-        sBndEp.push_back(0); //ディリクレ
+    for (int j=gc.j_flc_bl[4][0];j<=gc.j_flc_bl[4][1];j++){
+        int i=gc.i_flc_bl[4][1];
+        mb.iBndEp.push_back(i);
+        mb.jBndEp.push_back(j);
+        mb.sBndEp.push_back(0); //ディリクレ
     }
     //出力
-    if(icon_chk == 1){
+    if(pm.icon_chk == 1){
         std::ofstream outputfileEp("results/BCp1.csv");
         outputfileEp <<"i,j,x,r,BC,zero" << std::endl;
-        for (int k=0;k<iBndEp.size();k++){
-            int i = iBndEp[k];
-            int j = jBndEp[k];
+        for (int k=0;k<mb.iBndEp.size();k++){
+            int i = mb.iBndEp[k];
+            int j = mb.jBndEp[k];
             
             outputfileEp << i << ","<< j 
-                << ","<< x[i] << ","<<r[j] << ","<<sBndEp[k] 
+                << ","<< gc.x[i] << ","<< gc.r[j] << ","<<mb.sBndEp[k] 
                 << ","<<0.0 << std::endl;
         }
         outputfileEp.close();
     }
     //********* Ep境界条件 (下) *********
     //x0
-    for (int i=i_flc_bl[0][0];i<=i_flc_bl[0][1];i++){
-        int j=j_flc_bl[0][0];
-        iBndSp.push_back(i);
-        jBndSp.push_back(j);
-        sBndSp.push_back(0); //ディリクレ
+    for (int i=gc.i_flc_bl[0][0];i<=gc.i_flc_bl[0][1];i++){
+        int j=gc.j_flc_bl[0][0];
+        mb.iBndSp.push_back(i);
+        mb.jBndSp.push_back(j);
+        mb.sBndSp.push_back(0); //ディリクレ
     }
     //x2
-    for (int i=i_flc_bl[5][0];i<=i_flc_bl[2][1];i++){
-        int j=j_flc_bl[5][0];
-        iBndSp.push_back(i);
-        jBndSp.push_back(j);
-        sBndSp.push_back(0); //ディリクレ
+    for (int i=gc.i_flc_bl[5][0];i<=gc.i_flc_bl[2][1];i++){
+        int j=gc.j_flc_bl[5][0];
+        mb.iBndSp.push_back(i);
+        mb.jBndSp.push_back(j);
+        mb.sBndSp.push_back(0); //ディリクレ
     }
     //出力
-    if(icon_chk == 1){
+    if(pm.icon_chk == 1){
         std::ofstream outputfileSp("results/BCp2.csv");
         outputfileSp <<"i,j,x,r,BC,zero" << std::endl;
-        for (int k=0;k<iBndSp.size();k++){
-            int i = iBndSp[k];
-            int j = jBndSp[k];
+        for (int k=0;k<mb.iBndSp.size();k++){
+            int i = mb.iBndSp[k];
+            int j = mb.jBndSp[k];
             
             outputfileSp << i << ","<< j 
-                << ","<< x[i] << ","<<r[j] << ","<<sBndSp[k] 
+                << ","<< gc.x[i] << ","<< gc.r[j] << ","<<mb.sBndSp[k] 
                 << ","<<0.0 << std::endl;
         }
         outputfileSp.close();
     }
     //********* Ep境界条件 (上) *********
     //x1
-    for (int i=i_flc_bl[0][0];i<=i_flc_bl[1][1];i++){
-        int j=j_flc_bl[0][1];
-        iBndNp.push_back(i);
-        jBndNp.push_back(j);
-        sBndNp.push_back(0); //ディリクレ
+    for (int i=gc.i_flc_bl[0][0];i<=gc.i_flc_bl[1][1];i++){
+        int j=gc.j_flc_bl[0][1];
+        mb.iBndNp.push_back(i);
+        mb.jBndNp.push_back(j);
+        mb.sBndNp.push_back(0); //ディリクレ
     }
     //x3
-    for (int i=i_flc_bl[5][0];i<=i_flc_bl[5][1];i++){
-        int j=j_flc_bl[5][1];
-        iBndNp.push_back(i);
-        jBndNp.push_back(j);
-        sBndNp.push_back(0); //ディリクレ
+    for (int i=gc.i_flc_bl[5][0];i<=gc.i_flc_bl[5][1];i++){
+        int j=gc.j_flc_bl[5][1];
+        mb.iBndNp.push_back(i);
+        mb.jBndNp.push_back(j);
+        mb.sBndNp.push_back(0); //ディリクレ
     }
     //x4
-    for (int i=i_flc_bl[1][1]+1;i<=i_flc_bl[3][1];i++){
-        int j=j_flc_bl[3][1];
-        iBndNp.push_back(i);
-        jBndNp.push_back(j);
-        sBndNp.push_back(0); //ディリクレ
+    for (int i=gc.i_flc_bl[1][1]+1;i<=gc.i_flc_bl[3][1];i++){
+        int j=gc.j_flc_bl[3][1];
+        mb.iBndNp.push_back(i);
+        mb.jBndNp.push_back(j);
+        mb.sBndNp.push_back(0); //ディリクレ
     }
     //x5
-    //for (int i=i_flc_bl[4][0];i<=i_flc_bl[4][1];i++){
-    //    int j=j_flc_bl[4][1];
-    //    iBndNp.push_back(i);
-    //    jBndNp.push_back(j);
-    //    sBndNp.push_back(1); //開放
+    //for (int i=gc.i_flc_bl[4][0];i<=gc.i_flc_bl[4][1];i++){
+    //    int j=gc.j_flc_bl[4][1];
+    //    mb.iBndNp.push_back(i);
+    //    mb.jBndNp.push_back(j);
+    //    mb.sBndNp.push_back(1); //開放
     //}
     //x5 (仮)
-    for (int i=i_flc_bl[4][0];i<=i_flc_bl[4][1];i++){
-        int j=j_flc_bl[4][1];
-        iBndNp.push_back(i);
-        jBndNp.push_back(j);
-        sBndNp.push_back(0); //ディリクレ
+    for (int i=gc.i_flc_bl[4][0];i<=gc.i_flc_bl[4][1];i++){
+        int j=gc.j_flc_bl[4][1];
+        mb.iBndNp.push_back(i);
+        mb.jBndNp.push_back(j);
+        mb.sBndNp.push_back(0); //ディリクレ
     }
     
     //出力
-    if(icon_chk == 1){
+    if(pm.icon_chk == 1){
         std::ofstream outputfileNp("results/BCp3.csv");
         outputfileNp <<"i,j,x,r,BC,zero" << std::endl;
-        for (int k=0;k<iBndNp.size();k++){
-            int i = iBndNp[k];
-            int j = jBndNp[k];
+        for (int k=0;k<mb.iBndNp.size();k++){
+            int i = mb.iBndNp[k];
+            int j = mb.jBndNp[k];
             
             outputfileNp << i << ","<< j 
-                << ","<< x[i] << ","<<r[j] << ","<<sBndNp[k] 
+                << ","<< gc.x[i] << ","<< gc.r[j] << ","<<mb.sBndNp[k] 
                 << ","<<0.0 << std::endl;
         }
         outputfileNp.close();
     }
 }
+

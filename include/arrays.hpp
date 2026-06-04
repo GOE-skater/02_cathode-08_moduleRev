@@ -616,7 +616,7 @@ struct GridInterfaceR{
 
 //value at k-space
 //--------------------------------
-struct Gk{ 
+struct GridK{ 
     vector<int> ikx; //convergion of k→ i (Ex)
     vector<int> jkx; //convergion of k→ j (Ex)
     
@@ -630,7 +630,7 @@ struct Gk{
 
 //boundary setting for microwave
 //--------------------------------
-struct Bc{ 
+struct MicrowaveBC{ 
 
     vector<int> iBndWx; 
     vector<int> jBndWx;
