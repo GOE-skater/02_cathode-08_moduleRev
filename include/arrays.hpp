@@ -601,7 +601,6 @@ struct GridInterfaceR{
         //--------------------------------
         i_flr_bl(ni+2,vector<int>(nj+2,0.0)),
         j_flr_bl(ni+2,vector<int>(nj+2,0.0)),
-        
         //--------------------------------
 
         //index-convergion
