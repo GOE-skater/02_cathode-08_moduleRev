@@ -20,8 +20,12 @@
 #include "arrays.hpp"
 #include "inputFuncs.hpp"
 #include "initialFuncs.hpp"
+#include "outputFuncs.hpp"
 
 #include "fluidModule.hpp"
+#include "emfieldModule.hpp"
+
+using namespace std;
 
 //*****************************************************************
 //**                                                             **
@@ -44,12 +48,13 @@ int main(int argc, char *argv[])
     //-------------------------------------
     InputFuncs inpF;
     InitialFuncs iniF;
-    //OutputFuncs outF;
+    OutputFuncs outF;
     //-------------------------------------
 
     //modules
     //-------------------------------------
     FluidModule fluM;
+    EmfieldModule emfM;
     //FieldModule fieldM;
     //SolverModule solverM;
     //ParticleModule pclM;
@@ -63,9 +68,9 @@ int main(int argc, char *argv[])
     int nGnuDivTime = fmax(10*GnuFactor,1); //Gnuplotで何ステップごとに出力するか
     
     int nErr = 13; //エラーを表示する数
-    std::vector<std::vector<double> > error_history(nErr,std::vector<double>(0)); //エラーの履歴
-    std::vector<std::vector<double> > current_history(3,std::vector<double>(0)); //エラーの履歴
-    std::vector<int> itime_history(0,0); //時間ステップの履歴
+    vector<vector<double> > error_history(nErr,vector<double>(0)); //エラーの履歴
+    vector<vector<double> > current_history(3,vector<double>(0)); //エラーの履歴
+    vector<int> itime_history(0,0); //時間ステップの履歴
 
     clock_t gstart = clock();
     clock_t time1  = clock();
@@ -137,23 +142,24 @@ int main(int argc, char *argv[])
     inpF.input_BOLSIG_data(pm, bo, "rateCoef_e.csv"); //input Bolsig data
     
     fluM.update_transport_coef(pm, gc, gx, gr, bo); //update transport coefficients
-    
 
-    /*
     //マイクロ波計算
     {
-        solve_Microwave(); //マイクロ波更新
-        //update_energy_profile(); //電力吸収プロファイル更新
+        emfM.solve_Microwave(pm, gc, gx, gr, gk, mb); //マイクロ波更新
+        emfM.update_energy_profile(pm, gc, gx, gr); //電力吸収プロファイル更新
     }
 
-    output_phase();
-    output(); //ファイルにアウトプット
+    //ファイルにアウトプット
+    outF.output_phase(pm, gc, gx, gr);
+    outF.output(pm, gc, gx, gr, bo); 
+
     return 0;
 
-    std::ofstream outputfile1("results/residuals.csv");
-    outputfile1 << "itime,time,rhoi,Uix,Uir,Uip,phi,rhoe,rhoUex,rhoUer,rhoeps,Gx,Gr,rhom,rhon" << std::endl;
+    ofstream outputfile1("results/residuals.csv");
+    outputfile1 << "itime,time,rhoi,Uix,Uir,Uip,phi,rhoe,rhoUex,rhoUer,rhoeps,Gx,Gr,rhom,rhon" << endl;
 
 
+    /*
     do {
 
        //if(itime%1 == 0) V_bias = fmin(V_bias + 1,100);
@@ -169,10 +175,10 @@ int main(int argc, char *argv[])
             int restHour = int(restSec/3600);
             int restMin = int(restSec/60) - restHour*60;
             
-            std::cout << "*********************************************" << std::endl;
-            std::cout << "itime = " << itime << "/" << ntime << " CFL=" << CFL << " dt=" << dt << " t=" << gtime << std::endl;
-            std::cout << " The rest of time = "<<restHour<<" h "<<restMin<<" min | Progress = "<<(double)itime/ntime*100<<" % "<<std::endl;
-            std::cout <<  std::endl;
+            cout << "*********************************************" << endl;
+            cout << "itime = " << itime << "/" << ntime << " CFL=" << CFL << " dt=" << dt << " t=" << gtime << endl;
+            cout << " The rest of time = "<<restHour<<" h "<<restMin<<" min | Progress = "<<(double)itime/ntime*100<<" % "<<endl;
+            cout <<  endl;
 
             time1 = clock();
 
@@ -264,7 +270,7 @@ int main(int argc, char *argv[])
 
 
         if(itime % ndiv_out == 0){
-            std::cout << "error_rhoi = " << error_rhoi 
+            cout << "error_rhoi = " << error_rhoi 
                 <<  " error_Uix = " << error_Uix
                 <<  " error_Uir = " << error_Uir
                 <<  " error_Uip = " << error_Uip
@@ -279,7 +285,7 @@ int main(int argc, char *argv[])
                 <<  " error_rhon = " << error_rhon
                 <<  " error_max = " << fmax(fmax(fmax(fmax(fmax(fmax(fmax(fmax(fmax(fmax(fmax(fmax(error_rhoi,error_Uix),error_Uir),error_Uip),error_phi),error_rhoe),error_rhoUex),error_rhoUer)
                                         ,error_rhoeps),error_Gx),error_Gr),error_rhom),error_rhon)
-                << std::endl;
+                << endl;
         }
 
         outputfile1 << itime
@@ -297,13 +303,13 @@ int main(int argc, char *argv[])
                 <<","<< error_Gr
                 <<"," << error_rhom
                 <<"," << error_rhon
-                << std::endl;
+                << endl;
 
         //****************** Gnuplot結果出力 History ****************** 
         if(icon_gnuRes == 1){
             
             if(itime % nGnuDivTime ==0){
-                std::vector<double> errorVec(nErr,0.0);
+                vector<double> errorVec(nErr,0.0);
                 errorVec[0] = error_rhoi;
                 errorVec[1] = error_Uix;
                 errorVec[2] = error_Uir;
@@ -318,7 +324,7 @@ int main(int argc, char *argv[])
                 errorVec[11] = error_rhom;
                 errorVec[12] = error_rhon;
 
-                std::vector<double> currentVec(3,0.0);
+                vector<double> currentVec(3,0.0);
                 currentVec[0] = Ii_Anode*1000;
                 currentVec[1] = Ie_Anode*1000;
                 currentVec[2] = I_Anode*1000;
@@ -367,8 +373,8 @@ int main(int argc, char *argv[])
             int tmp;
 
             if(icon_autoFinish == 0){
-                std::cout << "[Terminal Outpput] Continue Calculation? Yes = 1, No = 0"<<std::endl;
-                std::cin >> tmp;
+                cout << "[Terminal Outpput] Continue Calculation? Yes = 1, No = 0"<<endl;
+                cin >> tmp;
             }else{
                 tmp = 0;
             }
@@ -376,8 +382,8 @@ int main(int argc, char *argv[])
             if(tmp == 0){
                 int input1;
                 if(icon_autoFinish == 0){
-                    std::cout << "[Terminal Outpput] Really? Yes = 1, No = 0"<<std::endl;
-                    std::cin >> input1;
+                    cout << "[Terminal Outpput] Really? Yes = 1, No = 0"<<endl;
+                    cin >> input1;
                 }else{
                     icon_end = 1;
                 }
@@ -391,25 +397,25 @@ int main(int argc, char *argv[])
             }else{
                 int tmp1;
                 int input;
-                std::cout << "[Terminal Outpput] Next Max Steps = "<<std::endl;
-                std::cin >> ntime;
-                std::cout << "[Terminal Outpput] Same CFL? Yes = 1, No = 0"<<std::endl;
-                std::cin >> tmp1;
+                cout << "[Terminal Outpput] Next Max Steps = "<<endl;
+                cin >> ntime;
+                cout << "[Terminal Outpput] Same CFL? Yes = 1, No = 0"<<endl;
+                cin >> tmp1;
 
                 if(tmp1 == 0){
                     if(icon_adp_dt == 1){
-                        std::cout << "[Terminal Outpput] CFL = "<<std::endl;
-                        std::cin >> CFL;
+                        cout << "[Terminal Outpput] CFL = "<<endl;
+                        cin >> CFL;
                     }else{
-                        std::cout << "[Terminal Outpput] dt = "<<std::endl;
-                        std::cin >> dt;
+                        cout << "[Terminal Outpput] dt = "<<endl;
+                        cin >> dt;
                     }
                 }
 
-                if(icon_adp_dt == 1) std::cout << "[Terminal Outpput] Next Max Steps = "<< ntime << " CFL = " << CFL << std::endl;
-                if(icon_adp_dt == 0) std::cout << "[Terminal Outpput] Next Max Steps = "<< ntime << " dt = " << dt << std::endl;
-                std::cout << "[Terminal Outpput] Is it OK? Yes = 1, No = 0"<< std::endl;
-                std::cin >> input;
+                if(icon_adp_dt == 1) cout << "[Terminal Outpput] Next Max Steps = "<< ntime << " CFL = " << CFL << endl;
+                if(icon_adp_dt == 0) cout << "[Terminal Outpput] Next Max Steps = "<< ntime << " dt = " << dt << endl;
+                cout << "[Terminal Outpput] Is it OK? Yes = 1, No = 0"<< endl;
+                cin >> input;
                 if(input == 1){
                     icon_end = 0;
                 }else{
@@ -429,8 +435,9 @@ int main(int argc, char *argv[])
 
     clock_t gend = clock();
     double time_real = (double)(gstart-gend)/CLOCKS_PER_SEC;
-    std::cout << "elapsed time = " << time_real << " sec" << std::endl;
+    cout << "elapsed time = " << time_real << " sec" << endl;
 
     MPI_Finalize();
     */
+
 }

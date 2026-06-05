@@ -1,6 +1,8 @@
 #pragma once
 #include <complex>
 
+using namespace std;
+
 struct Params{ 
 
     // ============================================================
@@ -35,7 +37,6 @@ struct Params{
     double Te_rep_eV = 3.0; //代表電子温度 (イオンスキーム用)
     //--------------------------------
     
-
     //material
     //--------------------------------
     double epsr_diele = 1.0; //誘電体の比電率
@@ -151,7 +152,7 @@ struct Params{
     double rmin= 0.0; //計算領域r左端
     double rmax= 0.014; //計算領域r右端 2.0e-3 0.014
 
-    std::complex<double> J1r_exc = std::complex<double>(0.212687,0.0); //励起電流
+    complex<double> J1r_exc = complex<double>(0.212687,0.0); //励起電流
     
     int icon_error = 1; //errorの種類 0:max 1:rms
 

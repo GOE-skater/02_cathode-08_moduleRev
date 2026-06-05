@@ -135,7 +135,7 @@ void FluidModule::update_transport_coef(Params &pm,GridCenter &gc, GridInterface
                 gc.nu_ano_IAT[i][j] = 0.01*omega_pi*ud/cs*gc.Te[i][j]/pm.Ti;
                 //------------------------------------
 
-                //std::cout << Mache[i][j] << "," <<nu_ano_IAT[i][j] << ","<<0.01*omega_pi*ud/cs*Te[i][j]/Ti << std::endl;
+                //cout << Mache[i][j] << "," <<nu_ano_IAT[i][j] << ","<<0.01*omega_pi*ud/cs*Te[i][j]/Ti << endl;
             }
         }
     }

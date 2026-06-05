@@ -120,6 +120,11 @@ struct GridCenter{
     vector<vector<double> > Pabs;
     //--------------------------------
 
+    //distance from ECR surface
+    //--------------------------------
+    vector<vector<double> > distECR;
+    //--------------------------------
+
     //judge boundary
     //--------------------------------
     vector<vector<int> > jdgBnd_Ep;
@@ -253,6 +258,11 @@ struct GridCenter{
         Pabs(ni+2,vector<double>(nj+2,0.0)),
         //--------------------------------
 
+        //distance from ECR surface
+        //--------------------------------
+        distECR(ni+2,vector<double>(nj+2,0.0)),
+        //--------------------------------
+
         //judge boundary
         //--------------------------------
         jdgBnd_Ep(ni+2,vector<int>(nj+2,0.0)),
@@ -340,8 +350,8 @@ struct GridInterfaceX{
 
     //surface charge
     //--------------------------------
-    std::vector<std::vector<double> > scx;
-    std::vector<std::vector<double> > scx_old;
+    vector<vector<double> > scx;
+    vector<vector<double> > scx_old;
     //--------------------------------
 
     //judge boundary
@@ -522,8 +532,8 @@ struct GridInterfaceR{
 
     //surface charge
     //--------------------------------
-    std::vector<std::vector<double> > scr;
-    std::vector<std::vector<double> > scr_old;
+    vector<vector<double> > scr;
+    vector<vector<double> > scr_old;
     //--------------------------------
 
     //judge boundary

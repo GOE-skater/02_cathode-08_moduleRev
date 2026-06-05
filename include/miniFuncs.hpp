@@ -10,15 +10,17 @@
 #include "constants.hpp"
 #include "params.hpp"
 
+using namespace std;
+
 //*****************************************************************
 //**                                                             **
 //**                          split                              **
 //**                                                             **
 //*****************************************************************
-inline std::vector<std::string> split(std::string& input, char delimiter){
-    std::istringstream stream(input);
-    std::string field;
-    std::vector<std::string> result;
+inline vector<string> split(string& input, char delimiter){
+    istringstream stream(input);
+    string field;
+    vector<string> result;
     while (getline(stream, field, delimiter)) {
         result.push_back(field);
     }
@@ -30,7 +32,7 @@ inline std::vector<std::string> split(std::string& input, char delimiter){
 //**           double func_Te                                    **
 //**                                                             **
 //*****************************************************************
-inline double func_Te(std::vector<double> value,double Te_tmp,double dTe_tmp)
+inline double func_Te(vector<double> value,double Te_tmp,double dTe_tmp)
 {
     int iL = int(Te_tmp/dTe_tmp);
     int iR = int(Te_tmp/dTe_tmp)+1;
@@ -48,7 +50,7 @@ inline double func_Te(std::vector<double> value,double Te_tmp,double dTe_tmp)
 //**           double func_Te                                    **
 //**                                                             **
 //*****************************************************************
-inline double func_dTe(std::vector<double> value,double Te_tmp,double dTe_tmp)
+inline double func_dTe(vector<double> value,double Te_tmp,double dTe_tmp)
 {
     int iL = int(Te_tmp/dTe_tmp);
     int iR = int(Te_tmp/dTe_tmp)+1;
@@ -70,7 +72,7 @@ inline double func_dTe(std::vector<double> value,double Te_tmp,double dTe_tmp)
 //**           double func_Ei                                    **
 //**                                                             **
 //*****************************************************************
-inline double func_Ei(std::vector<double> value,double Ei_tmp,double dEi_tmp, double massi)
+inline double func_Ei(vector<double> value,double Ei_tmp,double dEi_tmp, double massi)
 {
     int iL = int(Ei_tmp/dEi_tmp);
     int iR = int(Ei_tmp/dEi_tmp)+1;
@@ -83,7 +85,7 @@ inline double func_Ei(std::vector<double> value,double Ei_tmp,double dEi_tmp, do
         double v_max = sqrt(imax*dEi_tmp/massi);
         double v_tmp = sqrt(Ei_tmp/massi);
         double sigma_max = value[value.size()-1]/v_max;
-        //std::cout << "Emax = " << imax*dEi/e0 << ", sigma_tmp = " << sigma_tmp <<std::endl;
+        //cout << "Emax = " << imax*dEi/e0 << ", sigma_tmp = " << sigma_tmp <<endl;
         return sigma_max*v_tmp; //有効衝突断面積を一定に保ちながら速度の1乗に比例させる
     }
 }
@@ -93,7 +95,7 @@ inline double func_Ei(std::vector<double> value,double Ei_tmp,double dEi_tmp, do
 //**           void plot                                         **
 //**                                                             **
 //*****************************************************************
-inline void plotHistory(FILE* gnuplot_name,std::vector<std::vector<double> > value,std::vector<int> itime_history, int nGnuMaxTimeRange)
+inline void plotHistory(FILE* gnuplot_name,vector<vector<double> > value,vector<int> itime_history, int nGnuMaxTimeRange)
 {
     //errorVec[0] = error_rhoi;
     //errorVec[1] = error_Uix;
@@ -109,7 +111,7 @@ inline void plotHistory(FILE* gnuplot_name,std::vector<std::vector<double> > val
     //errorVec[11] = error_rhom;
 
     fprintf(gnuplot_name, "set logscale y\n");
-    std::string graphLegend = "plot ";
+    string graphLegend = "plot ";
     
     graphLegend = graphLegend+"'-' with lines title '";
     graphLegend = graphLegend+"rhoi";
@@ -191,9 +193,9 @@ inline void plotHistory(FILE* gnuplot_name,std::vector<std::vector<double> > val
     fprintf(gnuplot_name,"%s\n",graphLegend.c_str());
 
     for(int iSp = 0;iSp<value.size();iSp++){
-        //std::cout << value.size() << ","<<itime_history.size() << std::endl;
+        //cout << value.size() << ","<<itime_history.size() << endl;
         for(int n=0;n<itime_history.size();n++){
-            //std::cout << itime_history[n] << ","<<double(value[iSp][n]) << std::endl;
+            //cout << itime_history[n] << ","<<double(value[iSp][n]) << endl;
             fprintf(gnuplot_name, "%d, %lf\n",itime_history[n],value[iSp][n]);
         }
         fprintf(gnuplot_name, "e\n"); 
