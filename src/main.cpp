@@ -137,6 +137,7 @@ int main(int argc, char *argv[])
     inpF.input_BOLSIG_data(pm, bo, "rateCoef_e.csv"); //input Bolsig data
     
     fluM.update_transport_coef(pm, gc, gx, gr, bo); //update transport coefficients
+    
 
     /*
     //マイクロ波計算
