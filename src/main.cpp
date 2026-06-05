@@ -1,11 +1,12 @@
 //*****************************************************************
 //*****************************************************************
 //**                                                             **
-//**          plasma_check                                       **
+//**  Plasma fluid simulation of microwave neutralizer           **
 //**          coded by Ryo Shirakawa.                            **
 //*****************************************************************
 //*****************************************************************
 
+//general
 #include <iostream>
 #include <string>
 #include <cmath>
@@ -15,13 +16,18 @@
 #include <sstream>
 #include <mpi.h>
 
+//variables
 #include "constants.hpp"
 #include "params.hpp"
 #include "arrays.hpp"
-#include "inputFuncs.hpp"
-#include "initialFuncs.hpp"
-#include "outputFuncs.hpp"
 
+//functions
+#include "miniFuncs.hpp"
+
+//modules
+#include "inputModule.hpp"
+#include "initialModule.hpp"
+#include "outputModule.hpp"
 #include "fluidModule.hpp"
 #include "emfieldModule.hpp"
 
@@ -44,15 +50,11 @@ int main(int argc, char *argv[])
     SeeVec se;
     //-------------------------------------
 
-    //general functions
-    //-------------------------------------
-    InputFuncs inpF;
-    InitialFuncs iniF;
-    OutputFuncs outF;
-    //-------------------------------------
-
     //modules
     //-------------------------------------
+    InputModule inpM;
+    InitialModule iniM;
+    OutputModule outM;
     FluidModule fluM;
     EmfieldModule emfM;
     //FieldModule fieldM;
@@ -107,7 +109,7 @@ int main(int argc, char *argv[])
 
     //parameter input
     //-------------------------------------
-    inpF.inputParam(pm,"setup.yaml");
+    inpM.inputParam(pm,"setup.yaml");
     //-------------------------------------
 
     //initialization of arrays
@@ -119,24 +121,24 @@ int main(int argc, char *argv[])
 
     //initialization of parameters
     //-------------------------------------
-    iniF.iniParam(pm,gc,gx,gr); 
+    iniM.iniParam(pm,gc,gx,gr); 
     //-------------------------------------
     
     if(pm.icon_impTest == 1){
         
-        iniF.makeBoundary_impedanceTest(pm, gc, gx, gr, gk, mb);
+        iniM.makeBoundary_impedanceTest(pm, gc, gx, gr, gk, mb);
         emfM.solve_Microwave_impedanceTest(pm, gc, gx, gr, gk, mb); //マイクロ波更新
-        outF.output_phase(pm, gc, gx, gr);
-        //outF.output(pm, gc, gx, gr, bo); 
+        outM.output_phase(pm, gc, gx, gr);
+        //outM.output(pm, gc, gx, gr, bo); 
         return 0;
     }
 
-    iniF.makeBoundary(pm, gc, gx, gr, gk, mb);
-    inpF.input_Bfield_data(pm,gc,"Bfield_data.csv"); //input B-field data
-    inpF.input_SEE_data(pm, se, "coefEISEE.csv"); //input SEE data
-    iniF.makeProfile(pm, gc, gx, gr); //set the initial profile
-    inpF.input_restart_data(pm, gc, gx, gr, "restart.csv"); //input restart data
-    inpF.input_BOLSIG_data(pm, bo, "rateCoef_e.csv"); //input Bolsig data
+    iniM.makeBoundary(pm, gc, gx, gr, gk, mb);
+    inpM.input_Bfield_data(pm,gc,"Bfield_data.csv"); //input B-field data
+    inpM.input_SEE_data(pm, se, "coefEISEE.csv"); //input SEE data
+    iniM.makeProfile(pm, gc, gx, gr); //set the initial profile
+    inpM.input_restart_data(pm, gc, gx, gr, "restart.csv"); //input restart data
+    inpM.input_BOLSIG_data(pm, bo, "rateCoef_e.csv"); //input Bolsig data
     
     fluM.update_transport_coef(pm, gc, gx, gr, bo); //update transport coefficients
 
@@ -147,10 +149,8 @@ int main(int argc, char *argv[])
     }
 
     //ファイルにアウトプット
-    outF.output_phase(pm, gc, gx, gr);
-    outF.output(pm, gc, gx, gr, bo); 
-
-    return 0;
+    outM.output_phase(pm, gc, gx, gr);
+    outM.output(pm, gc, gx, gr, bo); 
 
     ofstream outputfile1("results/residuals.csv");
     outputfile1 << "itime,time,rhoi,Uix,Uir,Uip,phi,rhoe,rhoUex,rhoUer,rhoeps,Gx,Gr,rhom,rhon" << endl;
@@ -179,7 +179,8 @@ int main(int argc, char *argv[])
 
         }
         
-        
+        //solve ion
+        //------------------------------------
         if(pm.itime % pm.ndt_i == 0){
             //temporary velocity update
             //------------------------------------
@@ -198,32 +199,11 @@ int main(int argc, char *argv[])
             fluM.correct_Ui_constTe(pm, gc, gx, gr);
             //------------------------------------
         }
+        //------------------------------------
 
-        if(pm.icon_PC == 0){
-            //電場更新
-            solve_phi_couple();
-            //solve_phi_couple_PC();
-            //solve_phi_couple_wdTe_PC();
-            //solve_phi_couple_SG_PC();
-            //solve_phi_couple_directional();
-            //solve_phi_couple_dieleOpen();
-
-            //電子密度更新
-            //solve_rhoe_direct(); //論文と同じ実装
-            //solve_rhoe_wdTe_direct();
-            solve_rhoe_wdTe_wSEE_direct();
-            //solve_rhoe_direct_dieleOpen();
-            //solve_rhoe_PC(); //PC method
-            //solve_rhoe_wdTe_PC();
-            //solve_rhoe_TV(); //transverse flux method
+        /*
+        if(pm.icon_PC == 1){
             
-            //電子温度更新
-            //solve_Te_direct(); //論文と同じ実装
-            //solve_Te_wdTe_direct(); //論文と同じ実装
-            solve_Te_wdTe_wSEE_direct(); //論文と同じ実装
-            //solve_Te_PC(); //PC method
-            //solve_Te_wdTe_PC(); //PC method
-        }else{
             solve_phi_couple_wdTe_wSEE_PC();
 
             if(icon_inertia == 0){
@@ -239,14 +219,12 @@ int main(int argc, char *argv[])
                 //solve_Te_PC(); //PC method
                 solve_Te_wdTe_wSEE_wInertia_PC(); //PC method
             }
+            
+        }else{
+            //------------------------------------
+            // no functions
+            //------------------------------------
         }
-
-        //solve_rhoe_Te_PC(); //rho+Te PC method
-
-        //基底の更新
-        //reconstAll_for_neut(); //空間再構築
-        //riemann_FVS_for_neut(); //リーマンソルバー
-        //update_neut(); //更新
 
         if(pm.itime % pm.ndt_n == 0){
             update_rhon(); //Diffusion方程式
@@ -258,6 +236,7 @@ int main(int argc, char *argv[])
             update_rhom(); //論文と同じ実装
             //update_rhom_kinetic(); //境界条件kinetic修正版
         }
+        */
         
         //輸送係数更新
         fluM.update_transport_coef(pm, gc, gx, gr, bo); //論文と同じ実装
@@ -360,14 +339,14 @@ int main(int argc, char *argv[])
         }
 
         if(pm.itime % pm.ndiv_fout == 0){
-            outF.output(pm, gc, gx, gr, bo);
+            outM.output(pm, gc, gx, gr, bo);
         }
 
         if(pm.itime >= pm.ntime){
             emfM.solve_Microwave(pm, gc, gx, gr, gk, mb);
             emfM.update_energy_profile(pm, gc, gx, gr);
             emfM.solve_Microwave(pm, gc, gx, gr, gk, mb);
-            outF.output(pm, gc, gx, gr, bo);
+            outM.output(pm, gc, gx, gr, bo);
 
             oneMoreTime:
             int tmp;
@@ -430,7 +409,7 @@ int main(int argc, char *argv[])
 
     } while (icon_end == 0);
 
-    outF.output_phase(pm, gc, gx, gr);
+    outM.output_phase(pm, gc, gx, gr);
     outputfile1.close();
 
     clock_t gend = clock();

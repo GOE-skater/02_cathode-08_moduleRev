@@ -90,6 +90,22 @@ inline double func_Ei(vector<double> value,double Ei_tmp,double dEi_tmp, double 
     }
 }
 
+
+//*****************************************************************
+//**                                                             **
+//**           double truncate                                   **
+//**                                                             **
+//*****************************************************************
+inline double truncate(double c){
+
+    if(fabs(c) <1e-100){
+        return 0.0;
+    }else{
+        return c;
+    }
+
+}
+
 //*****************************************************************
 //**                                                             **
 //**           void plot                                         **
@@ -203,18 +219,56 @@ inline void plotHistory(FILE* gnuplot_name,vector<vector<double> > value,vector<
     }
 }
 
-
 //*****************************************************************
 //**                                                             **
-//**           double truncate                                   **
+//**           void plot                                         **
 //**                                                             **
 //*****************************************************************
-inline double truncate(double c){
+inline void plotCurrentHistory(FILE* gnuplot_name,vector<vector<double> > value,vector<int> itime_history, int nGnuMaxTimeRange)
+{
+    //errorVec[0] = error_rhoi;
+    //errorVec[1] = error_Uix;
+    //errorVec[2] = error_Uir;
+    //errorVec[3] = error_Uip;
+    //errorVec[4] = error_phi;
+    //errorVec[5] = error_rhoe;
+    //errorVec[6] = error_rhoUex;
+    //errorVec[7] = error_rhoUer;
+    //errorVec[8] = error_rhoeps;
+    //errorVec[9] = error_Gx;
+    //errorVec[10] = error_Gr;
+    //errorVec[11] = error_rhom;
 
-    if(fabs(c) <1e-100){
-        return 0.0;
-    }else{
-        return c;
+    //fprintf(gnuplot_name, "set logscale y\n");
+    string graphLegend = "plot ";
+    
+    graphLegend = graphLegend+"'-' with lines title '";
+    graphLegend = graphLegend+"I_{i,Anode}";
+    graphLegend = graphLegend+"'";
+    
+    graphLegend = graphLegend+", ";
+
+    graphLegend = graphLegend+"'-' with lines title '";
+    graphLegend = graphLegend+"I_{e,Anode}";
+    graphLegend = graphLegend+"'";
+
+    graphLegend = graphLegend+", ";
+
+    graphLegend = graphLegend+"'-' with lines title '";
+    graphLegend = graphLegend+"I_{Anode}";
+    graphLegend = graphLegend+"'";
+    
+
+    fprintf(gnuplot_name,"%s\n",graphLegend.c_str());
+
+    for(int iSp = 0;iSp<value.size();iSp++){
+        //cout << value.size() << ","<<itime_history.size() << endl;
+        for(int n=0;n<itime_history.size();n++){
+            //cout << itime_history[n] << ","<<double(value[iSp][n]) << endl;
+            fprintf(gnuplot_name, "%d, %lf\n",itime_history[n],value[iSp][n]);
+        }
+        fprintf(gnuplot_name, "e\n"); 
+        fflush(gnuplot_name);
     }
-
 }
+

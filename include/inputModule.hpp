@@ -30,7 +30,7 @@ using namespace std;
 //**           class InputModule                                 **
 //**                                                             **
 //*****************************************************************
-class InputFuncs
+class InputModule
 {
     private:
 
@@ -47,7 +47,7 @@ class InputFuncs
 //**           void param                                        **
 //**                                                             **
 //*****************************************************************
-void InputFuncs::inputParam(Params &pm, string inputFileName)
+void InputModule::inputParam(Params &pm, string inputFileName)
 {
 
     const string filename = "input/"+inputFileName;
@@ -482,7 +482,7 @@ void inputParam_old(Params &pm, string inputFileName)
 //**           void input_Bfield_data()                          **
 //**                                                             **
 //*****************************************************************
-void InputFuncs::input_Bfield_data(Params &pm, GridCenter &gc, string inputFileName)
+void InputModule::input_Bfield_data(Params &pm, GridCenter &gc, string inputFileName)
 {
 
     //****************** 磁場データ読み込み ******************
@@ -570,7 +570,7 @@ void InputFuncs::input_Bfield_data(Params &pm, GridCenter &gc, string inputFileN
 //**           void input_SEE_data()                             **
 //**                                                             **
 //*****************************************************************
-void InputFuncs::input_SEE_data(Params &pm, SeeVec &se, string inputFileName)
+void InputModule::input_SEE_data(Params &pm, SeeVec &se, string inputFileName)
 {
 
     //****************** データ読み込み ******************
@@ -630,7 +630,7 @@ void InputFuncs::input_SEE_data(Params &pm, SeeVec &se, string inputFileName)
 //**           void input_restart_data()                         **
 //**                                                             **
 //*****************************************************************
-void InputFuncs::input_restart_data(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr, string inputFileName)
+void InputModule::input_restart_data(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr, string inputFileName)
 {
 
     //****************** 磁場データ読み込み ******************
@@ -885,7 +885,7 @@ void InputFuncs::input_restart_data(Params &pm, GridCenter &gc, GridInterfaceX &
 //**           void input_BOLSIG_data()                          **
 //**                                                             **
 //*****************************************************************
-void InputFuncs::input_BOLSIG_data(Params &pm, BolsigVec &bo, string inputFileName)
+void InputModule::input_BOLSIG_data(Params &pm, BolsigVec &bo, string inputFileName)
 {
 
     //****************** データ読み込み ******************

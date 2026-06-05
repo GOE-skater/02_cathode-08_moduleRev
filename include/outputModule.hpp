@@ -20,7 +20,7 @@ using namespace std;
 //**           class FluidModule                                 **
 //**                                                             **
 //*****************************************************************
-class OutputFuncs{
+class OutputModule{
     private:
 
     public:
@@ -33,7 +33,7 @@ class OutputFuncs{
 //**           void output                                       **
 //**                                                             **
 //*****************************************************************
-void OutputFuncs::output_phase(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr){
+void OutputModule::output_phase(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr){
     
     cout<<"output!"<<endl;
     string char_cnv,char1,char2,char_csv;
@@ -129,7 +129,7 @@ void OutputFuncs::output_phase(Params &pm, GridCenter &gc, GridInterfaceX &gx, G
 //**           void output                                       **
 //**                                                             **
 //*****************************************************************
-void OutputFuncs::output(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr, BolsigVec &bo){
+void OutputModule::output(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr, BolsigVec &bo){
     
     //calculate maximum electron density to avoid zero-division
     //------------------------------------
@@ -988,86 +988,5 @@ void OutputFuncs::output(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInt
         << std::endl;
 
     pm.nOut = pm.nOut + 1;
-}
-
-
-//*****************************************************************
-//**                                                             **
-//**           void plot                                         **
-//**                                                             **
-//*****************************************************************
-void plotCurrentHistory_old(FILE* gnuplot_name,vector<double> value,vector<int> itime_history, int nGnuMaxTimeRange)
-{
-
-    string graphLegend = "plot ";
-    fprintf(gnuplot_name,"%s\n",graphLegend.c_str());
-    
-    graphLegend = graphLegend+"'-' with lines title '";
-    graphLegend = graphLegend+"ion";
-    graphLegend = graphLegend+"'";
-
-    fprintf(gnuplot_name,"%s\n",graphLegend.c_str());
-
-    //cout << value.size() << ","<<itime_history.size() << endl;
-    for(int n=0;n<itime_history.size();n++){
-        //cout << itime_history[n] << ","<<double(value[iSp][n]) << endl;
-        fprintf(gnuplot_name, "%d, %lf\n",itime_history[n],value[n]);
-    }
-    fprintf(gnuplot_name, "e\n"); 
-    fflush(gnuplot_name);
-
-}
-
-//*****************************************************************
-//**                                                             **
-//**           void plot                                         **
-//**                                                             **
-//*****************************************************************
-void plotCurrentHistory(FILE* gnuplot_name,vector<vector<double> > value,vector<int> itime_history, int nGnuMaxTimeRange)
-{
-    //errorVec[0] = error_rhoi;
-    //errorVec[1] = error_Uix;
-    //errorVec[2] = error_Uir;
-    //errorVec[3] = error_Uip;
-    //errorVec[4] = error_phi;
-    //errorVec[5] = error_rhoe;
-    //errorVec[6] = error_rhoUex;
-    //errorVec[7] = error_rhoUer;
-    //errorVec[8] = error_rhoeps;
-    //errorVec[9] = error_Gx;
-    //errorVec[10] = error_Gr;
-    //errorVec[11] = error_rhom;
-
-    //fprintf(gnuplot_name, "set logscale y\n");
-    string graphLegend = "plot ";
-    
-    graphLegend = graphLegend+"'-' with lines title '";
-    graphLegend = graphLegend+"I_{i,Anode}";
-    graphLegend = graphLegend+"'";
-    
-    graphLegend = graphLegend+", ";
-
-    graphLegend = graphLegend+"'-' with lines title '";
-    graphLegend = graphLegend+"I_{e,Anode}";
-    graphLegend = graphLegend+"'";
-
-    graphLegend = graphLegend+", ";
-
-    graphLegend = graphLegend+"'-' with lines title '";
-    graphLegend = graphLegend+"I_{Anode}";
-    graphLegend = graphLegend+"'";
-    
-
-    fprintf(gnuplot_name,"%s\n",graphLegend.c_str());
-
-    for(int iSp = 0;iSp<value.size();iSp++){
-        //cout << value.size() << ","<<itime_history.size() << endl;
-        for(int n=0;n<itime_history.size();n++){
-            //cout << itime_history[n] << ","<<double(value[iSp][n]) << endl;
-            fprintf(gnuplot_name, "%d, %lf\n",itime_history[n],value[iSp][n]);
-        }
-        fprintf(gnuplot_name, "e\n"); 
-        fflush(gnuplot_name);
-    }
 }
 

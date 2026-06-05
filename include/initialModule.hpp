@@ -16,7 +16,7 @@ using namespace std;
 //**           class InputModule                                 **
 //**                                                             **
 //*****************************************************************
-class InitialFuncs
+class InitialModule
 {
     private:
 
@@ -32,7 +32,7 @@ class InitialFuncs
 //**           void iniParam                                     **
 //**                                                             **
 //*****************************************************************
-void InitialFuncs::iniParam(Params &pm,GridCenter &gc,GridInterfaceX &gx,GridInterfaceR &gr)
+void InitialModule::iniParam(Params &pm,GridCenter &gc,GridInterfaceX &gx,GridInterfaceR &gr)
 {
     
     //******************* Initialization **************************
@@ -84,7 +84,7 @@ void InitialFuncs::iniParam(Params &pm,GridCenter &gc,GridInterfaceX &gx,GridInt
 //**           void makeBoundary                                 **
 //**                                                             **
 //*****************************************************************
-void InitialFuncs::makeBoundary(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr, GridK &gk, MicrowaveBC &mb)
+void InitialModule::makeBoundary(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr, GridK &gk, MicrowaveBC &mb)
 {
     
     double x_tmp = 0.0;
@@ -976,7 +976,7 @@ void InitialFuncs::makeBoundary(Params &pm, GridCenter &gc, GridInterfaceX &gx, 
 //**           void makeBoundary                                 **
 //**                                                             **
 //*****************************************************************
-void InitialFuncs::makeBoundary_impedanceTest(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr, GridK &gk, MicrowaveBC &mb)
+void InitialModule::makeBoundary_impedanceTest(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr, GridK &gk, MicrowaveBC &mb)
 {
     double x_tmp = 0.0;
     double r_tmp = 0.0;
@@ -1201,7 +1201,7 @@ void InitialFuncs::makeBoundary_impedanceTest(Params &pm, GridCenter &gc, GridIn
 //**           void makeBoundary                                 **
 //**                                                             **
 //*****************************************************************
-void InitialFuncs::makeProfile(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr)
+void InitialModule::makeProfile(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr)
 {
 
     ////プラズマ密度プロファイル作成
