@@ -24,6 +24,7 @@ class InitialFuncs
         void iniParam(Params &pm,GridCenter &gc,GridInterfaceX &gx,GridInterfaceR &gr);
         void makeBoundary(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr, GridK &gk, MicrowaveBC &mb);
         void makeBoundary_impedanceTest(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr, GridK &gk, MicrowaveBC &mb);
+        void makeProfile(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr);
 };
 
 //*****************************************************************
@@ -970,3 +971,164 @@ void InitialFuncs::makeBoundary(Params &pm, GridCenter &gc, GridInterfaceX &gx, 
     }
 }
 
+//*****************************************************************
+//**                                                             **
+//**           void makeBoundary                                 **
+//**                                                             **
+//*****************************************************************
+void InitialFuncs::makeProfile(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr)
+{
+
+    ////プラズマ密度プロファイル作成
+    double rho_max = 4.0e18*1.0; //最大値　(カットオフ密度は7.45E+16)
+    double rho_min = 1.0e14*1.0; //最大値　(カットオフ密度は7.45E+16)
+    double sigmax_rho = 0.04; //標準偏差 m
+    double sigmar_rho = 0.01; //標準偏差 m 0.05
+    double xCen_rho = 0.025; //xの中心 0.009 + 0.0078
+    double rCen_rho = 0.0; //rの中心 0.007
+    
+    for (int i=0;i<=pm.ni+1;i++){
+        for (int j=0;j<=pm.nj+1;j++){
+            double x_tmp = gc.x[i];
+            double r_tmp = gc.r[j];
+            
+            double z_x = (gc.x[i]-xCen_rho)/sigmax_rho;
+            double z_r = (gc.r[j]-rCen_rho)/sigmar_rho;
+            gc.rate_ionize[i][j] = 6.0e21*exp(-z_x*z_x/0.12-z_r*z_r/0.12)*gc.jdgBnd_flc[i][j];
+            gc.rhoi[i][j] = 1e17*exp(-z_x*z_x/0.12-z_r*z_r/0.12)*gc.jdgBnd_flc[i][j];
+            //Pabs[i][j] = 2e9*exp(-z_x*z_x/0.12-z_r*z_r/0.12); //nablaGのテスト用
+            gc.rhom[i][j] = 1e-10*gc.jdgBnd_flc[i][j];
+        }
+    }
+
+    //プラズマ密度プロファイル作成
+    for (int i=0;i<=pm.ni+1;i++){
+        for (int j=0;j<=pm.nj+1;j++){
+            gc.rhoi_old[i][j] = gc.rhoi[i][j];
+            gc.rhoe[i][j] = gc.rhoi[i][j];
+            gc.rhoe_old[i][j] = gc.rhoi[i][j];
+        }
+    }
+
+    //電子温度プロファイル作成
+    double Te_max = 4.0*ph::e0/ph::Boltz; //最大値 4.0
+    double Te_min = 1.0*ph::e0/ph::Boltz; //最大値 2.0
+    double sigmax_Te = 0.04; //標準偏差 m
+    double sigmar_Te = 0.01; //標準偏差 m 0.12
+    double xCen_Te = 0.025; //xの中心 0.009 + 0.0078
+    double rCen_Te = 0.0; //rの中心 0.025 0.06
+
+    for (int i=0;i<=pm.ni+1;i++){
+        for (int j=0;j<=pm.nj+1;j++){
+            double x_tmp = gc.x[i];
+            double r_tmp = gc.r[j];
+            
+            double z_x = (gc.x[i]-xCen_Te)/sigmax_Te;
+            double z_r = (gc.r[j]-rCen_Te)/sigmar_Te;
+            
+            gc.Te[i][j] = ((Te_max-Te_min)*exp(-z_x*z_x/0.12-z_r*z_r/0.12) + Te_min)*gc.jdgBnd_flc[i][j];
+            //Te[i][j] = (Te_max-Te_min)*pow(fmax(Ap[i][j],0.0)/0.0000466606,0.5) + Te_min;
+            gc.rhoeps[i][j] = 3.0/2.0*gc.rhoe[i][j]*ph::Boltz*gc.Te[i][j]*gc.jdgBnd_flc[i][j];
+        }
+    }
+
+    //左 壁2
+    //std::cout << " Left2 "<< std::endl;
+    //std::cout << " i = "  << i_flc_bl[1][0]   << std::endl;
+    //std::cout << " j = "  << j_flc_bl[1][0] << " ~ "<< j_flc_bl[0][0]-1 << std::endl;
+    for (int j=gc.j_flc_bl[1][0];j<=gc.j_flc_bl[0][0]-1;j++){
+        int i = gc.i_flc_bl[1][0];
+        gc.Te[i-1][j] = gc.Te[i][j];
+    }
+    
+    //下 壁
+    //std::cout << " Bottom wall "<< std::endl;
+    //std::cout << " j = "  << j_flc_bl[0][0] << std::endl;
+    //std::cout << " i = "  << i_flc_bl[0][0] << " ~ "<< i_flc_bl[0][1] << std::endl;
+    for (int i=gc.i_flc_bl[0][0];i<=gc.i_flc_bl[0][1]-1;i++){ 
+        int j = gc.j_flc_bl[0][0];
+        gc.Te[i][j-1] = gc.Te[i][j];
+    }
+
+    //比誘電率プロファイル作成
+    for (int i=gc.i_flc_bl[pm.n_bl-1][0];i<=gc.i_flc_bl[pm.n_bl-1][1];i++){ 
+        for (int j=gc.j_flc_bl[pm.n_bl-1][0];j<=gc.j_flc_bl[pm.n_bl-1][1];j++){
+            gc.epsr[i][j] = pm.epsr_diele;
+        }
+    }
+
+    //基底中性粒子密度プロファイル作成
+    for (int i=0;i<=pm.ni+1;i++){
+        for (int j=0;j<=pm.nj+1;j++){
+            gc.rhon[i][j] = pm.rhon_ini;
+            gc.rhon_old[i][j] = pm.rhon_ini;
+        }
+    }
+
+    //異常衝突周波数の分布
+    for (int i=0;i<=pm.ni+1;i++){
+        for (int j=0;j<=pm.nj+1;j++){
+
+            double Bmag = sqrt(gc.Bx[i][j]*gc.Bx[i][j] + gc.Br[i][j]*gc.Br[i][j]); // masse/e0;//
+            
+            //一定
+            gc.nu_ano[i][j] = ph::e0*Bmag/pm.masse/pm.alpha_Bohm;
+
+            /*
+            //分布 2つ
+            double dL = (x5-x4)/2.0; //遷移幅の片側
+            double xCen = (x5+x4)/2.0; //遷移部の中心座標
+            double alpha_Bohm_L = 16.0;
+            double alpha_Bohm_R = 160;
+
+            
+            if(x[i]<= xCen - dL){ 
+                nu_ano[i][j] = e0*Bmag/masse/alpha_Bohm_L;
+            }else if(x[i]> xCen - dL && x[i]<= xCen + dL){ 
+                double nu_ano_L = e0*Bmag/masse/alpha_Bohm_L;
+                double nu_ano_R = e0*Bmag/masse/alpha_Bohm_R;
+
+                double t1 = (x[i]-(xCen - dL))/(2.0*dL);
+                nu_ano[i][j] = (1.0-t1)*nu_ano_L + t1*nu_ano_R;
+
+            }else if(x[i]> xCen + dL){
+                nu_ano[i][j] = e0*Bmag/masse/alpha_Bohm_R;
+            }
+        
+            //分布 3つ
+            double alpha_Bohm_L = 16.0;
+            double alpha_Bohm_C = 16.0;
+            double alpha_Bohm_R = 16.0;
+
+            double dL1 = 1.0e-3; //遷移幅の片側
+            double xCen1 = x4+dL1; //遷移部の中心座標
+            
+            double dL2 = 1.0e-3; //遷移幅の片側
+            double xCen2 = x5-dL2; //遷移部の中心座標
+            
+            if(x[i]<= xCen1 - dL1){ 
+                nu_ano[i][j] = e0*Bmag/masse/alpha_Bohm_L;
+            }else if(x[i]> xCen1 - dL1 && x[i]<= xCen1 + dL1){ 
+                double nu_ano_L = e0*Bmag/masse/alpha_Bohm_L;
+                double nu_ano_C = e0*Bmag/masse/alpha_Bohm_C;
+
+                double t1 = (x[i]-(xCen1 - dL1))/(2.0*dL1);
+                nu_ano[i][j] = (1.0-t1)*nu_ano_L + t1*nu_ano_C;
+
+            }else if(x[i]> xCen1 + dL1 && x[i]<= xCen2 - dL2){
+                nu_ano[i][j] = e0*Bmag/masse/alpha_Bohm_C;
+            }else if(x[i]> xCen2 - dL2 && x[i]<= xCen2 + dL2){ 
+                double nu_ano_C = e0*Bmag/masse/alpha_Bohm_C;
+                double nu_ano_R = e0*Bmag/masse/alpha_Bohm_R;
+
+                double t2 = (x[i]-(xCen2 - dL2))/(2.0*dL2);
+                nu_ano[i][j] = (1.0-t2)*nu_ano_C + t2*nu_ano_R;
+
+            }else if(x[i]> xCen2 + dL2){
+                nu_ano[i][j] = e0*Bmag/masse/alpha_Bohm_R;
+            }     
+            */
+
+        }
+    }
+}

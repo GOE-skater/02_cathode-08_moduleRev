@@ -13,5 +13,5 @@ EXE_NAME = a.out
 
 # ----------------------------------------------------------------
 # executables
-Normal: ./src/main.cpp ./src/common.cpp ./src/support.cpp ./src/initial.cpp ./src/input.cpp ./src/EMfield.cpp ./src/fluid.cpp ./src/solver.cpp ./src/output.cpp
-	$(CC) $(CFLAGS) $(CINCLUDES) $(CLIBS) $(OPTIMIZE) ./src/main.cpp ./src/common.cpp ./src/support.cpp ./src/initial.cpp ./src/input.cpp ./src/EMfield.cpp ./src/fluid.cpp ./src/solver.cpp ./src/output.cpp -o $(EXE_NAME) $(CLIBOPTIONS)
+Normal: ./src/main.cpp
+	$(CC) $(CFLAGS) $(CINCLUDES) $(CLIBS) $(OPTIMIZE) ./src/main.cpp -o $(EXE_NAME) $(CLIBOPTIONS)

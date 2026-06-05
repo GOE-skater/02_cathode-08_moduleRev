@@ -21,6 +21,8 @@
 #include "inputFuncs.hpp"
 #include "initialFuncs.hpp"
 
+#include "fluidModule.hpp"
+
 //*****************************************************************
 //**                                                             **
 //**           int main                                          **
@@ -32,21 +34,22 @@ int main(int argc, char *argv[])
     //input data
     //-------------------------------------
     Params pm;
-    BolsigVec bolv;
+    BolsigVec bo;
     GridK gk;
     MicrowaveBC mb;
+    SeeVec se;
     //-------------------------------------
 
     //general functions
     //-------------------------------------
-    InputFuncs inputF;
+    InputFuncs inpF;
     InitialFuncs iniF;
     //OutputFuncs outF;
     //-------------------------------------
 
     //modules
     //-------------------------------------
-    //FluidModule fluidM;
+    FluidModule fluM;
     //FieldModule fieldM;
     //SolverModule solverM;
     //ParticleModule pclM;
@@ -100,7 +103,7 @@ int main(int argc, char *argv[])
 
     //parameter input
     //-------------------------------------
-    inputF.inputParam(pm,"setup.yaml");
+    inpF.inputParam(pm,"setup.yaml");
     //-------------------------------------
 
     //initialization of arrays
@@ -118,33 +121,30 @@ int main(int argc, char *argv[])
     if(pm.icon_impTest == 1){
         
         iniF.makeBoundary_impedanceTest(pm, gc, gx, gr, gk, mb);
-        solve_Microwave_impedanceTest(); //マイクロ波更新
-        output_phase();
+        
+        //solve_Microwave_impedanceTest(); //マイクロ波更新
+        //output_phase();
+        
         //output(); //ファイルにアウトプット
         return 0;
     }
 
     iniF.makeBoundary(pm, gc, gx, gr, gk, mb);
-    input_Bfield_data(); //磁場の読み込み
-    input_SEE_data();
-    makeProfile(); //事前定義プロファイルの作成
-    input_restart_data(); //リスタートデータの読み込み
-    input_BOLSIG_data(); //レート係数の読み込み
-    update_transport_coef(); //輸送係数更新
+    inpF.input_Bfield_data(pm,gc,"Bfield_data.csv"); //input B-field data
+    inpF.input_SEE_data(pm, se, "coefEISEE.csv"); //input SEE data
+    iniF.makeProfile(pm, gc, gx, gr); //set the initial profile
+    inpF.input_restart_data(pm, gc, gx, gr, "restart.csv"); //input restart data
+    inpF.input_BOLSIG_data(pm, bo, "rateCoef_e.csv"); //input Bolsig data
+    
+    fluM.update_transport_coef(pm, gc, gx, gr, bo); //update transport coefficients
 
+    /*
     //マイクロ波計算
     {
         solve_Microwave(); //マイクロ波更新
         //update_energy_profile(); //電力吸収プロファイル更新
     }
-    
 
-    /*
-    //初期の準安定種のプロファイルを生成
-    if(icon_restart != 1){
-        update_rhom_diff();
-    }
-    */
     output_phase();
     output(); //ファイルにアウトプット
     return 0;
@@ -431,4 +431,5 @@ int main(int argc, char *argv[])
     std::cout << "elapsed time = " << time_real << " sec" << std::endl;
 
     MPI_Finalize();
+    */
 }

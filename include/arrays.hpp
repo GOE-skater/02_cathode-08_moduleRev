@@ -338,6 +338,12 @@ struct GridInterfaceX{
     vector<vector<complex<double> > > J1x;
     //--------------------------------
 
+    //surface charge
+    //--------------------------------
+    std::vector<std::vector<double> > scx;
+    std::vector<std::vector<double> > scx_old;
+    //--------------------------------
+
     //judge boundary
     //--------------------------------
     vector<vector<int> > jdgBnd_Ex;
@@ -419,6 +425,12 @@ struct GridInterfaceX{
         //current
         //--------------------------------
         J1x(ni+2,vector<complex<double> >(nj+2,complex<double>(0.0,0.0))),
+        //--------------------------------
+
+        //surface charge
+        //--------------------------------
+        scx(ni+2,vector<double>(nj+2,0.0)),
+        scx_old(ni+2,vector<double>(nj+2,0.0)),
         //--------------------------------
 
         //judge boundary
@@ -508,6 +520,12 @@ struct GridInterfaceR{
     vector<vector<complex<double> > > J1r;
     //--------------------------------
 
+    //surface charge
+    //--------------------------------
+    std::vector<std::vector<double> > scr;
+    std::vector<std::vector<double> > scr_old;
+    //--------------------------------
+
     //judge boundary
     //--------------------------------
     vector<vector<int> > jdgBnd_Er;
@@ -589,6 +607,12 @@ struct GridInterfaceR{
         //current
         //--------------------------------
         J1r(ni+2,vector<complex<double> >(nj+2,complex<double>(0.0,0.0))),
+        //--------------------------------
+
+        //surface charge
+        //--------------------------------
+        scr(ni+2,vector<double>(nj+2,0.0)),
+        scr_old(ni+2,vector<double>(nj+2,0.0)),
         //--------------------------------
 
         //judge boundary

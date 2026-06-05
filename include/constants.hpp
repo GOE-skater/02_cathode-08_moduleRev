@@ -1,6 +1,6 @@
 #pragma once
 
-namespace phys{
+namespace ph{
 
     inline constexpr double Boltz = 1.380649e-23;    // Boltzmann constant
     inline constexpr double e0 = 1.60217662e-19;     // elementary charge
