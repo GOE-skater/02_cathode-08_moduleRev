@@ -13,7 +13,6 @@
 #include "constants.hpp"
 #include "params.hpp"
 #include "arrays.hpp"
-#include "solverModule.hpp"
 
 using namespace std;
 
@@ -28,6 +27,7 @@ class EmfieldModule
     
     public:
         void solve_Microwave(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr, GridK &gk, MicrowaveBC &mb);
+        void solve_Microwave_impedanceTest(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr, GridK &gk, MicrowaveBC &mb);
         void update_energy_profile(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr);
         
 };
@@ -931,6 +931,535 @@ void EmfieldModule::solve_Microwave(Params &pm, GridCenter &gc, GridInterfaceX &
             
             gc.E1p[i][j+1] = R*gc.E1p[i][j];
         }
+    }
+
+
+    //check coefficients
+    if(0==1){
+        std::ofstream outputfile1("results/mw_coef0.csv");
+        //std::ofstream outputfile1_1(char1+"_tmp"+char2+char_csv);
+        //outputfile1<<"x,rho,Ui,rhoUix,Ue,rhoUex,rhoUex_E,rhoUex_D,E,phi,psi,rho_th,U_th,E_th,phi_th,psi_th,rate_ionize,divi,dive1,dive2,dive3, div_poisson, LHS, RHS,zero" << std::endl;
+        //outputfile1<<"x,rhon,rho,rhoe(test),Uix,rhoUix,Uex,Uey,rhoUex,rhoUey,Te,heat_flux,Bz,E,phi,nu_m,nu_en,nu_ei,nu_ionz,nu_exc,nu_wall,nu_ano,mue_parae,mue_perp,Halle,jd,Id,rate_eloss,rate_ionize,divi,dive,divn,engy_LHS,engy_LHS1,engy_LHS2,engy_LHS3,engy_LHS4,engy_RHS,engy_RHS1,engy_RHS2,engy_RHS3,zero" << std::endl;
+        outputfile1<<"i,j,x,r,aPx(R),aPx(I),aWx(R),aWx(I),aEx(R),aEx(I),aNx(R),aNx(I),aSx(R),aSx(I),aNWx(R),aNWx(I),aNEx(R),aNEx(I),aSWx(R),aSWx(I),aSEx(R),aSEx(I),aEEx(R),aEEx(I),aWWx(R),aWWx(I),bx(R),bx(I),aPr(R),aPr(I),aWr(R),aWr(I),aEr(R),aEr(I),aNr(R),aNr(I),aSr(R),aSr(I),aNWr(R),aNWr(I),aNEr(R),aNEr(I),aSWr(R),aSWr(I),aSEr(R),aSEr(I),aNNr(R),aNNr(I),aSSr(R),aSSr(I),br(R),br(I),aPp(R),aPp(I),aWp(R),aWp(I),aEp(R),aEp(I),aNp(R),aNp(I),aSp(R),aSp(I),aEEp(R),aEEp(I),aWWp(R),aWWp(I),aNNp(R),aNNp(I),aSSp(R),aSSp(I),bp(R),bp(I),zero" << std::endl;
+        //outputfile1_1 << "i,j,x,r,rhom,rhoUmx,rhoUmr,nabla_rhoUm,rhon,rhoUnx,rhoUnr,nabla_rhoUn,zero" << std::endl;
+        
+        for(int i=1;i<=pm.ni;i++){
+            for(int j=1;j<=pm.nj;j++){
+                outputfile1 << i << ","<< j << "," << gc.x[i]<< ","<< gc.r[j]
+                    << "," << real(aPx[i][j] )<< "," << imag(aPx[i][j] )
+                    << "," << real(aWx[i][j] )<< "," << imag(aWx[i][j] )
+                    << "," << real(aEx[i][j] )<< "," << imag(aEx[i][j] )
+                    << "," << real(aNx[i][j] )<< "," << imag(aNx[i][j] )
+                    << "," << real(aSx[i][j] )<< "," << imag(aSx[i][j] )
+                    << "," << real(aNWx[i][j])<< "," << imag(aNWx[i][j])
+                    << "," << real(aNEx[i][j])<< "," << imag(aNEx[i][j])
+                    << "," << real(aSWx[i][j])<< "," << imag(aSWx[i][j])
+                    << "," << real(aSEx[i][j])<< "," << imag(aSEx[i][j])
+                    << "," << real(aEEx[i][j])<< "," << imag(aEEx[i][j])
+                    << "," << real(aWWx[i][j])<< "," << imag(aWWx[i][j])
+                    << "," << real(bx[i][j]  )<< "," << imag(bx[i][j]  )
+
+                    << "," << real(aPr[i][j] )<< "," << imag(aPr[i][j] )
+                    << "," << real(aWr[i][j] )<< "," << imag(aWr[i][j] )
+                    << "," << real(aEr[i][j] )<< "," << imag(aEr[i][j] )
+                    << "," << real(aNr[i][j] )<< "," << imag(aNr[i][j] )
+                    << "," << real(aSr[i][j] )<< "," << imag(aSr[i][j] )
+                    << "," << real(aNWr[i][j])<< "," << imag(aNWr[i][j])
+                    << "," << real(aNEr[i][j])<< "," << imag(aNEr[i][j])
+                    << "," << real(aSWr[i][j])<< "," << imag(aSWr[i][j])
+                    << "," << real(aSEr[i][j])<< "," << imag(aSEr[i][j])
+                    << "," << real(aNNr[i][j])<< "," << imag(aNNr[i][j])
+                    << "," << real(aSSr[i][j])<< "," << imag(aSSr[i][j])
+                    << "," << real(br[i][j]  )<< "," << imag(br[i][j]  )
+
+                    << "," << real(aPp[i][j] )<< "," << imag(aPp[i][j] )
+                    << "," << real(aWp[i][j] )<< "," << imag(aWp[i][j] )
+                    << "," << real(aEp[i][j] )<< "," << imag(aEp[i][j] )
+                    << "," << real(aNp[i][j] )<< "," << imag(aNp[i][j] )
+                    << "," << real(aSp[i][j] )<< "," << imag(aSp[i][j] )
+                    << "," << real(aEEp[i][j])<< "," << imag(aEEp[i][j])
+                    << "," << real(aWWp[i][j])<< "," << imag(aWWp[i][j])
+                    << "," << real(aNNp[i][j])<< "," << imag(aNNp[i][j])
+                    << "," << real(aSSp[i][j])<< "," << imag(aSSp[i][j])
+                    << "," << real(bp[i][j]  )<< "," << imag(bp[i][j]  )
+                    << "," << 0.0
+                    <<std::endl;
+            }
+        }
+    }
+
+
+}
+
+//*****************************************************************
+//**                                                             **
+//**           void solve_Microwave()                            **
+//**                                                             **
+//*****************************************************************
+void EmfieldModule::solve_Microwave_impedanceTest(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr, GridK &gk, MicrowaveBC &mb){
+
+    //テスト用 ※ 通常はコメントアウトすること
+    for (int i=0;i<pm.ni+2;i++){
+        for (int j=0;j<pm.nj+2;j++){
+            gc.rhoe[i][j] = 0.0;
+            gc.nu_m1[i][j] = pm.nu_eff;
+        }
+    }
+
+    //Ex用 係数
+    vector<vector<complex<double> > > aPx(pm.ni+2,vector<complex<double> >(pm.nj+2,0.0)); //係数
+    vector<vector<complex<double> > > aWx(pm.ni+2,vector<complex<double> >(pm.nj+2,0.0)); //係数
+    vector<vector<complex<double> > > aEx(pm.ni+2,vector<complex<double> >(pm.nj+2,0.0)); //係数
+    vector<vector<complex<double> > > aNx(pm.ni+2,vector<complex<double> >(pm.nj+2,0.0)); //係数
+    vector<vector<complex<double> > > aSx(pm.ni+2,vector<complex<double> >(pm.nj+2,0.0)); //係数
+    vector<vector<complex<double> > > aNEx(pm.ni+2,vector<complex<double> >(pm.nj+2,0.0)); //係数
+    vector<vector<complex<double> > > aNWx(pm.ni+2,vector<complex<double> >(pm.nj+2,0.0)); //係数
+    vector<vector<complex<double> > > aSEx(pm.ni+2,vector<complex<double> >(pm.nj+2,0.0)); //係数
+    vector<vector<complex<double> > > aSWx(pm.ni+2,vector<complex<double> >(pm.nj+2,0.0)); //係数
+    vector<vector<complex<double> > > aEEx(pm.ni+2,vector<complex<double> >(pm.nj+2,0.0)); //係数
+    vector<vector<complex<double> > > aWWx(pm.ni+2,vector<complex<double> >(pm.nj+2,0.0)); //係数
+    vector<vector<complex<double> > > bx(pm.ni+2,vector<complex<double> >  (pm.nj+2,0.0)); //係数
+
+    //Er用 係数
+    vector<vector<complex<double> > > aPr(pm.ni+2,vector<complex<double> >(pm.nj+2,0.0)); //係数
+    vector<vector<complex<double> > > aWr(pm.ni+2,vector<complex<double> >(pm.nj+2,0.0)); //係数
+    vector<vector<complex<double> > > aEr(pm.ni+2,vector<complex<double> >(pm.nj+2,0.0)); //係数
+    vector<vector<complex<double> > > aNr(pm.ni+2,vector<complex<double> >(pm.nj+2,0.0)); //係数
+    vector<vector<complex<double> > > aSr(pm.ni+2,vector<complex<double> >(pm.nj+2,0.0)); //係数
+    vector<vector<complex<double> > > aNEr(pm.ni+2,vector<complex<double> >(pm.nj+2,0.0)); //係数
+    vector<vector<complex<double> > > aNWr(pm.ni+2,vector<complex<double> >(pm.nj+2,0.0)); //係数
+    vector<vector<complex<double> > > aSEr(pm.ni+2,vector<complex<double> >(pm.nj+2,0.0)); //係数
+    vector<vector<complex<double> > > aSWr(pm.ni+2,vector<complex<double> >(pm.nj+2,0.0)); //係数
+    vector<vector<complex<double> > > aNNr(pm.ni+2,vector<complex<double> >(pm.nj+2,0.0)); //係数
+    vector<vector<complex<double> > > aSSr(pm.ni+2,vector<complex<double> >(pm.nj+2,0.0)); //係数
+    vector<vector<complex<double> > > br(pm.ni+2,vector<complex<double> >(pm.nj+2,0.0)); //係数
+
+    //Ephi用 係数
+    vector<vector<complex<double> > > aPp(pm.ni+2,vector<complex<double> >(pm.nj+2,0.0)); //係数
+    vector<vector<complex<double> > > aWp(pm.ni+2,vector<complex<double> >(pm.nj+2,0.0)); //係数
+    vector<vector<complex<double> > > aEp(pm.ni+2,vector<complex<double> >(pm.nj+2,0.0)); //係数
+    vector<vector<complex<double> > > aNp(pm.ni+2,vector<complex<double> >(pm.nj+2,0.0)); //係数
+    vector<vector<complex<double> > > aSp(pm.ni+2,vector<complex<double> >(pm.nj+2,0.0)); //係数
+    vector<vector<complex<double> > > aNNp(pm.ni+2,vector<complex<double> >(pm.nj+2,0.0)); //係数
+    vector<vector<complex<double> > > aSSp(pm.ni+2,vector<complex<double> >(pm.nj+2,0.0)); //係数
+    vector<vector<complex<double> > > aEEp(pm.ni+2,vector<complex<double> >(pm.nj+2,0.0)); //係数
+    vector<vector<complex<double> > > aWWp(pm.ni+2,vector<complex<double> >(pm.nj+2,0.0)); //係数
+    vector<vector<complex<double> > > bp(pm.ni+2,vector<complex<double> >(pm.nj+2,0.0)); //係数
+
+    /******************** 係数作成 いらないところも含めて普通に全部やる方が速い ********************/
+    complex<double> EPS(1e-100,1e-100); //微小複素数
+    
+    //for Er
+    for (int iblock=0;iblock<6;iblock++){ 
+        for (int i=gr.i_flr_bl[iblock][0];i<=gr.i_flr_bl[iblock][1];i++){ 
+            for (int j=gr.j_flr_bl[iblock][0];j<=gr.j_flr_bl[iblock][1];j++){
+                double r_tmp = (gc.r[j-1] + gc.r[j])/2.0;
+                double qL = gc.r[j-1]/(r_tmp+1e-100);
+                double qR = gc.r[j]  /(r_tmp+1e-100);
+
+                double nu_m_tmp = (gc.nu_m1[i][j] + gc.nu_m1[i][j-1])/2.0;
+                double rho_tmp  = (gc.rhoe[i][j]  + gc.rhoe[i][j-1] )/2.0;
+                double Bx_tmp   = (gc.r[j]*gc.Bx[i][j]   + gc.r[j-1]*gc.Bx[i][j-1]  )/(2.0*r_tmp);
+                double Br_tmp   = (gc.r[j]*gc.Br[i][j]   + gc.r[j-1]*gc.Br[i][j-1]  )/(2.0*r_tmp);
+
+                complex<double> nu_cmp(nu_m_tmp,pm.omegam);
+                complex<double> Hallcmpx = ph::e0*Bx_tmp/(pm.masse*nu_cmp + EPS);
+                complex<double> Hallcmpr = ph::e0*Br_tmp/(pm.masse*nu_cmp + EPS);
+                complex<double> HallcmpMag2 =  Hallcmpx*Hallcmpx + Hallcmpr*Hallcmpr;
+                complex<double> coef = rho_tmp*ph::e0*ph::e0/(pm.masse*nu_cmp + EPS)/(1.0 + HallcmpMag2 + EPS);
+                complex<double> sigmaerr = coef*(1.0+Hallcmpr*Hallcmpr);
+                complex<double> sigmaerp = coef*(-Hallcmpx);
+                complex<double> sigmaerx = coef*(Hallcmpx*Hallcmpr);
+                complex<double> iomegaMu0(0.0,pm.omegam*ph::mu0);
+
+                aPr[i][j] = 2.0*pm.dx*pm.dx + 2.0*pm.dr*pm.dr + pm.dx*pm.dx*pm.dr*pm.dr/(r_tmp*r_tmp)
+                    - ph::eps0*gc.epsr[i][j]*ph::mu0*pm.omegam*pm.omegam*pm.dx*pm.dx*pm.dr*pm.dr + iomegaMu0*sigmaerr*pm.dx*pm.dx*pm.dr*pm.dr;
+                aEr[i][j] = pm.dr*pm.dr;
+                aWr[i][j] = pm.dr*pm.dr;
+                aNr[i][j] = qR*pm.dx*pm.dx;
+                aSr[i][j] = qL*pm.dx*pm.dx;
+                br[i][j] = complex<double>(0,-pm.omegam*ph::mu0*pm.dx*pm.dx*pm.dr*pm.dr)*gr.J1r[i][j];
+
+                
+            }
+        }
+    }
+
+    //********* Er境界条件 (左) *********
+    for (int k=0;k<mb.iBndWr.size();k++){
+        int i = mb.iBndWr[k];
+        int j = mb.jBndWr[k];
+
+        if(mb.sBndWr[k] == 0){ //ディリクレ
+            aPr[i][j] = aPr[i][j] + aWr[i][j];
+            aWr[i][j] = 0.0;
+        }else if(mb.sBndWr[k] == 1){ //開放
+            double c0 = sqrt(1.0/(ph::eps0*gc.epsr[i][j]*ph::mu0));
+            double deno = pow(2.0*c0,2) + pow(pm.omegam*pm.dx,2);
+            complex<double> R = complex<double>(pow(2.0*c0,2) - pow(pm.omegam*pm.dx,2),-4.0*c0*pm.omegam*pm.dx);
+            R = R/(deno+1e-100);
+            
+            aPr[i][j] = aPr[i][j] - aWr[i][j]*R;
+            aWr[i][j] = 0.0;
+        }else if(mb.sBndWr[k] == 5){ //凸角 下側Open
+            double rR = (gc.r[j+1] + gc.r[j])/2.0;
+            double rL = (gc.r[j] + gc.r[j-1])/2.0;
+            
+            aPr[i][j] = aPr[i][j] - aWr[i][j]*( pm.dx/pm.dr*rL/gc.r[j]);
+            aNr[i][j] = aNr[i][j] + aWr[i][j]*(-pm.dx/pm.dr*rR/gc.r[j]);
+            aNEr[i][j] = aNEr[i][j] + aWr[i][j]*(-1.0);
+            aWr[i][j] = 0.0;
+        }else if(mb.sBndWr[k] == 6){ //凸角 上側Open
+            double rR = (gc.r[j] + gc.r[j-1])/2.0;
+            double rL = (gc.r[j-1] + gc.r[j-2])/2.0;
+
+            aPr[i][j] = aPr[i][j] - aWr[i][j]*( pm.dx/pm.dr*rR/gc.r[j-1]);
+            aSr[i][j] = aSr[i][j] + aWr[i][j]*(-pm.dx/pm.dr*rL/gc.r[j-1]);
+            aSEr[i][j] = aSEr[i][j] + aWr[i][j]*( 1.0);
+            aWr[i][j] = 0.0;
+        }
+    }
+    //********* Er境界条件 (右) *********
+    for (int k=0;k<mb.iBndEr.size();k++){
+        int i = mb.iBndEr[k];
+        int j = mb.jBndEr[k];
+
+        if(mb.sBndEr[k] == 0){ //ディリクレ
+            aPr[i][j] = aPr[i][j] + aEr[i][j];
+            aEr[i][j] = 0.0;
+        }if(mb.sBndEr[k] == 1){ //開放
+            double c0 = sqrt(1.0/(ph::eps0*ph::mu0));
+            
+            //std::complex<double> deno(2.0*c0,omegam*dx);
+            //std::complex<double> R(2.0*c0,-omegam*dx);
+            //aPr[i][j] = aPr[i][j] - aEr[i][j]*R/(deno+1e-100);
+            //aEr[i][j] = 0.0;
+
+            double deno = pow(2.0*c0,2) + pow(pm.omegam*pm.dx,2);
+            std::complex<double> R = std::complex<double>
+                (pow(2.0*c0,2) - pow(pm.omegam*pm.dx,2),-4.0*c0*pm.omegam*pm.dx);
+            aPr[i][j] = aPr[i][j] - aEr[i][j]*R/(deno+1e-100);
+            aEr[i][j] = 0.0;
+
+
+        }else if(mb.sBndEr[k] == 5){ //凸角 下側Open (*)
+            double rR = (gc.r[j+1] + gc.r[j])/2.0;
+            double rL = (gc.r[j] + gc.r[j-1])/2.0;
+
+            aPr[i][j] = aPr[i][j] - aEr[i][j]*( pm.dx/pm.dr*rL/gc.r[j]);
+            aNr[i][j] = aNr[i][j] + aEr[i][j]*(-pm.dx/pm.dr*rR/gc.r[j]);
+            aNWr[i][j] = aNWr[i][j] + aEr[i][j]*( 1.0);
+            aEr[i][j] = 0.0;
+        }
+    }
+    //********* Er境界条件 (下) *********
+    for (int k=0;k<mb.iBndSr.size();k++){
+        int i = mb.iBndSr[k];
+        int j = mb.jBndSr[k];
+
+        if(mb.sBndSr[k] == 2){ //ガウス
+            double rR = (gc.r[j] + gc.r[j-1])/2.0;
+            double rL = (gc.r[j-1] + gc.r[j-2])/2.0;
+            aPr[i][j] = aPr[i][j] - aSr[i][j]*rR/rL;
+            aSEr[i][j] = aSEr[i][j] + aSr[i][j]*pm.dr/pm.dx*gc.r[j-1]/rL;
+            aSWr[i][j] = aSWr[i][j] - aSr[i][j]*pm.dr/pm.dx*gc.r[j-1]/rL;
+            aSr[i][j] = 0.0;
+        }else if(mb.sBndSr[k] == 3){ //凹角 左側壁
+            double rR = (gc.r[j] + gc.r[j-1])/2.0;
+            double rL = (gc.r[j-1] + gc.r[j-2])/2.0;
+            double deno = pm.dr/pm.dx*gc.r[j-1]/rL;
+            if(gc.r[j] < gc.j_flc_bl[0][0]){ //マイクロ波の入り口部の特別処理
+                deno = 1.0;
+            }
+
+            aPr[i][j] = aPr[i][j] - aSr[i][j]*rR/rL/deno;
+            aNEr[i][j] = aNEr[i][j] + aSr[i][j]*pm.dr/pm.dx*gc.r[j-1]/rL/deno;
+            aSr[i][j] = 0.0;
+        }
+    }
+    //********* Er境界条件 (上) *********
+    for (int k=0;k<mb.iBndNr.size();k++){
+        int i = mb.iBndNr[k];
+        int j = mb.jBndNr[k];
+
+        if(mb.sBndNr[k] == 2){ //ガウス
+            double rR = (gc.r[j+1] + gc.r[j])/2.0;
+            double rL = (gc.r[j] + gc.r[j-1])/2.0;
+            aPr[i][j] = aPr[i][j] - aNr[i][j]*rL/rR;
+            aNEr[i][j] = aNEr[i][j] - aNr[i][j]*pm.dr/pm.dx*gc.r[j]/rR;
+            aNWr[i][j] = aNWr[i][j] + aNr[i][j]*pm.dr/pm.dx*gc.r[j]/rR;
+            aNr[i][j] = 0.0;
+        }if(mb.sBndNr[k] == 3){ //凹角 左側壁
+            double rR = (gc.r[j+1] + gc.r[j])/2.0;
+            double rL = (gc.r[j] + gc.r[j-1])/2.0;
+            double deno = pm.dr/pm.dx*gc.r[j]/rR;
+
+            aPr[i][j] = aPr[i][j] - aNr[i][j]*rL/rR/deno;
+            aSEr[i][j] = aSEr[i][j] - aNr[i][j]*pm.dr/pm.dx*gc.r[j]/rR/deno;
+            aNr[i][j] = 0.0;
+        }if(mb.sBndNr[k] == 4){ //凹角 右側壁
+            double rR = (gc.r[j+1] + gc.r[j])/2.0;
+            double rL = (gc.r[j] + gc.r[j-1])/2.0;
+            double deno = pm.dr/pm.dx*gc.r[j]/rR;
+
+            aPr[i][j] = aPr[i][j] - aNr[i][j]*rL/rR/deno;
+            aSWr[i][j] = aSWr[i][j] + aNr[i][j]*pm.dr/pm.dx*gc.r[j]/rR/deno;
+            aNr[i][j] = 0.0;
+        }
+    }
+
+
+    /******************** LUソルバーの準備 ********************/
+    Eigen::SparseMatrix<complex<double> > A(pm.nk, pm.nk);
+    A.reserve(Eigen::VectorXi::Constant(pm.nk,11)); //ここの数字を変えて帯域幅を確保する
+    Eigen::VectorXcd b(pm.nk);
+    Eigen::VectorXcd xv(pm.nk);
+
+    //Er-足し込み
+    for (int k=0;k<pm.nkr;k++){
+        int i = gk.ikr[k];
+        int j = gk.jkr[k];
+
+        double kE  = gr.kr[i+1][j];
+        double kW  = gr.kr[i-1][j];
+        double kN  = gr.kr[i][j+1];
+        double kS  = gr.kr[i][j-1];
+
+        double kNE = gx.kx[i+1][j];
+        double kSE = gx.kx[i+1][j-1];
+        double kNW = gx.kx[i][j];
+        double kSW = gx.kx[i][j-1];
+
+        double kNN = gc.kp[i][j];
+        double kSS = gc.kp[i][j-1];
+
+        //Er用
+        A.insert(pm.nkx+k, pm.nkx+k)      =   aPr[i][j];
+        b[pm.nkx+k]                    =   br[i][j];
+        if(kN!=-1){
+            A.insert(pm.nkx+k, pm.nkx+kN) = -aNr[i][j];
+        }
+        if(kS!=-1){
+            A.insert(pm.nkx+k, pm.nkx+kS) = -aSr[i][j];
+        }
+        if(kE!=-1){
+            A.insert(pm.nkx+k, pm.nkx+kE) = -aEr[i][j];
+        }
+        if(kW!=-1){
+            A.insert(pm.nkx+k, pm.nkx+kW) = -aWr[i][j];
+        }
+        //Ex用
+        if(kNE!=-1){
+            A.insert(pm.nkx+k, kNE) = -aNEr[i][j];
+        }
+        if(kSE!=-1){
+            A.insert(pm.nkx+k, kSE) = -aSEr[i][j];
+        }
+        if(kNW!=-1){
+            A.insert(pm.nkx+k, kNW) = -aNWr[i][j];
+        }
+        if(kSW!=-1){
+            A.insert(pm.nkx+k, kSW) = -aSWr[i][j];
+        }
+        //Ep用
+        if(kNN!=-1){
+            A.insert(pm.nkx+k, pm.nkx + pm.nkr+kNN) = -aNNr[i][j];
+        }
+        if(kSS!=-1){
+            A.insert(pm.nkx+k, pm.nkx+pm.nkr+kSS) = -aSSr[i][j];
+        }
+    }
+
+    // LU分解でAx = bを解く
+    Eigen::SparseLU<Eigen::SparseMatrix<complex<double> > > solver;
+    //cout << "solver start!" << endl;
+    solver.compute(A);
+    xv = solver.solve(b);
+
+
+    // 実際の誤差を計算
+    //Eigen::VectorXcd residual = A*xv- b;
+    //cout << residual<< endl;
+    //double actual_error = residual.norm()/(b.norm()+1e-100);
+    //cout << "Actual error: " << actual_error << endl;
+
+
+    //Er-結果を戻す
+    for (int k=0;k<pm.nkr;k++){
+        int i = gk.ikr[k];
+        int j = gk.jkr[k];
+        gr.E1r[i][j] = xv[pm.nkx+k];
+    }
+
+    /************************境界条件後処理**************************/
+    
+    //********* Er境界条件 (左) *********
+    for (int k=0;k<mb.iBndWr.size();k++){
+        int i = mb.iBndWr[k];
+        int j = mb.jBndWr[k];
+
+        if(mb.sBndWr[k] == 0){ //ディリクレ
+            gr.E1r[i-1][j] = -gr.E1r[i][j];
+        }else if(mb.sBndWr[k] == 1){ //開放
+            double c0 = sqrt(1.0/(ph::eps0*gc.epsr[i][j]*ph::mu0));
+            double deno = pow(2.0*c0,2) + pow(pm.omegam*pm.dx,2);
+            complex<double> R = complex<double>
+                (pow(2.0*c0,2) - pow(pm.omegam*pm.dx,2),-4.0*c0*pm.omegam*pm.dx);
+            R = R/(deno+1e-100);
+
+            gr.E1r[i-1][j] = R*gr.E1r[i][j];
+        }else if(mb.sBndWr[k] == 5){ //凸角 下側Open
+            //処理なし
+        }else if(mb.sBndWr[k] == 6){ //凸角 上側Open
+            //処理なし
+        }
+    }
+    //********* Er境界条件 (右) *********
+    for (int k=0;k<mb.iBndEr.size();k++){
+        int i = mb.iBndEr[k];
+        int j = mb.jBndEr[k];
+
+        if(mb.sBndEr[k] == 0){ //ディリクレ
+            gr.E1r[i+1][j] = -gr.E1r[i][j];
+        }else if(mb.sBndEr[k] == 1){ //開放
+            double c0 = sqrt(1.0/(ph::eps0*ph::mu0));
+            //std::complex<double> deno(2.0*c0,omegam*dx);
+            //std::complex<double> R(2.0*c0,-omegam*dx);
+
+            double deno = pow(2.0*c0,2) + pow(pm.omegam*pm.dx,2);
+            std::complex<double> R = std::complex<double>
+                (pow(2.0*c0,2) - pow(pm.omegam*pm.dx,2),-4.0*c0*pm.omegam*pm.dx);
+            R = R/(deno+1e-100);
+
+            gr.E1r[i+1][j] = R/(deno+1e-100)*gr.Er[i][j];
+        }else if(mb.sBndEr[k] == 5){ //凸角 下側Open
+            //処理なし
+        }
+    }
+    //********* Er境界条件 (下) *********
+    for (int k=0;k<mb.iBndSr.size();k++){
+        int i = mb.iBndSr[k];
+        int j = mb.jBndSr[k];
+
+        if(mb.sBndSr[k] == 2){ //ガウス
+            double rR = (gc.r[j] + gc.r[j-1])/2.0;
+            double rL = (gc.r[j-1] + gc.r[j-2])/2.0;
+            
+            gr.E1r[i][j-1] = rR/rL*gr.E1r[i][j] + pm.dr/pm.dx*gc.r[j-1]/rL*(gx.E1x[i+1][j-1]-gx.E1x[i][j-1]);
+        }else if(mb.sBndSr[k] == 3){ //凹角 左側壁
+            double rR = (gc.r[j] + gc.r[j-1])/2.0;
+            double rL = (gc.r[j-1] + gc.r[j-2])/2.0;
+            double deno = pm.dr/pm.dx*gc.r[j-1]/rL;
+            if(gc.r[j] < gc.j_flc_bl[0][0]){ //マイクロ波の入り口部の特別処理
+                deno = 1.0;
+            }
+
+            gr.E1r[i][j-1] = rR/rL*gr.E1r[i][j]/deno + pm.dr/pm.dx*gc.r[j-1]/rL*(gx.E1x[i+1][j-1])/deno;
+        }
+    }
+    //********* Er境界条件 (上) *********
+    for (int k=0;k<mb.iBndNr.size();k++){
+        int i = mb.iBndNr[k];
+        int j = mb.jBndNr[k];
+
+        if(mb.sBndNr[k] == 2){ //ガウス
+            double rR = (gc.r[j+1] + gc.r[j])/2.0;
+            double rL = (gc.r[j] + gc.r[j-1])/2.0;
+
+            gr.E1r[i][j+1] = rL/rR*gr.E1r[i][j] - pm.dr/pm.dx*gc.r[j]/rR*(gx.E1x[i+1][j]-gx.E1x[i][j]);
+        }if(mb.sBndNr[k] == 3){ //凹角 左側壁
+            double rR = (gc.r[j+1] + gc.r[j])/2.0;
+            double rL = (gc.r[j] + gc.r[j-1])/2.0;
+            double deno = pm.dr/pm.dx*gc.r[j]/rR;
+
+            gr.E1r[i][j+1] = rL/rR*gr.E1r[i][j]/deno - pm.dr/pm.dx*gc.r[j]/rR*(gx.E1x[i+1][j])/deno;
+        }if(mb.sBndNr[k] == 4){ //凹角 右側壁
+            double rR = (gc.r[j+1] + gc.r[j])/2.0;
+            double rL = (gc.r[j] + gc.r[j-1])/2.0;
+            double deno = pm.dr/pm.dx*gc.r[j]/rR;
+
+            gr.E1r[i][j+1] = rL/rR*gr.E1r[i][j]/deno + pm.dr/pm.dx*gc.r[j]/rR*(gx.E1x[i][j])/deno;
+        }
+    }
+
+
+    {
+
+        //set refelence plane
+        //---------------------------------
+        double x_ref = 0.004;
+        int i_ref = int(x_ref/pm.dx + 1.5);
+        //---------------------------------
+
+        int i = i_ref;
+        double x_tmp = (gc.x[i] + gc.x[i-1])/2.0;
+        //calculate current I (use averaged value in r-direction for robustness)
+        //---------------------------------
+        int ncount = 0;
+        std::complex<double>I_ref_tmp(0.0,0.0);
+        for (int j=gr.j_flr_bl[5][0];j<=gr.j_flr_bl[5][1];j++){
+            double r_tmp = (gc.r[j] + gc.r[j-1])/2.0;
+            //double qR = (r[j] + r[j+1])/(2.0*r[j]);
+
+            std::complex<double> H_ref = (gr.E1r[i][j] - gr.E1r[i-1][j])/pm.dx/(pm.omegam*ph::mu0)*std::complex<double>(0,1.0);
+            I_ref_tmp = I_ref_tmp + 2.0*M_PI*r_tmp*H_ref;
+
+            //std::cout << "j = " << j << " - 1/2, r = "<< r_tmp << " , H_ref = "<<H_ref<<", I_ref = "<<2.0*M_PI*r_tmp*H_ref<< std::endl;
+            ncount = ncount + 1;
+        }
+        I_ref_tmp = I_ref_tmp/double(ncount);
+        //---------------------------------
+
+        //calculate current V
+        //---------------------------------
+        std::complex<double> V_ref_tmp(0.0,0.0);
+        for (int j=gc.j_flc_bl[5][0];j<=gc.j_flc_bl[5][1];j++){
+            //double qL = (r[j] + r[j-1])/(2.0*r[j]);
+            //double qR = (r[j] + r[j+1])/(2.0*r[j]);
+            //double r_tmp = (r[j] + r[j-1])/2.0;
+            double rL = (gc.r[j] + gc.r[j-1])/2.0;
+            double rR = (gc.r[j] + gc.r[j+1])/2.0;
+
+            //std::complex<double> Er_tmp = (E1r[i][j] + E1r[i-1][j])/2.0;
+            std::complex<double> Er_tmp = (rR*(gr.E1r[i][j+1] + gr.E1r[i-1][j+1]) + rL*(gr.E1r[i][j] + gr.E1r[i-1][j]))/(4.0*gc.r[j]);
+            
+            double c0 = sqrt(1.0/(ph::eps0*gc.epsr[i][j]*ph::mu0));
+            
+            //std::cout << "Check ,i = "<<i <<", j = "<< j << ", "<< std::abs(Er_tmp)*std::abs(Er_tmp)
+            //    //<< ","<<std::abs(Er_Fw[j+1])<< ","<<std::abs(Er_Fw[j])
+            //    << ","<<(Er_tmp)
+            //    << ","<<pow(std::abs((Er_tmp - Er_anly)/Er_anly),2)*100<< " %"
+            //    << std::endl;
+
+            V_ref_tmp = V_ref_tmp + Er_tmp*pm.dr;
+            //std::cout << "j = " << j <<", Er = "<< Er_tmp << ", rEr = "<< r_tmp*Er_tmp << ", V_ref = "<<V_ref << ", V_ref_th = "<<r_tmp*Er_tmp*log(r2/r1)<< std::endl;
+        }
+        //---------------------------------
+
+        std::complex<double> Z_ref_tmp = V_ref_tmp/(I_ref_tmp + 1e-100);
+        
+        std::cout << "Impedance at reference plane x = " << x_tmp << std::endl;
+        std::cout << "Z_ref = " << Z_ref_tmp << ", V_ref = " << V_ref_tmp << ", I_ref = " << I_ref_tmp 
+            << ", |Z_ref| = " << std::abs(Z_ref_tmp) 
+            << ", arg(Z_ref) = " << std::arg(Z_ref_tmp)*180/M_PI << " deg"<< std::endl;
+
+        std::complex<double> a2 = (V_ref_tmp - pm.Z0_base*I_ref_tmp)/(2.0*sqrt(pm.Z0_base));
+        std::complex<double> b2 = (V_ref_tmp + pm.Z0_base*I_ref_tmp)/(2.0*sqrt(pm.Z0_base));
+
+        std::complex<double> S11(pm.S11_mag * std::cos(pm.S11_arg_deg/180.0*M_PI), pm.S11_mag * std::sin(pm.S11_arg_deg/180.0*M_PI));
+        std::complex<double> S21(pm.S21_mag * std::cos(pm.S21_arg_deg/180.0*M_PI), pm.S21_mag * std::sin(pm.S21_arg_deg/180.0*M_PI));
+        std::complex<double> S12(pm.S12_mag * std::cos(pm.S12_arg_deg/180.0*M_PI), pm.S12_mag * std::sin(pm.S12_arg_deg/180.0*M_PI));
+        std::complex<double> S22(pm.S22_mag * std::cos(pm.S22_arg_deg/180.0*M_PI), pm.S22_mag * std::sin(pm.S22_arg_deg/180.0*M_PI));
+
+        //std::complex<double> a1 = (b2 - S22*a2)/S21;
+        //std::complex<double> b1 = S11*a1 + S12*a2;
+        double P_fwd = std::norm(b2);
+        double P_ref = std::norm(a2);
+
+        std::cout << std::endl;
+        std::cout << "Fwd power = " << P_fwd << " W" << std::endl;
+        std::cout << "Ref power = " << P_ref << " W, " <<P_ref/P_fwd*100<<" %"<< std::endl;
+        
     }
 
 

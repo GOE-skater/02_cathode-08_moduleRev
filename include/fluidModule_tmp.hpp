@@ -27,75 +27,11 @@ class FluidModule{
         void solve_Uir_tmp(Params &pm,GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr);
         void solve_Uip_tmp(Params &pm,GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr);
         void solve_rhoi_constTe(Params &pm,GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr);
-        void correct_Ui_constTe(Params &pm,GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr);
+        void update_Ui_constTe(Params &pm,GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr);
 
         void update_transport_coef(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr, BolsigVec &bo);
+        
 };
-
-//*****************************************************************
-//**                                                             **
-//**           void check_CFL                                    **
-//**                                                             **
-//*****************************************************************
-void FluidModule::check_CFL(Params &pm,GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr){
-    
-
-    double rhoe_max = 0.0;
-    for (int i=0;i<pm.ni+2;i++){
-        for (int j=0;j<pm.nj+2;j++){
-            if(rhoe_max < gc.rhoe[i][j]){
-                rhoe_max = gc.rhoe[i][j];
-            }
-        }
-    }
-
-    double mu_max = 0.0;
-    for (int i=0;i<pm.ni+2;i++){
-        for (int j=0;j<pm.nj+2;j++){
-            if(mu_max < gc.mu_para[i][j]){
-                mu_max = gc.mu_para[i][j];
-            }
-        }
-    }
-
-    double Te_max = 0.0;
-    for (int i=0;i<pm.ni+2;i++){
-        for (int j=0;j<pm.nj+2;j++){
-            if(Te_max < gc.Te[i][j]){
-                Te_max = gc.Te[i][j];
-            }
-        }
-    }
-
-    double ue_max = 0.0;
-    for (int i=1;i<pm.ni+1;i++){
-        for (int j=1;j<pm.nj+1;j++){
-            double rL = (gc.r[j]+gc.r[j-1])/2.0;
-            double rR = (gc.r[j]+gc.r[j+1])/2.0;
-
-            double uex_tmp = (gx.rhoUex[i+1][j] + gx.rhoUex[i][j])/2.0/(gc.rhoe[i][j]+1e-100);
-            double uer_tmp = (rR*gr.rhoUer[i][j+1] + rL*gr.rhoUer[i][j])/(2.0*gc.r[j])/(gc.rhoe[i][j]+1e-100);
-            
-            double ue_tmp = sqrt(uex_tmp*uex_tmp + uer_tmp*uer_tmp);
-            if(ue_max < ue_tmp){
-                ue_max = ue_tmp;
-            }
-        }
-    }
-
-    double vth = sqrt(8.0*ph::Boltz*Te_max/(M_PI*pm.masse));
-    ue_max = ue_max + vth;
-
-    double dt_min = ph::eps0/(ph::e0*rhoe_max*mu_max);
-
-    if(pm.icon_adp_dt == 1){ //アダプティブdt (dtを計算)
-        pm.dt = dt_min*pm.CFL;
-    }else{ //固定dt (CFLを計算)
-        pm.CFL = pm.dt/dt_min;
-    }
-
-
-} // end check_CFL
 
 
 //*****************************************************************
@@ -1708,10 +1644,10 @@ void FluidModule::solve_rhoi_constTe(Params &pm,GridCenter &gc, GridInterfaceX &
 
 //*****************************************************************
 //**                                                             **
-//**           void correct_Ui_constTe                           **
+//**           void update_Ui                                    **
 //**                                                             **
 //*****************************************************************
-void FluidModule::correct_Ui_constTe(Params &pm,GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr){
+void FluidModule::update_Ui_constTe(Params &pm,GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr){
 
     double ratio = 1.0;
     double Te_rep = 0.1*ph::e0/ph::Boltz; //代表温度は3eVに固定
@@ -2014,7 +1950,6 @@ void FluidModule::correct_Ui_constTe(Params &pm,GridCenter &gc, GridInterfaceX &
     //=====================================================================================
 }
 
-
 //*****************************************************************
 //**                                                             **
 //**           void update_transport_coef                        **
@@ -2084,7 +2019,7 @@ void FluidModule::update_transport_coef(Params &pm,GridCenter &gc, GridInterface
                 double rhoUex_tmp = (gx.rhoUex[i+1][j]*bRx_wall + gx.rhoUex[i][j]*bLx_wall)/2.0;
                 double rhoUer_tmp = (rR*gr.rhoUer[i][j+1]*bRr_wall + rL*gr.rhoUer[i][j]*bLr_wall)/(2.0*gc.r[j]);
                 //double rhoUex_tmp = (rhoUex[i][j]   + rhoUex[i+1][j]  )/2.0;
-                //double rhoUer_tmp = (rL*rhoUer[i][j]   + rR*rhoUer[i][j+1]  )/(2.0*r[j]);
+                //double rhoUer_tmp = (rL*rhoUer[i][j]   + rR*rhoUer[i][j+1]  )/(2.0*gc.r[j]);
                 //------------------------------------
                 //velocity at cell center
                 //------------------------------------
@@ -2111,8 +2046,8 @@ void FluidModule::update_transport_coef(Params &pm,GridCenter &gc, GridInterface
                 }else{
                     fM = 1.0;
                 }
-                double omega_pe =sqrt(rhoe[i][j]*e0*e0/(masse*eps0));
-                nu_ano_IAT[i][j] = pow(masse/massi,1.0/3.0)*fM*sqrt(2.0)*omega_pe;
+                double omega_pe =sqrt(rhoe[i][j]*ph::e0*ph::e0/(masse*eps0));
+                nu_ano_IAT[i][j] = pow(masse/pm.massi,1.0/3.0)*fM*sqrt(2.0)*omega_pe;
                 //------------------------------------
                 */
     
@@ -2126,7 +2061,7 @@ void FluidModule::update_transport_coef(Params &pm,GridCenter &gc, GridInterface
                 gc.nu_ano_IAT[i][j] = 0.01*omega_pi*ud/cs*gc.Te[i][j]/pm.Ti;
                 //------------------------------------
 
-                //cout << Mache[i][j] << "," <<nu_ano_IAT[i][j] << ","<<0.01*omega_pi*ud/cs*Te[i][j]/Ti << endl;
+                //cout << Mache[i][j] << "," <<nu_ano_IAT[i][j] << ","<<0.01*omega_pi*ud/cs*Te[i][j]/pm.Ti << endl;
             }
         }
     }

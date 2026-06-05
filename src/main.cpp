@@ -56,7 +56,6 @@ int main(int argc, char *argv[])
     FluidModule fluM;
     EmfieldModule emfM;
     //FieldModule fieldM;
-    //SolverModule solverM;
     //ParticleModule pclM;
     //-------------------------------------
 
@@ -126,11 +125,9 @@ int main(int argc, char *argv[])
     if(pm.icon_impTest == 1){
         
         iniF.makeBoundary_impedanceTest(pm, gc, gx, gr, gk, mb);
-        
-        //solve_Microwave_impedanceTest(); //マイクロ波更新
-        //output_phase();
-        
-        //output(); //ファイルにアウトプット
+        emfM.solve_Microwave_impedanceTest(pm, gc, gx, gr, gk, mb); //マイクロ波更新
+        outF.output_phase(pm, gc, gx, gr);
+        //outF.output(pm, gc, gx, gr, bo); 
         return 0;
     }
 
@@ -158,26 +155,24 @@ int main(int argc, char *argv[])
     ofstream outputfile1("results/residuals.csv");
     outputfile1 << "itime,time,rhoi,Uix,Uir,Uip,phi,rhoe,rhoUex,rhoUer,rhoeps,Gx,Gr,rhom,rhon" << endl;
 
-
-    /*
     do {
 
        //if(itime%1 == 0) V_bias = fmin(V_bias + 1,100);
         
-        check_CFL(); //CFL条件を元にdtを決定する　あるいは　dtからCFLを調べる
-        gtime = gtime+dt;
-        itime=itime+1;
+        fluM.check_CFL(pm, gc, gx, gr); //CFL条件を元にdtを決定する　あるいは　dtからCFLを調べる
+        pm.gtime = pm.gtime + pm.dt;
+        pm.itime = pm.itime + 1;
 
-        if(itime % ndiv_out == 0){
+        if(pm.itime % ndiv_out == 0){
             time2 = clock();
             double timePerCycle = (double)(time2-time1)/CLOCKS_PER_SEC/ndiv_out;
-            double restSec = double(ntime - itime)*timePerCycle;
+            double restSec = double(pm.ntime - pm.itime)*timePerCycle;
             int restHour = int(restSec/3600);
             int restMin = int(restSec/60) - restHour*60;
             
             cout << "*********************************************" << endl;
-            cout << "itime = " << itime << "/" << ntime << " CFL=" << CFL << " dt=" << dt << " t=" << gtime << endl;
-            cout << " The rest of time = "<<restHour<<" h "<<restMin<<" min | Progress = "<<(double)itime/ntime*100<<" % "<<endl;
+            cout << "itime = " << pm.itime << "/" << pm.ntime << " CFL=" << pm.CFL << " dt=" << pm.dt << " t=" << pm.gtime << endl;
+            cout << " The rest of time = "<<restHour<<" h "<<restMin<<" min | Progress = "<<(double)pm.itime/pm.ntime*100 <<" % "<<endl;
             cout <<  endl;
 
             time1 = clock();
@@ -185,21 +180,26 @@ int main(int argc, char *argv[])
         }
         
         
-        if(itime % ndt_i == 0){
-            //イオン密度・速度更新
-            solve_Uix_tmp(); //仮のUix計算
-            solve_Uir_tmp(); //仮のUir計算
-            solve_Uip_tmp(); //仮のUip計算
-            
-            //solve_rhoi(); //イオン密度計算
-            solve_rhoi_constTe(); //イオン密度計算
-            //solve_rhoi_my(); //イオン密度計算
-            //update_Ui(); //速度場更新 Ui
-            update_Ui_constTe(); //速度場更新 Ui
-            //update_Ui_my(); //速度場更新 Ui
+        if(pm.itime % pm.ndt_i == 0){
+            //temporary velocity update
+            //------------------------------------
+            fluM.solve_Uix_tmp(pm, gc, gx, gr);
+            fluM.solve_Uir_tmp(pm, gc, gx, gr);
+            fluM.solve_Uip_tmp(pm, gc, gx, gr);
+            //------------------------------------
+
+            //solve density
+            //------------------------------------
+            fluM.solve_rhoi_constTe(pm, gc, gx, gr);
+            //------------------------------------
+
+            //correct velocity
+            //------------------------------------
+            fluM.correct_Ui_constTe(pm, gc, gx, gr);
+            //------------------------------------
         }
 
-        if(icon_PC == 0){
+        if(pm.icon_PC == 0){
             //電場更新
             solve_phi_couple();
             //solve_phi_couple_PC();
@@ -248,89 +248,89 @@ int main(int argc, char *argv[])
         //riemann_FVS_for_neut(); //リーマンソルバー
         //update_neut(); //更新
 
-        if(itime % ndt_n == 0){
+        if(pm.itime % pm.ndt_n == 0){
             update_rhon(); //Diffusion方程式
             //update_rhon_log(); //Diffusion方程式
         }
 
-        if(itime % ndt_m == 0){
+        if(pm.itime % pm.ndt_m == 0){
             //metastable更新
             update_rhom(); //論文と同じ実装
             //update_rhom_kinetic(); //境界条件kinetic修正版
         }
         
         //輸送係数更新
-        update_transport_coef(); //論文と同じ実装
+        fluM.update_transport_coef(pm, gc, gx, gr, bo); //論文と同じ実装
         //update_transport_coef_mod(); //nu_effの範囲の修正適用
 
-        if(itime % ndiv_MW == 0){
-            solve_Microwave(); //マイクロ波更新
-            update_energy_profile(); //電力吸収プロファイル更新
+        if(pm.itime % pm.ndiv_MW == 0){
+            emfM.solve_Microwave(pm, gc, gx, gr, gk, mb); //マイクロ波更新
+            emfM.update_energy_profile(pm, gc, gx, gr); //電力吸収プロファイル更新
         }
 
 
-        if(itime % ndiv_out == 0){
-            cout << "error_rhoi = " << error_rhoi 
-                <<  " error_Uix = " << error_Uix
-                <<  " error_Uir = " << error_Uir
-                <<  " error_Uip = " << error_Uip
-                <<  " error_phi = " << error_phi
-                <<  " error_rhoe = " << error_rhoe
-                <<  " error_rhoUex = " << error_rhoUex
-                <<  " error_rhoUer = " << error_rhoUer
-                <<  " error_rhoeps = " << error_rhoeps
-                <<  " error_Gx = " << error_Gx
-                <<  " error_Gr = " << error_Gr
-                <<  " error_rhom = " << error_rhom
-                <<  " error_rhon = " << error_rhon
-                <<  " error_max = " << fmax(fmax(fmax(fmax(fmax(fmax(fmax(fmax(fmax(fmax(fmax(fmax(error_rhoi,error_Uix),error_Uir),error_Uip),error_phi),error_rhoe),error_rhoUex),error_rhoUer)
-                                        ,error_rhoeps),error_Gx),error_Gr),error_rhom),error_rhon)
+        if(pm.itime % ndiv_out == 0){
+            cout << "error_rhoi = "    << pm.error_rhoi 
+                <<  " error_Uix = "    << pm.error_Uix
+                <<  " error_Uir = "    << pm.error_Uir
+                <<  " error_Uip = "    << pm.error_Uip
+                <<  " error_phi = "    << pm.error_phi
+                <<  " error_rhoe = "   << pm.error_rhoe
+                <<  " error_rhoUex = " << pm.error_rhoUex
+                <<  " error_rhoUer = " << pm.error_rhoUer
+                <<  " error_rhoeps = " << pm.error_rhoeps
+                <<  " error_Gx = "     << pm.error_Gx
+                <<  " error_Gr = "     << pm.error_Gr
+                <<  " error_rhom = "   << pm.error_rhom
+                <<  " error_rhon = "   << pm.error_rhon
+                <<  " error_max = "    << fmax(fmax(fmax(fmax(fmax(fmax(fmax(fmax(fmax(fmax(fmax(fmax(pm.error_rhoi,pm.error_Uix),pm.error_Uir),pm.error_Uip),pm.error_phi),pm.error_rhoe),pm.error_rhoUex),pm.error_rhoUer)
+                                        ,pm.error_rhoeps),pm.error_Gx),pm.error_Gr),pm.error_rhom),pm.error_rhon)
                 << endl;
         }
 
-        outputfile1 << itime
-                <<","<< gtime
-                <<","<< error_rhoi 
-                <<","<< error_Uix
-                <<","<< error_Uir
-                <<","<< error_Uip
-                <<","<< error_phi
-                <<","<< error_rhoe
-                <<","<< error_rhoUex
-                <<","<< error_rhoUer
-                <<","<< error_rhoeps
-                <<","<< error_Gx
-                <<","<< error_Gr
-                <<"," << error_rhom
-                <<"," << error_rhon
+        outputfile1 << pm.itime
+                <<","<< pm.gtime
+                <<","<< pm.error_rhoi 
+                <<","<< pm.error_Uix
+                <<","<< pm.error_Uir
+                <<","<< pm.error_Uip
+                <<","<< pm.error_phi
+                <<","<< pm.error_rhoe
+                <<","<< pm.error_rhoUex
+                <<","<< pm.error_rhoUer
+                <<","<< pm.error_rhoeps
+                <<","<< pm.error_Gx
+                <<","<< pm.error_Gr
+                <<"," << pm.error_rhom
+                <<"," << pm.error_rhon
                 << endl;
 
         //****************** Gnuplot結果出力 History ****************** 
-        if(icon_gnuRes == 1){
+        if(pm.icon_gnuRes == 1){
             
-            if(itime % nGnuDivTime ==0){
+            if(pm.itime % nGnuDivTime ==0){
                 vector<double> errorVec(nErr,0.0);
-                errorVec[0] = error_rhoi;
-                errorVec[1] = error_Uix;
-                errorVec[2] = error_Uir;
-                errorVec[3] = error_Uip;
-                errorVec[4] = error_phi;
-                errorVec[5] = error_rhoe;
-                errorVec[6] = error_rhoUex;
-                errorVec[7] = error_rhoUer;
-                errorVec[8] = error_rhoeps;
-                errorVec[9] = error_Gx;
-                errorVec[10] = error_Gr;
-                errorVec[11] = error_rhom;
-                errorVec[12] = error_rhon;
+                errorVec[0] = pm.error_rhoi;
+                errorVec[1] = pm.error_Uix;
+                errorVec[2] = pm.error_Uir;
+                errorVec[3] = pm.error_Uip;
+                errorVec[4] = pm.error_phi;
+                errorVec[5] = pm.error_rhoe;
+                errorVec[6] = pm.error_rhoUex;
+                errorVec[7] = pm.error_rhoUer;
+                errorVec[8] = pm.error_rhoeps;
+                errorVec[9] = pm.error_Gx;
+                errorVec[10] = pm.error_Gr;
+                errorVec[11] = pm.error_rhom;
+                errorVec[12] = pm.error_rhon;
 
                 vector<double> currentVec(3,0.0);
-                currentVec[0] = Ii_Anode*1000;
-                currentVec[1] = Ie_Anode*1000;
-                currentVec[2] = I_Anode*1000;
+                currentVec[0] = pm.Ii_Anode*1000;
+                currentVec[1] = pm.Ie_Anode*1000;
+                currentVec[2] = pm.I_Anode*1000;
                 
                 //値の追加
-                itime_history.push_back(itime);
+                itime_history.push_back(pm.itime);
                 for(int iSp = 0;iSp<nErr;iSp++){
                     error_history[iSp].push_back(errorVec[iSp]);
                 }
@@ -339,7 +339,7 @@ int main(int argc, char *argv[])
                 }
 
                 //値の削除
-                if(itime > nGnuMaxTimeRange){
+                if(pm.itime > nGnuMaxTimeRange){
                     itime_history.erase(itime_history.begin());
                     for(int iSp = 0;iSp<nErr;iSp++){
                         error_history[iSp].erase(error_history[iSp].begin());
@@ -349,30 +349,30 @@ int main(int argc, char *argv[])
                     }
                 }
 
-                if(fmod(itime,nGnuOutTime) == 0){
+                if(fmod(pm.itime,nGnuOutTime) == 0){
                     plotHistory(error_plot,error_history,itime_history,nGnuMaxTimeRange);
                 }
 
-                if(fmod(itime,nGnuOutTime) == 0){
+                if(fmod(pm.itime,nGnuOutTime) == 0){
                     plotCurrentHistory(current_plot,current_history,itime_history,nGnuMaxTimeRange);
                 }
             }
         }
 
-        if(itime % ndiv_fout == 0){
-            output();
+        if(pm.itime % pm.ndiv_fout == 0){
+            outF.output(pm, gc, gx, gr, bo);
         }
 
-        if(itime >= ntime){
-            solve_Microwave();
-            update_energy_profile();
-            solve_Microwave();
-            output();
+        if(pm.itime >= pm.ntime){
+            emfM.solve_Microwave(pm, gc, gx, gr, gk, mb);
+            emfM.update_energy_profile(pm, gc, gx, gr);
+            emfM.solve_Microwave(pm, gc, gx, gr, gk, mb);
+            outF.output(pm, gc, gx, gr, bo);
 
             oneMoreTime:
             int tmp;
 
-            if(icon_autoFinish == 0){
+            if(pm.icon_autoFinish == 0){
                 cout << "[Terminal Outpput] Continue Calculation? Yes = 1, No = 0"<<endl;
                 cin >> tmp;
             }else{
@@ -381,7 +381,7 @@ int main(int argc, char *argv[])
             
             if(tmp == 0){
                 int input1;
-                if(icon_autoFinish == 0){
+                if(pm.icon_autoFinish == 0){
                     cout << "[Terminal Outpput] Really? Yes = 1, No = 0"<<endl;
                     cin >> input1;
                 }else{
@@ -398,22 +398,22 @@ int main(int argc, char *argv[])
                 int tmp1;
                 int input;
                 cout << "[Terminal Outpput] Next Max Steps = "<<endl;
-                cin >> ntime;
+                cin >> pm.ntime;
                 cout << "[Terminal Outpput] Same CFL? Yes = 1, No = 0"<<endl;
                 cin >> tmp1;
 
                 if(tmp1 == 0){
-                    if(icon_adp_dt == 1){
+                    if(pm.icon_adp_dt == 1){
                         cout << "[Terminal Outpput] CFL = "<<endl;
-                        cin >> CFL;
+                        cin >> pm.CFL;
                     }else{
                         cout << "[Terminal Outpput] dt = "<<endl;
-                        cin >> dt;
+                        cin >> pm.dt;
                     }
                 }
 
-                if(icon_adp_dt == 1) cout << "[Terminal Outpput] Next Max Steps = "<< ntime << " CFL = " << CFL << endl;
-                if(icon_adp_dt == 0) cout << "[Terminal Outpput] Next Max Steps = "<< ntime << " dt = " << dt << endl;
+                if(pm.icon_adp_dt == 1) cout << "[Terminal Outpput] Next Max Steps = "<< pm.ntime << " CFL = " << pm.CFL << endl;
+                if(pm.icon_adp_dt == 0) cout << "[Terminal Outpput] Next Max Steps = "<< pm.ntime << " dt = " << pm.dt << endl;
                 cout << "[Terminal Outpput] Is it OK? Yes = 1, No = 0"<< endl;
                 cin >> input;
                 if(input == 1){
@@ -424,13 +424,13 @@ int main(int argc, char *argv[])
             }
         }
 
-        if(itime==ntime){
+        if(pm.itime==pm.ntime){
             icon_end = 1;
         }
 
     } while (icon_end == 0);
 
-    output_phase();
+    outF.output_phase(pm, gc, gx, gr);
     outputfile1.close();
 
     clock_t gend = clock();
@@ -438,6 +438,6 @@ int main(int argc, char *argv[])
     cout << "elapsed time = " << time_real << " sec" << endl;
 
     MPI_Finalize();
-    */
+
 
 }
