@@ -39,7 +39,7 @@ class InputFuncs
         void input_Bfield_data(Params &pm, GridCenter &gc, string inputFileName);
         void input_SEE_data(Params &pm, SeeVec &se, string inputFileName);
         void input_restart_data(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr, string inputFileName);
-        void input_BOLSIG_data(Params &pm, BolsigVec &bo, string inputFileName)
+        void input_BOLSIG_data(Params &pm, BolsigVec &bo, string inputFileName);
 };
 
 //*****************************************************************
@@ -803,7 +803,7 @@ void InputFuncs::input_BOLSIG_data(Params &pm, BolsigVec &bo, string inputFileNa
     //閾値のエネルギーを書き込み
     std::vector<double> threshold1(nSp1,0.0); 
     for (int iSp=0;iSp<nSp1;iSp++){
-        threshold1[iSp] = std::stod(strvec1[iSp+1])*e0; //eV -> J
+        threshold1[iSp] = std::stod(strvec1[iSp+1])*ph::e0; //eV -> J
         //std::cout << "iSp = " << iSp << ","<<threshold[iSp]/e0 << ","<<threshold[iSp]  << std::endl;
     }
 
