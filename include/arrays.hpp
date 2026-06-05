@@ -245,7 +245,7 @@ struct GridCenter{
 
         //permittivity
         //--------------------------------
-        epsr(ni+2,vector<double>(nj+2,0.0)),
+        epsr(ni+2,vector<double>(nj+2,1.0)),
         //--------------------------------
 
         //electron Mach number
@@ -265,19 +265,19 @@ struct GridCenter{
 
         //judge boundary
         //--------------------------------
-        jdgBnd_Ep(ni+2,vector<int>(nj+2,0.0)),
-        jdgBnd_flc(ni+2,vector<int>(nj+2,0.0)),
+        jdgBnd_Ep(ni+2,vector<int>(nj+2,0)),
+        jdgBnd_flc(ni+2,vector<int>(nj+2,0)),
         //--------------------------------
 
         //region index
         //--------------------------------
-        i_flc_bl(ni+2,vector<int>(nj+2,0.0)),
-        j_flc_bl(ni+2,vector<int>(nj+2,0.0)),
+        i_flc_bl(ni+2,vector<int>(nj+2,0)),
+        j_flc_bl(ni+2,vector<int>(nj+2,0)),
         //--------------------------------
 
         //index-convergion
         //--------------------------------
-        kp(ni+2,vector<int>(nj+2,0.0))   //convergion of (i,j) → k (E-field)
+        kp(ni+2,vector<int>(nj+2,-1))   //convergion of (i,j) → k (E-field)
         //--------------------------------
     {}
     //--------------------------------
@@ -445,19 +445,19 @@ struct GridInterfaceX{
 
         //judge boundary
         //--------------------------------
-        jdgBnd_Ex(ni+2,vector<int>(nj+2,0.0)),
-        jdgBnd_flx(ni+2,vector<int>(nj+2,0.0)),
+        jdgBnd_Ex(ni+2,vector<int>(nj+2,0)),
+        jdgBnd_flx(ni+2,vector<int>(nj+2,0)),
         //--------------------------------
 
         //region index
         //--------------------------------
-        i_flx_bl(ni+2,vector<int>(nj+2,0.0)),
-        j_flx_bl(ni+2,vector<int>(nj+2,0.0)),
+        i_flx_bl(ni+2,vector<int>(nj+2,0)),
+        j_flx_bl(ni+2,vector<int>(nj+2,0)),
         //--------------------------------
 
         //index-convergion
         //--------------------------------
-        kx(ni+2,vector<int>(nj+2,0.0))   //convergion of (i,j) → k (E-field)
+        kx(ni+2,vector<int>(nj+2,-1))   //convergion of (i,j) → k (E-field)
         //--------------------------------
         
     {}
@@ -627,19 +627,19 @@ struct GridInterfaceR{
 
         //judge boundary
         //--------------------------------
-        jdgBnd_Er(ni+2,vector<int>(nj+2,0.0)),
-        jdgBnd_flr(ni+2,vector<int>(nj+2,0.0)),
+        jdgBnd_Er(ni+2,vector<int>(nj+2,0)),
+        jdgBnd_flr(ni+2,vector<int>(nj+2,0)),
         //--------------------------------
 
         //region index
         //--------------------------------
-        i_flr_bl(ni+2,vector<int>(nj+2,0.0)),
-        j_flr_bl(ni+2,vector<int>(nj+2,0.0)),
+        i_flr_bl(ni+2,vector<int>(nj+2,0)),
+        j_flr_bl(ni+2,vector<int>(nj+2,0)),
         //--------------------------------
 
         //index-convergion
         //--------------------------------
-        kr(ni+2,vector<int>(nj+2,0.0))    //convergion of (i,j) → k (E-field)
+        kr(ni+2,vector<int>(nj+2,-1))    //convergion of (i,j) → k (E-field)
         //--------------------------------
         
     {}

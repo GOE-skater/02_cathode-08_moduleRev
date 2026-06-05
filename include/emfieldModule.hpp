@@ -127,6 +127,13 @@ void EmfieldModule::solve_Microwave(Params &pm, GridCenter &gc, GridInterfaceX &
                 aNWx[i][j] = -iomegaMu0*sigmaexr*0.25*qR*pm.dx*pm.dx*pm.dr*pm.dr;
                 aSEx[i][j] = -iomegaMu0*sigmaexr*0.25*qL*pm.dx*pm.dx*pm.dr*pm.dr;
                 aSWx[i][j] = -iomegaMu0*sigmaexr*0.25*qL*pm.dx*pm.dx*pm.dr*pm.dr;
+
+                //cout << i <<","<< j 
+                //    <<","<< aPx[i][j] << "," << aEx[i][j]<< "," << aWx[i][j]<< "," << aNx[i][j]<< "," << aNx[i][j]
+                //    //<<","<< aEEx[i][j] << "," << aWWx[i][j]
+                //    //<< "," << aNEx[i][j]<< "," << aNWx[i][j]
+                //    //<< "," << aSEx[i][j]<< "," << aSWx[i][j]
+                //    << endl;
             }
         }
     }
@@ -171,6 +178,23 @@ void EmfieldModule::solve_Microwave(Params &pm, GridCenter &gc, GridInterfaceX &
                 aNWr[i][j] = -iomegaMu0*sigmaerx*0.25*qR*pm.dx*pm.dx*pm.dr*pm.dr;
                 aSEr[i][j] = -iomegaMu0*sigmaerx*0.25*qL*pm.dx*pm.dx*pm.dr*pm.dr;
                 aSWr[i][j] = -iomegaMu0*sigmaerx*0.25*qL*pm.dx*pm.dx*pm.dr*pm.dr;
+
+                //std::cout << i << ","<< j 
+                //    << ","<<aPr[i][j] << ","<<br[i][j] 
+                //    << "," << 2.0*pm.dx*pm.dx 
+                //    << "," << 2.0*pm.dr*pm.dr 
+                //    << "," << pm.dx*pm.dx*pm.dr*pm.dr/(r_tmp*r_tmp)
+                //    << std::endl;
+
+                //std::cout << i << ","<< j 
+                //    << ","<< br[i][j] << ","<< gr.J1r[i][j] 
+                //    << "," << -pm.omegam*ph::mu0*pm.dx*pm.dx*pm.dr*pm.dr
+                //    << "," << pm.omegam
+                //    << "," << ph::mu0
+                //    << "," << pm.dx
+                //    << "," << pm.dr
+                //    << std::endl;
+
             }
         }
     }
@@ -212,6 +236,7 @@ void EmfieldModule::solve_Microwave(Params &pm, GridCenter &gc, GridInterfaceX &
                 //Erの要素
                 aNNp[i][j] = -iomegaMu0*sigmaepr*0.5*qR*pm.dx*pm.dx*pm.dr*pm.dr;
                 aSSp[i][j] = -iomegaMu0*sigmaepr*0.5*qL*pm.dx*pm.dx*pm.dr*pm.dr;
+
             }
         }
     }
@@ -523,7 +548,7 @@ void EmfieldModule::solve_Microwave(Params &pm, GridCenter &gc, GridInterfaceX &
 
         double kEE = gc.kp[i][j];
         double kWW = gc.kp[i-1][j];
-        
+
         //Ex用
         A.insert(k, k)      =   aPx[i][j];
         b[k]                =   bx[i][j];
@@ -559,6 +584,7 @@ void EmfieldModule::solve_Microwave(Params &pm, GridCenter &gc, GridInterfaceX &
         if(kWW!=-1){
             A.insert(k, pm.nkx+pm.nkr+kWW) = -aWWx[i][j];
         }
+
     }
     
     //Er-足し込み
@@ -670,13 +696,12 @@ void EmfieldModule::solve_Microwave(Params &pm, GridCenter &gc, GridInterfaceX &
     solver.compute(A);
     xv = solver.solve(b);
 
-    /*
+
     // 実際の誤差を計算
-    Eigen::VectorXcd residual = A*xv- b;
-    cout << residual<< endl;
-    double actual_error = residual.norm()/(b.norm()+1e-100);
-    cout << "Actual error: " << actual_error << endl;
-    */
+    //Eigen::VectorXcd residual = A*xv- b;
+    //cout << residual<< endl;
+    //double actual_error = residual.norm()/(b.norm()+1e-100);
+    //cout << "Actual error: " << actual_error << endl;
 
     //Ex-結果を戻す
     for (int k=0;k<pm.nkx;k++){
@@ -907,6 +932,63 @@ void EmfieldModule::solve_Microwave(Params &pm, GridCenter &gc, GridInterfaceX &
             gc.E1p[i][j+1] = R*gc.E1p[i][j];
         }
     }
+
+
+    //check coefficients
+    if(0==1){
+        std::ofstream outputfile1("results/mw_coef0.csv");
+        //std::ofstream outputfile1_1(char1+"_tmp"+char2+char_csv);
+        //outputfile1<<"x,rho,Ui,rhoUix,Ue,rhoUex,rhoUex_E,rhoUex_D,E,phi,psi,rho_th,U_th,E_th,phi_th,psi_th,rate_ionize,divi,dive1,dive2,dive3, div_poisson, LHS, RHS,zero" << std::endl;
+        //outputfile1<<"x,rhon,rho,rhoe(test),Uix,rhoUix,Uex,Uey,rhoUex,rhoUey,Te,heat_flux,Bz,E,phi,nu_m,nu_en,nu_ei,nu_ionz,nu_exc,nu_wall,nu_ano,mue_parae,mue_perp,Halle,jd,Id,rate_eloss,rate_ionize,divi,dive,divn,engy_LHS,engy_LHS1,engy_LHS2,engy_LHS3,engy_LHS4,engy_RHS,engy_RHS1,engy_RHS2,engy_RHS3,zero" << std::endl;
+        outputfile1<<"i,j,x,r,aPx(R),aPx(I),aWx(R),aWx(I),aEx(R),aEx(I),aNx(R),aNx(I),aSx(R),aSx(I),aNWx(R),aNWx(I),aNEx(R),aNEx(I),aSWx(R),aSWx(I),aSEx(R),aSEx(I),aEEx(R),aEEx(I),aWWx(R),aWWx(I),bx(R),bx(I),aPr(R),aPr(I),aWr(R),aWr(I),aEr(R),aEr(I),aNr(R),aNr(I),aSr(R),aSr(I),aNWr(R),aNWr(I),aNEr(R),aNEr(I),aSWr(R),aSWr(I),aSEr(R),aSEr(I),aNNr(R),aNNr(I),aSSr(R),aSSr(I),br(R),br(I),aPp(R),aPp(I),aWp(R),aWp(I),aEp(R),aEp(I),aNp(R),aNp(I),aSp(R),aSp(I),aEEp(R),aEEp(I),aWWp(R),aWWp(I),aNNp(R),aNNp(I),aSSp(R),aSSp(I),bp(R),bp(I),zero" << std::endl;
+        //outputfile1_1 << "i,j,x,r,rhom,rhoUmx,rhoUmr,nabla_rhoUm,rhon,rhoUnx,rhoUnr,nabla_rhoUn,zero" << std::endl;
+        
+        for(int i=1;i<=pm.ni;i++){
+            for(int j=1;j<=pm.nj;j++){
+                outputfile1 << i << ","<< j << "," << gc.x[i]<< ","<< gc.r[j]
+                    << "," << real(aPx[i][j] )<< "," << imag(aPx[i][j] )
+                    << "," << real(aWx[i][j] )<< "," << imag(aWx[i][j] )
+                    << "," << real(aEx[i][j] )<< "," << imag(aEx[i][j] )
+                    << "," << real(aNx[i][j] )<< "," << imag(aNx[i][j] )
+                    << "," << real(aSx[i][j] )<< "," << imag(aSx[i][j] )
+                    << "," << real(aNWx[i][j])<< "," << imag(aNWx[i][j])
+                    << "," << real(aNEx[i][j])<< "," << imag(aNEx[i][j])
+                    << "," << real(aSWx[i][j])<< "," << imag(aSWx[i][j])
+                    << "," << real(aSEx[i][j])<< "," << imag(aSEx[i][j])
+                    << "," << real(aEEx[i][j])<< "," << imag(aEEx[i][j])
+                    << "," << real(aWWx[i][j])<< "," << imag(aWWx[i][j])
+                    << "," << real(bx[i][j]  )<< "," << imag(bx[i][j]  )
+
+                    << "," << real(aPr[i][j] )<< "," << imag(aPr[i][j] )
+                    << "," << real(aWr[i][j] )<< "," << imag(aWr[i][j] )
+                    << "," << real(aEr[i][j] )<< "," << imag(aEr[i][j] )
+                    << "," << real(aNr[i][j] )<< "," << imag(aNr[i][j] )
+                    << "," << real(aSr[i][j] )<< "," << imag(aSr[i][j] )
+                    << "," << real(aNWr[i][j])<< "," << imag(aNWr[i][j])
+                    << "," << real(aNEr[i][j])<< "," << imag(aNEr[i][j])
+                    << "," << real(aSWr[i][j])<< "," << imag(aSWr[i][j])
+                    << "," << real(aSEr[i][j])<< "," << imag(aSEr[i][j])
+                    << "," << real(aNNr[i][j])<< "," << imag(aNNr[i][j])
+                    << "," << real(aSSr[i][j])<< "," << imag(aSSr[i][j])
+                    << "," << real(br[i][j]  )<< "," << imag(br[i][j]  )
+
+                    << "," << real(aPp[i][j] )<< "," << imag(aPp[i][j] )
+                    << "," << real(aWp[i][j] )<< "," << imag(aWp[i][j] )
+                    << "," << real(aEp[i][j] )<< "," << imag(aEp[i][j] )
+                    << "," << real(aNp[i][j] )<< "," << imag(aNp[i][j] )
+                    << "," << real(aSp[i][j] )<< "," << imag(aSp[i][j] )
+                    << "," << real(aEEp[i][j])<< "," << imag(aEEp[i][j])
+                    << "," << real(aWWp[i][j])<< "," << imag(aWWp[i][j])
+                    << "," << real(aNNp[i][j])<< "," << imag(aNNp[i][j])
+                    << "," << real(aSSp[i][j])<< "," << imag(aSSp[i][j])
+                    << "," << real(bp[i][j]  )<< "," << imag(bp[i][j]  )
+                    << "," << 0.0
+                    <<std::endl;
+            }
+        }
+    }
+
+
 }
 
 //*****************************************************************
