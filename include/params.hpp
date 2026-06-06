@@ -199,12 +199,6 @@ struct Params{
     double dEi = 0.0; //イオンドリフトエネルギーの刻み幅
     double dTe_SEE = 0.0; //SEE用の電子温度の刻み幅
     
-    //BiCGSTAB用変数
-    int nk = 0; //kの数 (ExとErの合計)
-    int nkx = 0; //kの数 (Ex)
-    int nkr = 0; //kの数 (Er)
-    int nkp = 0; //kの数 (Ep)
-    
     //流入条件
     double fn_In = 0.0; //中性粒子の流入フラックス
     

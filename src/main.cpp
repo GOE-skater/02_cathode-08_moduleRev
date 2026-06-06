@@ -43,22 +43,19 @@ int main(int argc, char *argv[])
 
     //input data
     //-------------------------------------
-    Params pm;
-    BolsigVec bo;
-    GridK gk;
-    MicrowaveBC mb;
-    SeeVec se;
+    Params pm;      //from params.hpp
+    BolsigVec bo;   //from arrays.hpp
+    MicrowaveBC mb; //from arrays.hpp
+    SeeVec se;      //from arrays.hpp
     //-------------------------------------
 
     //modules
     //-------------------------------------
-    InputModule inpM;
-    InitialModule iniM;
-    OutputModule outM;
-    FluidModule fluM;
-    EmfieldModule emfM;
-    //FieldModule fieldM;
-    //ParticleModule pclM;
+    InputModule inpM;   //from inputModule.hpp
+    InitialModule iniM; //from initialModule.hpp
+    OutputModule outM;  //from outputModule.hpp
+    FluidModule fluM;   //from fluidModule.hpp
+    EmfieldModule emfM; //from emfieldModule.hpp
     //-------------------------------------
 
     int ndiv_out = 10;
@@ -124,17 +121,17 @@ int main(int argc, char *argv[])
     iniM.iniParam(pm,gc,gx,gr); 
     //-------------------------------------
     
-    
+
     if(pm.icon_impTest == 1){
         
-        iniM.makeBoundary_impedanceTest(pm, gc, gx, gr, gk, mb);
-        emfM.solve_Microwave_impedanceTest(pm, gc, gx, gr, gk, mb); //マイクロ波更新
+        iniM.makeBoundary_impedanceTest(pm, gc, gx, gr, mb);
+        emfM.solve_Microwave_impedanceTest(pm, gc, gx, gr, mb); //マイクロ波更新
         outM.output_phase(pm, gc, gx, gr);
         //outM.output(pm, gc, gx, gr, bo); 
         return 0;
     }
 
-    iniM.makeBoundary(pm, gc, gx, gr, gk, mb);
+    iniM.makeBoundary(pm, gc, gx, gr, mb);
     inpM.input_Bfield_data(pm,gc,"Bfield_data.csv"); //input B-field data
     inpM.input_SEE_data(pm, se, "coefEISEE.csv"); //input SEE data
     iniM.makeProfile(pm, gc, gx, gr); //set the initial profile
@@ -145,7 +142,7 @@ int main(int argc, char *argv[])
 
     //マイクロ波計算
     {
-        emfM.solve_Microwave(pm, gc, gx, gr, gk, mb); //マイクロ波更新
+        emfM.solve_Microwave(pm, gc, gx, gr, mb); //マイクロ波更新
         emfM.update_energy_profile(pm, gc, gx, gr); //電力吸収プロファイル更新
     }
 
@@ -241,7 +238,7 @@ int main(int argc, char *argv[])
         //update_transport_coef_mod(); //nu_effの範囲の修正適用
 
         if(pm.itime % pm.ndiv_MW == 0){
-            emfM.solve_Microwave(pm, gc, gx, gr, gk, mb); //マイクロ波更新
+            emfM.solve_Microwave(pm, gc, gx, gr, mb); //マイクロ波更新
             emfM.update_energy_profile(pm, gc, gx, gr); //電力吸収プロファイル更新
         }
 
@@ -341,9 +338,9 @@ int main(int argc, char *argv[])
         }
 
         if(pm.itime >= pm.ntime){
-            emfM.solve_Microwave(pm, gc, gx, gr, gk, mb);
+            emfM.solve_Microwave(pm, gc, gx, gr, mb);
             emfM.update_energy_profile(pm, gc, gx, gr);
-            emfM.solve_Microwave(pm, gc, gx, gr, gk, mb);
+            emfM.solve_Microwave(pm, gc, gx, gr, mb);
             outM.output(pm, gc, gx, gr, bo);
 
             oneMoreTime:

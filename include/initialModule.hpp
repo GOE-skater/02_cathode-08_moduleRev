@@ -22,8 +22,8 @@ class InitialModule
 
     public:
         void iniParam(Params &pm,GridCenter &gc,GridInterfaceX &gx,GridInterfaceR &gr);
-        void makeBoundary(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr, GridK &gk, MicrowaveBC &mb);
-        void makeBoundary_impedanceTest(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr, GridK &gk, MicrowaveBC &mb);
+        void makeBoundary(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr, MicrowaveBC &mb);
+        void makeBoundary_impedanceTest(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr, MicrowaveBC &mb);
         void makeProfile(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr);
 };
 
@@ -84,7 +84,7 @@ void InitialModule::iniParam(Params &pm,GridCenter &gc,GridInterfaceX &gx,GridIn
 //**           void makeBoundary                                 **
 //**                                                             **
 //*****************************************************************
-void InitialModule::makeBoundary(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr, GridK &gk, MicrowaveBC &mb)
+void InitialModule::makeBoundary(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr, MicrowaveBC &mb)
 {
     
     double x_tmp = 0.0;
@@ -278,58 +278,19 @@ void InitialModule::makeBoundary(Params &pm, GridCenter &gc, GridInterfaceX &gx,
         }
     }
 
-    //変換係数作成
-    int kx_tmp = 0;
-    int kr_tmp = 0;
-    int kp_tmp = 0;
-    int kfc_tmp = 0;
-    int kfx_tmp = 0;
-    int kfr_tmp = 0;
-
-    for (int i=0;i<=pm.ni+1;i++){
-        for (int j=0;j<=pm.nj+1;j++){
-            if(gx.jdgBnd_Ex[i][j]==1){
-                gx.kx[i][j] = kx_tmp;
-                kx_tmp++;
-                gk.ikx.push_back(i);
-                gk.jkx.push_back(j);
-            }
-
-            if(gr.jdgBnd_Er[i][j]==1){
-                gr.kr[i][j] = kr_tmp;
-                kr_tmp++;
-                gk.ikr.push_back(i);
-                gk.jkr.push_back(j);
-            }
-
-            if(gc.jdgBnd_Ep[i][j]==1){
-                gc.kp[i][j] = kp_tmp;
-                kp_tmp++;
-                gk.ikp.push_back(i);
-                gk.jkp.push_back(j);
-            }
-        }
-    }
-
-
-    pm.nkx = gk.ikx.size();
-    pm.nkr = gk.ikr.size();
-    pm.nkp = gk.ikp.size();
-    pm.nk = pm.nkx + pm.nkr + pm.nkp;
-    std::cout << "nkx = " << pm.nkx << " nkr = " << pm.nkr << " nkp = " << pm.nkp << " nk = " << pm.nk  << std::endl;
-
     //Output boundary check file
     if(pm.icon_chk == 1){
 
         std::ofstream outputfile1("results/boundary0.csv");
-        outputfile1<<"i,j,x,r,jdgBnd_Ep,jdgBnd_Ex,jdgBnd_Er,jdgBnd_flc,jdgBnd_flx,jdgBnd_flr,kx,kr,kp,zero" << std::endl;
+        //outputfile1<<"i,j,x,r,jdgBnd_Ep,jdgBnd_Ex,jdgBnd_Er,jdgBnd_flc,jdgBnd_flx,jdgBnd_flr,kx,kr,kp,zero" << std::endl;
+        outputfile1<<"i,j,x,r,jdgBnd_Ep,jdgBnd_Ex,jdgBnd_Er,jdgBnd_flc,jdgBnd_flx,jdgBnd_flr,zero" << std::endl;
 
         for(int i=0;i<=pm.ni+1;i++){
             for(int j=0;j<=pm.nj+1;j++){
                 outputfile1<< i << ","<< j << "," << gc.x[i]<< ","<< gc.r[j]
                     << "," << gc.jdgBnd_Ep[i][j] << "," << gx.jdgBnd_Ex[i][j]<< "," << gr.jdgBnd_Er[i][j]
                     << "," << gc.jdgBnd_flc[i][j]<< "," << gx.jdgBnd_flx[i][j]<< "," << gr.jdgBnd_flr[i][j]
-                    << "," << gx.kx[i][j]<< "," << gr.kr[i][j]<< "," << gc.kp[i][j]
+                    //<< "," << gx.kx[i][j]<< "," << gr.kr[i][j]<< "," << gc.kp[i][j]
                     << "," << 0.0<< std::endl;
             }
         }
@@ -976,7 +937,7 @@ void InitialModule::makeBoundary(Params &pm, GridCenter &gc, GridInterfaceX &gx,
 //**           void makeBoundary                                 **
 //**                                                             **
 //*****************************************************************
-void InitialModule::makeBoundary_impedanceTest(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr, GridK &gk, MicrowaveBC &mb)
+void InitialModule::makeBoundary_impedanceTest(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr, MicrowaveBC &mb)
 {
     double x_tmp = 0.0;
     double r_tmp = 0.0;
@@ -1053,48 +1014,19 @@ void InitialModule::makeBoundary_impedanceTest(Params &pm, GridCenter &gc, GridI
         }
     }
 
-    //変換係数作成
-    int kx_tmp = 0;
-    int kr_tmp = 0;
-    int kp_tmp = 0;
-    int kfc_tmp = 0;
-    int kfx_tmp = 0;
-    int kfr_tmp = 0;
-
-    for (int i=0;i<=pm.ni+1;i++){
-        for (int j=0;j<=pm.nj+1;j++){
-            
-
-            if(gr.jdgBnd_Er[i][j]==1){
-                gr.kr[i][j] = kr_tmp;
-                kr_tmp++;
-                gk.ikr.push_back(i);
-                gk.jkr.push_back(j);
-            }
-
-            
-        }
-    }
-
-
-    pm.nkx = gk.ikx.size();
-    pm.nkr = gk.ikr.size();
-    pm.nkp = gk.ikp.size();
-    pm.nk = pm.nkx + pm.nkr + pm.nkp;
-    std::cout << "nkx = " << pm.nkx << " nkr = " << pm.nkr << " nkp = " << pm.nkp << " nk = " << pm.nk  << std::endl;
-
     //Output boundary check file
     if(pm.icon_chk == 1){
 
         std::ofstream outputfile1("results/boundary0.csv");
-        outputfile1<<"i,j,x,r,jdgBnd_Ep,jdgBnd_Ex,jdgBnd_Er,jdgBnd_flc,jdgBnd_flx,jdgBnd_flr,kx,kr,kp,zero" << std::endl;
+        //outputfile1<<"i,j,x,r,jdgBnd_Ep,jdgBnd_Ex,jdgBnd_Er,jdgBnd_flc,jdgBnd_flx,jdgBnd_flr,kx,kr,kp,zero" << std::endl;
+        outputfile1<<"i,j,x,r,jdgBnd_Ep,jdgBnd_Ex,jdgBnd_Er,jdgBnd_flc,jdgBnd_flx,jdgBnd_flr,zero" << std::endl;
 
         for(int i=0;i<=pm.ni+1;i++){
             for(int j=0;j<=pm.nj+1;j++){
                 outputfile1<< i << ","<< j << "," << gc.x[i]<< ","<< gc.r[j]
                     << "," << gc.jdgBnd_Ep[i][j] << "," << gx.jdgBnd_Ex[i][j]<< "," << gr.jdgBnd_Er[i][j]
                     << "," << gc.jdgBnd_flc[i][j]<< "," << gx.jdgBnd_flx[i][j]<< "," << gr.jdgBnd_flr[i][j]
-                    << "," << gx.kx[i][j]<< "," << gr.kr[i][j]<< "," << gc.kp[i][j]
+                    //<< "," << gx.kx[i][j]<< "," << gr.kr[i][j]<< "," << gc.kp[i][j]
                     << "," << 0.0<< std::endl;
             }
         }

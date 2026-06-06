@@ -17,6 +17,11 @@
 #include <sstream>
 #include <mpi.h>
 #include <yaml-cpp/yaml.h>
+#include <unordered_map>
+#include <unordered_set>
+#include <functional>
+#include <cstdlib>
+#include <algorithm>
 
 #include "constants.hpp"
 #include "params.hpp"
@@ -625,12 +630,495 @@ void InputModule::input_SEE_data(Params &pm, SeeVec &se, string inputFileName)
     ifs.close();
 }
 
+
 //*****************************************************************
 //**                                                             **
 //**           void input_restart_data()                         **
 //**                                                             **
 //*****************************************************************
 void InputModule::input_restart_data(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr, string inputFileName)
+{
+
+    //****************** Read restart data ******************
+
+    ifstream ifs("restart/" + inputFileName);
+
+    if (!ifs) {
+        cout << "[restart.csv] File not found." << endl;
+        return;
+    }
+
+    string line;
+
+    // Read the header line.
+    if (!getline(ifs, line)) {
+        cerr << "[restart.csv] Empty file." << endl;
+        abort();
+    }
+
+    vector<string> header = split(line, ',');
+
+    // Remove spaces, tabs, and CR/LF from header names.
+    // This is important because the last CSV header may contain '\r'.
+    auto trim = [](string s) -> string {
+        const string whitespace = " \t\r\n";
+
+        size_t first = s.find_first_not_of(whitespace);
+        if (first == string::npos) {
+            return "";
+        }
+
+        size_t last = s.find_last_not_of(whitespace);
+        return s.substr(first, last - first + 1);
+    };
+
+    for (auto &name : header) {
+        name = trim(name);
+    }
+
+    // Create a map from column name to column index.
+    unordered_map<string, int> col;
+    for (int k = 0; k < static_cast<int>(header.size()); k++) {
+        col[header[k]] = k;
+    }
+    
+    // Helper function to check whether a column exists.
+    auto has = [&](const string &name) -> bool {
+        return col.find(name) != col.end();
+    };
+
+    // Helper function to abort if a required column is missing.
+    auto require_column = [&](const string &name) {
+        if (!has(name)) {
+            cerr << "[restart.csv] Required column is missing: " << name << endl;
+            abort();
+        }
+    };
+
+    // i, j, x, and r define the cell arrangement and must exist.
+    require_column("i");
+    require_column("j");
+    require_column("x");
+    require_column("r");
+
+    // A restart variable consists of the CSV header name and the assignment operation.
+    struct RestartVariable {
+        string name;
+        function<void(int, int, double)> assign;
+    };
+
+    vector<RestartVariable> programVars;
+
+    // Register a variable whose CSV header name is identical to the program variable name.
+    #define READ_RESTART_VAR(obj, var) \
+        programVars.push_back({#var, [&](int i, int j, double v) { obj.var[i][j] = v; }})
+
+    // Register a variable that needs a custom conversion when reading from CSV.
+    #define READ_RESTART_VAR_CONVERT(obj, var, expr) \
+        programVars.push_back({#var, [&](int i, int j, double v) { obj.var[i][j] = (expr); }})
+
+    // Register restart variables.
+    // To add a new variable, add one line here.
+    READ_RESTART_VAR(gc, rhoi);
+    READ_RESTART_VAR(gc, rhoi_old);
+
+    READ_RESTART_VAR(gx, Uix);
+    READ_RESTART_VAR(gx, Uix_old);
+
+    READ_RESTART_VAR(gr, Uir);
+    READ_RESTART_VAR(gr, Uir_old);
+
+    READ_RESTART_VAR(gc, Uip);
+    READ_RESTART_VAR(gc, Uip_old);
+
+    READ_RESTART_VAR(gc, rhoe);
+    READ_RESTART_VAR(gc, rhoe_old);
+
+    READ_RESTART_VAR(gx, rhoUex);
+    READ_RESTART_VAR(gx, rhoUex_old);
+
+    READ_RESTART_VAR(gr, rhoUer);
+    READ_RESTART_VAR(gr, rhoUer_old);
+
+    // Te in restart.csv is assumed to be written in eV.
+    // The program stores Te in Kelvin.
+    READ_RESTART_VAR_CONVERT(gc, Te,     v * ph::e0 / ph::Boltz);
+    READ_RESTART_VAR_CONVERT(gc, Te_old, v * ph::e0 / ph::Boltz);
+
+    READ_RESTART_VAR(gx, Gx);
+    READ_RESTART_VAR(gx, Gx_old);
+
+    READ_RESTART_VAR(gr, Gr);
+    READ_RESTART_VAR(gr, Gr_old);
+
+    READ_RESTART_VAR(gc, phi);
+    READ_RESTART_VAR(gc, phi_old);
+
+    READ_RESTART_VAR(gc, rhom);
+    READ_RESTART_VAR(gc, rhom_old);
+
+    READ_RESTART_VAR(gx, rhoUmx);
+    READ_RESTART_VAR(gr, rhoUmr);
+
+    READ_RESTART_VAR(gc, rate_ionize);
+
+    READ_RESTART_VAR(gx, scx);
+    READ_RESTART_VAR(gr, scr);
+
+    READ_RESTART_VAR(gx, nUex);
+    READ_RESTART_VAR(gx, nUex_old);
+
+    READ_RESTART_VAR(gr, nUer);
+    READ_RESTART_VAR(gr, nUer_old);
+
+    READ_RESTART_VAR(gc, rhon);
+    READ_RESTART_VAR(gc, rhon_old);
+
+    READ_RESTART_VAR(gx, rhoUnx);
+    READ_RESTART_VAR(gr, rhoUnr);
+
+    READ_RESTART_VAR(gc, rhoeps);
+    READ_RESTART_VAR(gc, rhoeps_old);
+
+    #undef READ_RESTART_VAR
+    #undef READ_RESTART_VAR_CONVERT
+
+    // Create a set of variable names used by this program.
+    unordered_set<string> programVarNames;
+    for (const auto &var : programVars) {
+        programVarNames.insert(var.name);
+    }
+
+    // Columns used only for checking the cell definition.
+    unordered_set<string> coordinateVars = {
+        "i", "j", "x", "r"
+    };
+
+    // Columns intentionally ignored even if they exist in restart.csv.
+    unordered_set<string> ignoredCsvVars = {
+        "zero"
+    };
+
+    for (const auto &name : header) {
+        if (coordinateVars.count(name) == 0 &&
+            programVarNames.count(name) == 0 &&
+            ignoredCsvVars.count(name) == 0) {
+
+            cerr << "[restart.csv] Warning: column exists in CSV but is not used by the program: "
+                 << name << endl;
+        }
+    }
+
+    // Warn if variables expected by this program do not exist in restart.csv.
+    for (const auto &var : programVars) {
+        if (!has(var.name)) {
+            cerr << "[restart.csv] Warning: variable exists in the program but not in CSV: "
+                 << var.name << endl;
+        }
+    }
+
+    // Helper function to get a string value from the current row.
+    auto get_string = [&](const vector<string> &row, const string &name, int lineNumber) -> string {
+        auto it = col.find(name);
+
+        if (it == col.end()) {
+            cerr << "[restart.csv] Internal error: missing column: " << name << endl;
+            abort();
+        }
+
+        int idx = it->second;
+
+        if (idx < 0 || idx >= static_cast<int>(row.size())) {
+            cerr << "[restart.csv] Malformed row at line " << lineNumber << "." << endl;
+            cerr << "Column '" << name
+                 << "' exists in the header, but this row does not have that field." << endl;
+            abort();
+        }
+
+        return row[idx];
+    };
+
+    // Helper function to get a double value from the current row.
+    auto get_double = [&](const vector<string> &row, const string &name, int lineNumber) -> double {
+        try {
+            return stod(get_string(row, name, lineNumber));
+        }
+        catch (const exception &e) {
+            cerr << "[restart.csv] Failed to convert value to double." << endl;
+            cerr << "Line: " << lineNumber << ", column: " << name << endl;
+            cerr << "Error: " << e.what() << endl;
+            abort();
+        }
+    };
+
+    // Helper function to get an integer value from the current row.
+    auto get_int = [&](const vector<string> &row, const string &name, int lineNumber) -> int {
+        try {
+            return stoi(get_string(row, name, lineNumber));
+        }
+        catch (const exception &e) {
+            cerr << "[restart.csv] Failed to convert value to int." << endl;
+            cerr << "Line: " << lineNumber << ", column: " << name << endl;
+            cerr << "Error: " << e.what() << endl;
+            abort();
+        }
+    };
+
+    // Check whether two coordinates are inconsistent.
+    // absTol controls the absolute tolerance.
+    // relTol controls the tolerance relative to the coordinate scale.
+    auto coordinate_mismatch = [](double a, double b) -> bool {
+        const double absTol = 1.0e-12;
+        const double relTol = 1.0e-10;
+
+        double diff = fabs(a - b);
+        double scale = max({1.0, fabs(a), fabs(b)});
+
+        return diff > absTol + relTol * scale;
+    };
+
+    // found[i][j] is used to verify that all restart cells exist exactly once.
+    vector<vector<bool>> found(pm.ni + 2, vector<bool>(pm.nj + 2, false));
+
+    int lineNumber = 1;
+
+    // Read data lines.
+    while (getline(ifs, line)) {
+        lineNumber++;
+
+        if (line.empty()) {
+            continue;
+        }
+
+        vector<string> strvec = split(line, ',');
+
+        int i = get_int(strvec, "i", lineNumber);
+        int j = get_int(strvec, "j", lineNumber);
+
+        double x_restart = get_double(strvec, "x", lineNumber);
+        double r_restart = get_double(strvec, "r", lineNumber);
+
+        // Check the index range.
+        if (i < 0 || i > pm.ni + 1 || j < 0 || j > pm.nj + 1) {
+            cerr << "[restart.csv] Cell definition mismatch." << endl;
+            cerr << "Index is out of range at line " << lineNumber << "." << endl;
+            cerr << "i = " << i << ", valid range: 0 to " << pm.ni + 1 << endl;
+            cerr << "j = " << j << ", valid range: 0 to " << pm.nj + 1 << endl;
+            abort();
+        }
+
+        // Check duplicated cells.
+        if (found[i][j]) {
+            cerr << "[restart.csv] Cell definition mismatch." << endl;
+            cerr << "Duplicated cell was found at line " << lineNumber << "." << endl;
+            cerr << "i = " << i << ", j = " << j << endl;
+            abort();
+        }
+
+        found[i][j] = true;
+
+        // Check consistency between restart coordinates and current grid coordinates.
+        if (coordinate_mismatch(gc.x[i], x_restart) || coordinate_mismatch(gc.r[j], r_restart)) {
+            cerr << "[restart.csv] Cell definition mismatch." << endl;
+            cerr << "Grid coordinate is inconsistent at line " << lineNumber << "." << endl;
+            cerr << "i = " << i << ", j = " << j << endl;
+            cerr << "restart x = " << x_restart << ", current x = " << gc.x[i] << endl;
+            cerr << "restart r = " << r_restart << ", current r = " << gc.r[j] << endl;
+            abort();
+        }
+
+        // Read only variables that exist in restart.csv.
+        for (const auto &var : programVars) {
+            if (has(var.name)) {
+                double value = get_double(strvec, var.name, lineNumber);
+                var.assign(i, j, value);
+            }
+        }
+    }
+
+    ifs.close();
+
+    // Verify that all cells exist in restart.csv.
+    for (int i = 0; i <= pm.ni + 1; i++) {
+        for (int j = 0; j <= pm.nj + 1; j++) {
+            if (!found[i][j]) {
+                cerr << "[restart.csv] Cell definition mismatch." << endl;
+                cerr << "Missing cell in restart.csv." << endl;
+                cerr << "i = " << i << ", j = " << j << endl;
+                abort();
+            }
+        }
+    }
+
+    cout << "[restart.csv] Restart data was successfully loaded." << endl;
+
+
+    //Update Ex
+    //------------------------------------
+    for (int iblock=0;iblock<pm.n_bl-1;iblock++){
+        for (int i=gx.i_flx_bl[iblock][0];i<=gx.i_flx_bl[iblock][1];i++){
+            for (int j=gx.j_flx_bl[iblock][0];j<=gx.j_flx_bl[iblock][1];j++){
+                gx.Ex[i][j] = - (gc.phi[i][j]-gc.phi[i-1][j])/pm.dx;
+            }
+        }
+    }
+    //------------------------------------
+
+    //calculate electric field
+    //=====================================================================
+    //left-wall-BC (z0) potential = 0
+    //------------------------------------
+    for (int j=gc.j_flc_bl[0][0];j<=gc.j_flc_bl[0][1];j++){
+        int i=gc.i_flc_bl[0][0];
+        gc.phi[i-1][j] = - gc.phi[i][j];
+        gx.Ex[i][j] =  - (gc.phi[i][j]-gc.phi[i-1][j])/pm.dx;
+    }
+    //------------------------------------
+
+    //left-wall-BC (z1) potential = 0
+    //------------------------------------
+    for (int j=gc.j_flc_bl[2][0];j<=gc.j_flc_bl[0][0]-1;j++){
+        int i=gc.i_flc_bl[2][0];
+        gc.phi[i-1][j] = - gc.phi[i][j];
+        gx.Ex[i][j] =  - (gc.phi[i][j]-gc.phi[i-1][j])/pm.dx;
+    }
+    //------------------------------------
+
+    //left-wall-BC (z2) potential = 0
+    //------------------------------------
+    for (int j=gc.j_flc_bl[3][0];j<=gc.j_flc_bl[2][0]-1;j++){
+        int i=gc.i_flc_bl[3][0];
+        gc.phi[i-1][j] = - gc.phi[i][j];
+        gx.Ex[i][j] =  - (gc.phi[i][j]-gc.phi[i-1][j])/pm.dx;
+    }
+    //------------------------------------
+
+    //left-wall-BC (z4) potential = 0
+    //------------------------------------
+    for (int j=gc.j_flc_bl[1][0];j<=gc.j_flc_bl[4][1];j++){
+        int i=gc.i_flc_bl[4][0];
+        gc.phi[i-1][j] = - gc.phi[i][j];
+        gx.Ex[i][j] =  - (gc.phi[i][j]-gc.phi[i-1][j])/pm.dx;
+    }
+    //------------------------------------
+
+    //right-wall-BC (z3) potential = 0
+    //------------------------------------
+    for (int j=gc.j_flc_bl[1][0];j<=gc.j_flc_bl[1][1];j++){
+        int i=gc.i_flc_bl[1][1];
+        gc.phi[i+1][j] = -gc.phi[i][j];
+        gx.Ex[i+1][j] =  - (gc.phi[i+1][j]-gc.phi[i][j])/pm.dx;
+    }
+    //------------------------------------
+    
+    //right-wall-BC (z5) potential = V_bias
+    //------------------------------------
+    for (int j=gc.j_flc_bl[4][0];j<=gc.j_flc_bl[4][1];j++){
+        int i=gc.i_flc_bl[4][1];
+        gc.phi[i+1][j] = 2.0*pm.V_bias - gc.phi[i][j];
+        gx.Ex[i+1][j] =  - (gc.phi[i+1][j]-gc.phi[i][j])/pm.dx;
+    }
+    //------------------------------------
+
+    //Update Er
+    //------------------------------------
+    for (int iblock=0;iblock<pm.n_bl-1;iblock++){
+        for (int i=gr.i_flr_bl[iblock][0];i<=gr.i_flr_bl[iblock][1];i++){
+            for (int j=gr.j_flr_bl[iblock][0];j<=gr.j_flr_bl[iblock][1];j++){
+                gr.Er[i][j] = - (gc.phi[i][j]-gc.phi[i][j-1])/pm.dr;
+            }
+        }
+    }
+    //------------------------------------
+
+    //lower-wall-BC (x0) potential = 0
+    //------------------------------------
+    for (int i=gc.i_flc_bl[0][0];i<=gc.i_flc_bl[0][1];i++){
+        int j=gc.j_flc_bl[0][0];
+        gc.phi[i][j-1] = - gc.phi[i][j];
+        gr.Er[i][j] = - (gc.phi[i][j]-gc.phi[i][j-1])/pm.dr;
+    }
+    //------------------------------------
+
+    //lower-wall-BC (x2) potential = 0
+    //------------------------------------
+    for (int i=gc.i_flc_bl[2][0];i<=gc.i_flc_bl[2][1];i++){
+        int j=gc.j_flc_bl[2][0];
+        gc.phi[i][j-1] = - gc.phi[i][j];
+        gr.Er[i][j] = - (gc.phi[i][j]-gc.phi[i][j-1])/pm.dr;
+    }
+    //------------------------------------
+
+    //centerline-normal-BC (x6) Er = 0
+    //------------------------------------
+    for (int i=gc.i_flc_bl[3][0];i<=gc.i_flc_bl[4][1];i++){ 
+        int j = gc.j_flc_bl[3][0];
+        gr.Er[i][j] = 0.0;
+    }
+    //------------------------------------
+
+    //upper-wall-BC (x1) potential = 0
+    //------------------------------------
+    for (int i=gc.i_flc_bl[0][0];i<=gc.i_flc_bl[1][1];i++){
+        int j=gc.j_flc_bl[0][1];
+        gc.phi[i][j+1] = - gc.phi[i][j];
+        gr.Er[i][j+1] = - (gc.phi[i][j+1]-gc.phi[i][j])/pm.dr;
+    }
+    //------------------------------------
+
+    //upper-wall-BC (x4) potential = 0
+    //------------------------------------
+    for (int i=gc.i_flc_bl[1][1]+1;i<=gc.i_flc_bl[3][1];i++){
+        int j=gc.j_flc_bl[3][1];
+        gc.phi[i][j+1] = - gc.phi[i][j];
+        gr.Er[i][j+1] = - (gc.phi[i][j+1]-gc.phi[i][j])/pm.dr;
+    }
+    //------------------------------------
+
+    //upper-wall-BC (x5) potential = 0
+    //------------------------------------
+    for (int i=gc.i_flc_bl[4][0];i<=gc.i_flc_bl[4][1];i++){
+        int j=gc.j_flc_bl[4][1];
+        gc.phi[i][j+1] = gc.phi[i][j];
+        gr.Er[i][j+1] = - (gc.phi[i][j+1]-gc.phi[i][j])/pm.dr;
+    }
+    //------------------------------------
+    
+    pm.icon_restart = 1;
+
+    /*
+    ////プラズマ密度プロファイル作成
+    double rho_max = 4.0e18*1.0; //最大値　(カットオフ密度は7.45E+16)
+    double rho_min = 1.0e14*1.0; //最大値　(カットオフ密度は7.45E+16)
+    double sigmax_rho = 0.04; //標準偏差 m
+    double sigmar_rho = 0.01; //標準偏差 m 0.05
+    double xCen_rho = 0.025; //xの中心 0.009 + 0.0078
+    double rCen_rho = 0.0; //rの中心 0.007
+    
+    for (int i=0;i<=ni+1;i++){
+        for (int j=0;j<=nj+1;j++){
+            double x_tmp = x[i];
+            double r_tmp = r[j];
+
+            double z_x = (x[i]-xCen_rho)/sigmax_rho;
+            double z_r = (r[j]-rCen_rho)/sigmar_rho;
+        
+            rhoi[i][j] = rhoi[i][j] + 1e17*exp(-z_x*z_x/0.12-z_r*z_r/0.12)*jdgBnd_flc[i][j];
+            rhoi_old[i][j] = rhoi_old[i][j] + 1e17*exp(-z_x*z_x/0.12-z_r*z_r/0.12)*jdgBnd_flc[i][j];
+            rhoe[i][j] = rhoe[i][j] + 1e17*exp(-z_x*z_x/0.12-z_r*z_r/0.12)*jdgBnd_flc[i][j];
+            rhoe_old[i][j] = rhoe_old[i][j] + 1e17*exp(-z_x*z_x/0.12-z_r*z_r/0.12)*jdgBnd_flc[i][j];
+        }
+    }
+        */
+}
+
+
+//*****************************************************************
+//**                                                             **
+//**           void input_restart_data()                         **
+//**                                                             **
+//*****************************************************************
+void input_restart_data_old(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr, string inputFileName)
 {
 
     //****************** 磁場データ読み込み ******************

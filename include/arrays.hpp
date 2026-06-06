@@ -137,11 +137,6 @@ struct GridCenter{
     vector<vector<int> > j_flc_bl;
     //--------------------------------
 
-    //index-convergion
-    //--------------------------------
-    vector<vector<int> > kp;   //convergion of (i,j) → k (E-field)
-    //--------------------------------
-
     //constructor
     //--------------------------------
     explicit GridCenter(int ni,int nj)
@@ -272,12 +267,7 @@ struct GridCenter{
         //region index
         //--------------------------------
         i_flc_bl(ni+2,vector<int>(nj+2,0)),
-        j_flc_bl(ni+2,vector<int>(nj+2,0)),
-        //--------------------------------
-
-        //index-convergion
-        //--------------------------------
-        kp(ni+2,vector<int>(nj+2,-1))   //convergion of (i,j) → k (E-field)
+        j_flc_bl(ni+2,vector<int>(nj+2,0))
         //--------------------------------
     {}
     //--------------------------------
@@ -367,11 +357,6 @@ struct GridInterfaceX{
     vector<vector<int> > j_flx_bl;
     //--------------------------------
 
-    //index-convergion
-    //--------------------------------
-    vector<vector<int> > kx;   //convergion of (i,j) → k (E-field)
-    //--------------------------------
-
     //constructor
     //--------------------------------
     explicit GridInterfaceX(int ni,int nj)
@@ -452,12 +437,7 @@ struct GridInterfaceX{
         //region index
         //--------------------------------
         i_flx_bl(ni+2,vector<int>(nj+2,0)),
-        j_flx_bl(ni+2,vector<int>(nj+2,0)),
-        //--------------------------------
-
-        //index-convergion
-        //--------------------------------
-        kx(ni+2,vector<int>(nj+2,-1))   //convergion of (i,j) → k (E-field)
+        j_flx_bl(ni+2,vector<int>(nj+2,0))
         //--------------------------------
         
     {}
@@ -549,11 +529,6 @@ struct GridInterfaceR{
     vector<vector<int> > j_flr_bl;
     //--------------------------------
 
-    //index-convergion
-    //--------------------------------
-    vector<vector<int> > kr;   //convergion of (i,j) → k (E-field)
-    //--------------------------------
-
     //constructor
     //--------------------------------
     explicit GridInterfaceR(int ni,int nj)
@@ -634,31 +609,10 @@ struct GridInterfaceR{
         //region index
         //--------------------------------
         i_flr_bl(ni+2,vector<int>(nj+2,0)),
-        j_flr_bl(ni+2,vector<int>(nj+2,0)),
+        j_flr_bl(ni+2,vector<int>(nj+2,0))
         //--------------------------------
-
-        //index-convergion
-        //--------------------------------
-        kr(ni+2,vector<int>(nj+2,-1))    //convergion of (i,j) → k (E-field)
-        //--------------------------------
-        
     {}
     //--------------------------------
-};
-//--------------------------------
-
-
-//value at k-space
-//--------------------------------
-struct GridK{ 
-    vector<int> ikx; //convergion of k→ i (Ex)
-    vector<int> jkx; //convergion of k→ j (Ex)
-    
-    vector<int> ikr; //convergion of k→ i (Er)
-    vector<int> jkr; //convergion of k→ j (Er)
-
-    vector<int> ikp; //convergion of k→ i (Ep)
-    vector<int> jkp; //convergion of k→ j (Ep)
 };
 //--------------------------------
 

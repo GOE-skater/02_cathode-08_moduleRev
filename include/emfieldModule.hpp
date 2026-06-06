@@ -26,8 +26,8 @@ class EmfieldModule
     private:
     
     public:
-        void solve_Microwave(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr, GridK &gk, MicrowaveBC &mb);
-        void solve_Microwave_impedanceTest(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr, GridK &gk, MicrowaveBC &mb);
+        void solve_Microwave(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr, MicrowaveBC &mb);
+        void solve_Microwave_impedanceTest(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr, MicrowaveBC &mb);
         void update_energy_profile(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr);
         
 };
@@ -36,7 +36,7 @@ class EmfieldModule
 //**           void solve_Microwave()                            **
 //**                                                             **
 //*****************************************************************
-void EmfieldModule::solve_Microwave(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr, GridK &gk, MicrowaveBC &mb){
+void EmfieldModule::solve_Microwave(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr, MicrowaveBC &mb){
 
     //テスト用 ※ 通常はコメントアウトすること
     //for (int i=0;i<pm.ni+2;i++){
@@ -530,29 +530,82 @@ void EmfieldModule::solve_Microwave(Params &pm, GridCenter &gc, GridInterfaceX &
     }
 
     /******************** LUソルバーの準備 ********************/
-    Eigen::SparseMatrix<complex<double> > A(pm.nk, pm.nk);
-    A.reserve(Eigen::VectorXi::Constant(pm.nk,11)); //ここの数字を変えて帯域幅を確保する
-    Eigen::VectorXcd b(pm.nk);
-    Eigen::VectorXcd xv(pm.nk);
+    //変換係数作成
+    int kx_tmp = 0;
+    int kr_tmp = 0;
+    int kp_tmp = 0;
+    int kfc_tmp = 0;
+    int kfx_tmp = 0;
+    int kfr_tmp = 0;
 
+    vector<int> ikx; //convergion of k→ i (Ex)
+    vector<int> jkx; //convergion of k→ j (Ex)
+    
+    vector<int> ikr; //convergion of k→ i (Er)
+    vector<int> jkr; //convergion of k→ j (Er)
+
+    vector<int> ikp; //convergion of k→ i (Ep)
+    vector<int> jkp; //convergion of k→ j (Ep)
+
+    vector<vector<int> > kx(pm.ni+2,vector<int>(pm.nj+2,-1));   //convergion of (i,j) → k (E-field)
+    vector<vector<int> > kr(pm.ni+2,vector<int>(pm.nj+2,-1));   //convergion of (i,j) → k (E-field)
+    vector<vector<int> > kp(pm.ni+2,vector<int>(pm.nj+2,-1));   //convergion of (i,j) → k (E-field)
+
+    for (int i=0;i<=pm.ni+1;i++){
+        for (int j=0;j<=pm.nj+1;j++){
+            if(gx.jdgBnd_Ex[i][j]==1){
+                kx[i][j] = kx_tmp;
+                kx_tmp++;
+                ikx.push_back(i);
+                jkx.push_back(j);
+            }
+
+            if(gr.jdgBnd_Er[i][j]==1){
+                kr[i][j] = kr_tmp;
+                kr_tmp++;
+                ikr.push_back(i);
+                jkr.push_back(j);
+            }
+
+            if(gc.jdgBnd_Ep[i][j]==1){
+                kp[i][j] = kp_tmp;
+                kp_tmp++;
+                ikp.push_back(i);
+                jkp.push_back(j);
+            }
+        }
+    }
+
+    int nkx = ikx.size();
+    int nkr = ikr.size();
+    int nkp = ikp.size();
+    int nk = nkx + nkr + nkp;
+    //std::cout << "nkx = " << nkx << " nkr = " << nkr << " nkp = " << nkp << " nk = " << nk  << std::endl;
+
+    Eigen::SparseMatrix<complex<double> > A(nk, nk);
+    A.reserve(Eigen::VectorXi::Constant(nk,11)); //ここの数字を変えて帯域幅を確保する
+    Eigen::VectorXcd b(nk);
+    Eigen::VectorXcd xv(nk);
+
+    
     //Ex-足し込み
-    for (int k=0;k<pm.nkx;k++){
+    for (int k=0;k<nkx;k++){
 
-        int i = gk.ikx[k];
-        int j = gk.jkx[k];
+        int i = ikx[k];
+        int j = jkx[k];
 
-        double kE = gx.kx[i+1][j];
-        double kW = gx.kx[i-1][j];
-        double kN = gx.kx[i][j+1];
-        double kS = gx.kx[i][j-1];
+        double kE = kx[i+1][j];
+        double kW = kx[i-1][j];
+        double kN = kx[i][j+1];
+        double kS = kx[i][j-1];
 
-        double kNE = gr.kr[i][j+1];
-        double kSE = gr.kr[i][j];
-        double kNW = gr.kr[i-1][j+1];
-        double kSW = gr.kr[i-1][j];
+        double kNE = kr[i][j+1];
+        double kSE = kr[i][j];
+        double kNW = kr[i-1][j+1];
+        double kSW = kr[i-1][j];
 
-        double kEE = gc.kp[i][j];
-        double kWW = gc.kp[i-1][j];
+        double kEE = kp[i][j];
+        double kWW = kp[i-1][j];
 
         //Ex用
         A.insert(k, k)      =   aPx[i][j];
@@ -571,126 +624,126 @@ void EmfieldModule::solve_Microwave(Params &pm, GridCenter &gc, GridInterfaceX &
         }
         //Er用
         if(kNE!=-1){
-            A.insert(k, pm.nkx+kNE) = -aNEx[i][j];
+            A.insert(k, nkx+kNE) = -aNEx[i][j];
         }
         if(kSE!=-1){
-            A.insert(k, pm.nkx+kSE) = -aSEx[i][j];
+            A.insert(k, nkx+kSE) = -aSEx[i][j];
         }
         if(kNW!=-1){
-            A.insert(k, pm.nkx+kNW) = -aNWx[i][j];
+            A.insert(k, nkx+kNW) = -aNWx[i][j];
         }
         if(kSW!=-1){
-            A.insert(k, pm.nkx+kSW) = -aSWx[i][j];
+            A.insert(k, nkx+kSW) = -aSWx[i][j];
         }
         //Ep用
         if(kEE!=-1){
-            A.insert(k, pm.nkx+pm.nkr+kEE) = -aEEx[i][j];
+            A.insert(k, nkx+nkr+kEE) = -aEEx[i][j];
         }
         if(kWW!=-1){
-            A.insert(k, pm.nkx+pm.nkr+kWW) = -aWWx[i][j];
+            A.insert(k, nkx+nkr+kWW) = -aWWx[i][j];
         }
 
     }
     
     //Er-足し込み
-    for (int k=0;k<pm.nkr;k++){
-        int i = gk.ikr[k];
-        int j = gk.jkr[k];
+    for (int k=0;k<nkr;k++){
+        int i = ikr[k];
+        int j = jkr[k];
 
-        double kE  = gr.kr[i+1][j];
-        double kW  = gr.kr[i-1][j];
-        double kN  = gr.kr[i][j+1];
-        double kS  = gr.kr[i][j-1];
+        double kE  = kr[i+1][j];
+        double kW  = kr[i-1][j];
+        double kN  = kr[i][j+1];
+        double kS  = kr[i][j-1];
 
-        double kNE = gx.kx[i+1][j];
-        double kSE = gx.kx[i+1][j-1];
-        double kNW = gx.kx[i][j];
-        double kSW = gx.kx[i][j-1];
+        double kNE = kx[i+1][j];
+        double kSE = kx[i+1][j-1];
+        double kNW = kx[i][j];
+        double kSW = kx[i][j-1];
 
-        double kNN = gc.kp[i][j];
-        double kSS = gc.kp[i][j-1];
+        double kNN = kp[i][j];
+        double kSS = kp[i][j-1];
 
         //Er用
-        A.insert(pm.nkx+k, pm.nkx+k)      =   aPr[i][j];
-        b[pm.nkx+k]                    =   br[i][j];
+        A.insert(nkx+k, nkx+k)      =   aPr[i][j];
+        b[nkx+k]                    =   br[i][j];
         if(kN!=-1){
-            A.insert(pm.nkx+k, pm.nkx+kN) = -aNr[i][j];
+            A.insert(nkx+k, nkx+kN) = -aNr[i][j];
         }
         if(kS!=-1){
-            A.insert(pm.nkx+k, pm.nkx+kS) = -aSr[i][j];
+            A.insert(nkx+k, nkx+kS) = -aSr[i][j];
         }
         if(kE!=-1){
-            A.insert(pm.nkx+k, pm.nkx+kE) = -aEr[i][j];
+            A.insert(nkx+k, nkx+kE) = -aEr[i][j];
         }
         if(kW!=-1){
-            A.insert(pm.nkx+k, pm.nkx+kW) = -aWr[i][j];
+            A.insert(nkx+k, nkx+kW) = -aWr[i][j];
         }
         //Ex用
         if(kNE!=-1){
-            A.insert(pm.nkx+k, kNE) = -aNEr[i][j];
+            A.insert(nkx+k, kNE) = -aNEr[i][j];
         }
         if(kSE!=-1){
-            A.insert(pm.nkx+k, kSE) = -aSEr[i][j];
+            A.insert(nkx+k, kSE) = -aSEr[i][j];
         }
         if(kNW!=-1){
-            A.insert(pm.nkx+k, kNW) = -aNWr[i][j];
+            A.insert(nkx+k, kNW) = -aNWr[i][j];
         }
         if(kSW!=-1){
-            A.insert(pm.nkx+k, kSW) = -aSWr[i][j];
+            A.insert(nkx+k, kSW) = -aSWr[i][j];
         }
         //Ep用
         if(kNN!=-1){
-            A.insert(pm.nkx+k, pm.nkx + pm.nkr+kNN) = -aNNr[i][j];
+            A.insert(nkx+k, nkx + nkr+kNN) = -aNNr[i][j];
         }
         if(kSS!=-1){
-            A.insert(pm.nkx+k, pm.nkx+pm.nkr+kSS) = -aSSr[i][j];
+            A.insert(nkx+k, nkx+nkr+kSS) = -aSSr[i][j];
         }
     }
 
     //Ep-足し込み
-    for (int k=0;k<pm.nkp;k++){
-        int i = gk.ikp[k];
-        int j = gk.jkp[k];
+    for (int k=0;k<nkp;k++){
+        int i = ikp[k];
+        int j = jkp[k];
 
-        double kE  = gc.kp[i+1][j];
-        double kW  = gc.kp[i-1][j];
-        double kN  = gc.kp[i][j+1];
-        double kS  = gc.kp[i][j-1];
+        double kE  = kp[i+1][j];
+        double kW  = kp[i-1][j];
+        double kN  = kp[i][j+1];
+        double kS  = kp[i][j-1];
 
-        double kEE  = gx.kx[i+1][j];
-        double kWW  = gx.kx[i][j];
+        double kEE  = kx[i+1][j];
+        double kWW  = kx[i][j];
 
-        double kNN  = gr.kr[i][j+1];
-        double kSS  = gr.kr[i][j];
+        double kNN  = kr[i][j+1];
+        double kSS  = kr[i][j];
 
         //Ep用
-        A.insert(pm.nkx+pm.nkr+k, pm.nkx+pm.nkr+k)      =   aPp[i][j];
-        b[pm.nkx+pm.nkr+k]                    =   bp[i][j];
+        A.insert(nkx+nkr+k, nkx+nkr+k)      =   aPp[i][j];
+        b[nkx+nkr+k]                    =   bp[i][j];
         if(kN!=-1){
-            A.insert(pm.nkx+pm.nkr+k, pm.nkx+pm.nkr+kN) = -aNp[i][j];
+            A.insert(nkx+nkr+k, nkx+nkr+kN) = -aNp[i][j];
         }
         if(kS!=-1){
-            A.insert(pm.nkx+pm.nkr+k, pm.nkx+pm.nkr+kS) = -aSp[i][j];
+            A.insert(nkx+nkr+k, nkx+nkr+kS) = -aSp[i][j];
         }
         if(kE!=-1){
-            A.insert(pm.nkx+pm.nkr+k, pm.nkx+pm.nkr+kE) = -aEp[i][j];
+            A.insert(nkx+nkr+k, nkx+nkr+kE) = -aEp[i][j];
         }
         if(kW!=-1){
-            A.insert(pm.nkx+pm.nkr+k, pm.nkx+pm.nkr+kW) = -aWp[i][j];
+            A.insert(nkx+nkr+k, nkx+nkr+kW) = -aWp[i][j];
         }
         //Ex用
         if(kEE!=-1){
-            A.insert(pm.nkx+pm.nkr+k, kEE) = -aEEp[i][j];
+            A.insert(nkx+nkr+k, kEE) = -aEEp[i][j];
         }
         if(kWW!=-1){
-            A.insert(pm.nkx+pm.nkr+k, kWW) = -aWWp[i][j];
+            A.insert(nkx+nkr+k, kWW) = -aWWp[i][j];
         }
         //Er用
         if(kNN!=-1){
-            A.insert(pm.nkx+pm.nkr+k, pm.nkx+kNN) = -aNNp[i][j];
+            A.insert(nkx+nkr+k, nkx+kNN) = -aNNp[i][j];
         }
         if(kSS!=-1){
-            A.insert(pm.nkx+pm.nkr+k, pm.nkx+kSS) = -aSSp[i][j];
+            A.insert(nkx+nkr+k, nkx+kSS) = -aSSp[i][j];
         }
     }
  
@@ -709,22 +762,22 @@ void EmfieldModule::solve_Microwave(Params &pm, GridCenter &gc, GridInterfaceX &
     //cout << "Actual error: " << actual_error << endl;
 
     //Ex-結果を戻す
-    for (int k=0;k<pm.nkx;k++){
-        int i = gk.ikx[k];
-        int j = gk.jkx[k];
+    for (int k=0;k<nkx;k++){
+        int i = ikx[k];
+        int j = jkx[k];
         gx.E1x[i][j] = xv[k];
     }
     //Er-結果を戻す
-    for (int k=0;k<pm.nkr;k++){
-        int i = gk.ikr[k];
-        int j = gk.jkr[k];
-        gr.E1r[i][j] = xv[pm.nkx+k];
+    for (int k=0;k<nkr;k++){
+        int i = ikr[k];
+        int j = jkr[k];
+        gr.E1r[i][j] = xv[nkx+k];
     }
     //Ep-結果を戻す
-    for (int k=0;k<pm.nkp;k++){
-        int i = gk.ikp[k];
-        int j = gk.jkp[k];
-        gc.E1p[i][j] = xv[pm.nkx+pm.nkr+k];
+    for (int k=0;k<nkp;k++){
+        int i = ikp[k];
+        int j = jkp[k];
+        gc.E1p[i][j] = xv[nkx+nkr+k];
     }
 
     /************************境界条件後処理**************************/
@@ -1003,7 +1056,7 @@ void EmfieldModule::solve_Microwave(Params &pm, GridCenter &gc, GridInterfaceX &
 //**           void solve_Microwave()                            **
 //**                                                             **
 //*****************************************************************
-void EmfieldModule::solve_Microwave_impedanceTest(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr, GridK &gk, MicrowaveBC &mb){
+void EmfieldModule::solve_Microwave_impedanceTest(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr, MicrowaveBC &mb){
 
     //テスト用 ※ 通常はコメントアウトすること
     for (int i=0;i<pm.ni+2;i++){
@@ -1218,63 +1271,115 @@ void EmfieldModule::solve_Microwave_impedanceTest(Params &pm, GridCenter &gc, Gr
 
 
     /******************** LUソルバーの準備 ********************/
-    Eigen::SparseMatrix<complex<double> > A(pm.nk, pm.nk);
-    A.reserve(Eigen::VectorXi::Constant(pm.nk,11)); //ここの数字を変えて帯域幅を確保する
-    Eigen::VectorXcd b(pm.nk);
-    Eigen::VectorXcd xv(pm.nk);
+    //変換係数作成
+    int kx_tmp = 0;
+    int kr_tmp = 0;
+    int kp_tmp = 0;
+    int kfc_tmp = 0;
+    int kfx_tmp = 0;
+    int kfr_tmp = 0;
+
+    vector<int> ikx; //convergion of k→ i (Ex)
+    vector<int> jkx; //convergion of k→ j (Ex)
+    
+    vector<int> ikr; //convergion of k→ i (Er)
+    vector<int> jkr; //convergion of k→ j (Er)
+
+    vector<int> ikp; //convergion of k→ i (Ep)
+    vector<int> jkp; //convergion of k→ j (Ep)
+
+    vector<vector<int> > kx(pm.ni+2,vector<int>(pm.nj+2,-1));   //convergion of (i,j) → k (E-field)
+    vector<vector<int> > kr(pm.ni+2,vector<int>(pm.nj+2,-1));   //convergion of (i,j) → k (E-field)
+    vector<vector<int> > kp(pm.ni+2,vector<int>(pm.nj+2,-1));   //convergion of (i,j) → k (E-field)
+
+    for (int i=0;i<=pm.ni+1;i++){
+        for (int j=0;j<=pm.nj+1;j++){
+            if(gx.jdgBnd_Ex[i][j]==1){
+                kx[i][j] = kx_tmp;
+                kx_tmp++;
+                ikx.push_back(i);
+                jkx.push_back(j);
+            }
+
+            if(gr.jdgBnd_Er[i][j]==1){
+                kr[i][j] = kr_tmp;
+                kr_tmp++;
+                ikr.push_back(i);
+                jkr.push_back(j);
+            }
+
+            if(gc.jdgBnd_Ep[i][j]==1){
+                kp[i][j] = kp_tmp;
+                kp_tmp++;
+                ikp.push_back(i);
+                jkp.push_back(j);
+            }
+        }
+    }
+
+    int nkx = ikx.size();
+    int nkr = ikr.size();
+    int nkp = ikp.size();
+    int nk = nkx + nkr + nkp;
+    //std::cout << "nkx = " << nkx << " nkr = " << nkr << " nkp = " << nkp << " nk = " << nk  << std::endl;
+
+    Eigen::SparseMatrix<complex<double> > A(nk, nk);
+    A.reserve(Eigen::VectorXi::Constant(nk,11)); //ここの数字を変えて帯域幅を確保する
+    Eigen::VectorXcd b(nk);
+    Eigen::VectorXcd xv(nk);
 
     //Er-足し込み
-    for (int k=0;k<pm.nkr;k++){
-        int i = gk.ikr[k];
-        int j = gk.jkr[k];
+    for (int k=0;k<nkr;k++){
+        int i = ikr[k];
+        int j = jkr[k];
 
-        double kE  = gr.kr[i+1][j];
-        double kW  = gr.kr[i-1][j];
-        double kN  = gr.kr[i][j+1];
-        double kS  = gr.kr[i][j-1];
+        double kE  = kr[i+1][j];
+        double kW  = kr[i-1][j];
+        double kN  = kr[i][j+1];
+        double kS  = kr[i][j-1];
 
-        double kNE = gx.kx[i+1][j];
-        double kSE = gx.kx[i+1][j-1];
-        double kNW = gx.kx[i][j];
-        double kSW = gx.kx[i][j-1];
+        double kNE = kx[i+1][j];
+        double kSE = kx[i+1][j-1];
+        double kNW = kx[i][j];
+        double kSW = kx[i][j-1];
 
-        double kNN = gc.kp[i][j];
-        double kSS = gc.kp[i][j-1];
+        double kNN = kp[i][j];
+        double kSS = kp[i][j-1];
 
         //Er用
-        A.insert(pm.nkx+k, pm.nkx+k)      =   aPr[i][j];
-        b[pm.nkx+k]                    =   br[i][j];
+        A.insert(nkx+k, nkx+k)      =   aPr[i][j];
+        b[nkx+k]                    =   br[i][j];
         if(kN!=-1){
-            A.insert(pm.nkx+k, pm.nkx+kN) = -aNr[i][j];
+            A.insert(nkx+k, nkx+kN) = -aNr[i][j];
         }
         if(kS!=-1){
-            A.insert(pm.nkx+k, pm.nkx+kS) = -aSr[i][j];
+            A.insert(nkx+k, nkx+kS) = -aSr[i][j];
         }
         if(kE!=-1){
-            A.insert(pm.nkx+k, pm.nkx+kE) = -aEr[i][j];
+            A.insert(nkx+k, nkx+kE) = -aEr[i][j];
         }
         if(kW!=-1){
-            A.insert(pm.nkx+k, pm.nkx+kW) = -aWr[i][j];
+            A.insert(nkx+k, nkx+kW) = -aWr[i][j];
         }
         //Ex用
         if(kNE!=-1){
-            A.insert(pm.nkx+k, kNE) = -aNEr[i][j];
+            A.insert(nkx+k, kNE) = -aNEr[i][j];
         }
         if(kSE!=-1){
-            A.insert(pm.nkx+k, kSE) = -aSEr[i][j];
+            A.insert(nkx+k, kSE) = -aSEr[i][j];
         }
         if(kNW!=-1){
-            A.insert(pm.nkx+k, kNW) = -aNWr[i][j];
+            A.insert(nkx+k, kNW) = -aNWr[i][j];
         }
         if(kSW!=-1){
-            A.insert(pm.nkx+k, kSW) = -aSWr[i][j];
+            A.insert(nkx+k, kSW) = -aSWr[i][j];
         }
         //Ep用
         if(kNN!=-1){
-            A.insert(pm.nkx+k, pm.nkx + pm.nkr+kNN) = -aNNr[i][j];
+            A.insert(nkx+k, nkx + nkr+kNN) = -aNNr[i][j];
         }
         if(kSS!=-1){
-            A.insert(pm.nkx+k, pm.nkx+pm.nkr+kSS) = -aSSr[i][j];
+            A.insert(nkx+k, nkx+nkr+kSS) = -aSSr[i][j];
         }
     }
 
@@ -1293,10 +1398,10 @@ void EmfieldModule::solve_Microwave_impedanceTest(Params &pm, GridCenter &gc, Gr
 
 
     //Er-結果を戻す
-    for (int k=0;k<pm.nkr;k++){
-        int i = gk.ikr[k];
-        int j = gk.jkr[k];
-        gr.E1r[i][j] = xv[pm.nkx+k];
+    for (int k=0;k<nkr;k++){
+        int i = ikr[k];
+        int j = jkr[k];
+        gr.E1r[i][j] = xv[nkx+k];
     }
 
     /************************境界条件後処理**************************/
