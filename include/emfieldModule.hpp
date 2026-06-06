@@ -99,6 +99,7 @@ void EmfieldModule::solve_Microwave(Params &pm, GridCenter &gc, GridInterfaceX &
                 double rho_tmp  = (gc.rhoe[i][j]  + gc.rhoe[i-1][j] )/2.0;
                 double Bx_tmp   = (gc.Bx[i][j]   + gc.Bx[i-1][j]  )/2.0;
                 double Br_tmp   = (gc.Br[i][j]   + gc.Br[i-1][j]  )/2.0;
+                double epsr_tmp = (gc.epsr[i][j] + gc.epsr[i-1][j])/2.0;
 
                 complex<double> nu_cmp(nu_m_tmp,pm.omegam);
                 complex<double> Hallcmpx = ph::e0*Bx_tmp/(pm.masse*nu_cmp + EPS);
@@ -111,7 +112,7 @@ void EmfieldModule::solve_Microwave(Params &pm, GridCenter &gc, GridInterfaceX &
                 complex<double> iomegaMu0(0.0,pm.omegam*ph::mu0);
 
                 aPx[i][j] = 2.0*pm.dx*pm.dx + 2.0*pm.dr*pm.dr
-                    - ph::eps0*gc.epsr[i][j]*ph::mu0*pm.omegam*pm.omegam*pm.dx*pm.dx*pm.dr*pm.dr + iomegaMu0*sigmaexx*pm.dx*pm.dx*pm.dr*pm.dr;
+                    - ph::eps0*epsr_tmp*ph::mu0*pm.omegam*pm.omegam*pm.dx*pm.dx*pm.dr*pm.dr + iomegaMu0*sigmaexx*pm.dx*pm.dx*pm.dr*pm.dr;
                 aEx[i][j] = pm.dr*pm.dr;
                 aWx[i][j] = pm.dr*pm.dr;
                 aNx[i][j] = qR*pm.dx*pm.dx;
@@ -150,6 +151,7 @@ void EmfieldModule::solve_Microwave(Params &pm, GridCenter &gc, GridInterfaceX &
                 double rho_tmp  = (gc.rhoe[i][j]  + gc.rhoe[i][j-1] )/2.0;
                 double Bx_tmp   = (gc.r[j]*gc.Bx[i][j]   + gc.r[j-1]*gc.Bx[i][j-1]  )/(2.0*r_tmp);
                 double Br_tmp   = (gc.r[j]*gc.Br[i][j]   + gc.r[j-1]*gc.Br[i][j-1]  )/(2.0*r_tmp);
+                double epsr_tmp = (gc.epsr[i][j] + gc.epsr[i][j-1])/2.0;
 
                 complex<double> nu_cmp(nu_m_tmp,pm.omegam);
                 complex<double> Hallcmpx = ph::e0*Bx_tmp/(pm.masse*nu_cmp + EPS);
@@ -162,7 +164,7 @@ void EmfieldModule::solve_Microwave(Params &pm, GridCenter &gc, GridInterfaceX &
                 complex<double> iomegaMu0(0.0,pm.omegam*ph::mu0);
 
                 aPr[i][j] = 2.0*pm.dx*pm.dx + 2.0*pm.dr*pm.dr + pm.dx*pm.dx*pm.dr*pm.dr/(r_tmp*r_tmp)
-                    - ph::eps0*gc.epsr[i][j]*ph::mu0*pm.omegam*pm.omegam*pm.dx*pm.dx*pm.dr*pm.dr + iomegaMu0*sigmaerr*pm.dx*pm.dx*pm.dr*pm.dr;
+                    - ph::eps0*epsr_tmp*ph::mu0*pm.omegam*pm.omegam*pm.dx*pm.dx*pm.dr*pm.dr + iomegaMu0*sigmaerr*pm.dx*pm.dx*pm.dr*pm.dr;
                 aEr[i][j] = pm.dr*pm.dr;
                 aWr[i][j] = pm.dr*pm.dr;
                 aNr[i][j] = qR*pm.dx*pm.dx;
@@ -323,8 +325,10 @@ void EmfieldModule::solve_Microwave(Params &pm, GridCenter &gc, GridInterfaceX &
             aPx[i][j] = aPx[i][j] + gc.r[j]/gc.r[j+1]*aNx[i][j];
             aNx[i][j] = 0.0;
         }if(mb.sBndNx[k] == 1){ //開放
-            double c0 = sqrt(1.0/(ph::eps0*gc.epsr[i][j]*ph::mu0));
             double r_tmp = (gc.r[j+1] + gc.r[j])/2.0;
+            double epsr_tmp = (gc.epsr[i][j] + gc.epsr[i-1][j])/2.0;
+            double c0 = sqrt(1.0/(ph::eps0*epsr_tmp*ph::mu0));
+            
             double qL = gc.r[j]/(r_tmp+1e-100);
             double qR = gc.r[j+1]  /(r_tmp+1e-100);
             double deno = pow(2.0*c0*sqrt(qR),2) + pow(pm.omegam*pm.dr*qR,2);
@@ -363,7 +367,8 @@ void EmfieldModule::solve_Microwave(Params &pm, GridCenter &gc, GridInterfaceX &
             aPr[i][j] = aPr[i][j] + aWr[i][j];
             aWr[i][j] = 0.0;
         }else if(mb.sBndWr[k] == 1){ //開放
-            double c0 = sqrt(1.0/(ph::eps0*gc.epsr[i][j]*ph::mu0));
+            double epsr_tmp = (gc.epsr[i][j] + gc.epsr[i][j-1])/2.0;
+            double c0 = sqrt(1.0/(ph::eps0*epsr_tmp*ph::mu0));
             double deno = pow(2.0*c0,2) + pow(pm.omegam*pm.dx,2);
             complex<double> R = complex<double>(pow(2.0*c0,2) - pow(pm.omegam*pm.dx,2),-4.0*c0*pm.omegam*pm.dx);
             R = R/(deno+1e-100);
@@ -785,7 +790,8 @@ void EmfieldModule::solve_Microwave(Params &pm, GridCenter &gc, GridInterfaceX &
         if(mb.sBndNx[k] == 0){ //ディリクレ
             gx.E1x[i][j+1] = -gc.r[j]/gc.r[j+1]*gx.E1x[i][j];
         }else if(mb.sBndNx[k] == 1){ //開放
-            double c0 = sqrt(1.0/(ph::eps0*gc.epsr[i][j]*ph::mu0));
+            double epsr_tmp = (gc.epsr[i][j] + gc.epsr[i-1][j])/2.0;
+            double c0 = sqrt(1.0/(ph::eps0*epsr_tmp*ph::mu0));
             double r_tmp = (gc.r[j+1] + gc.r[j])/2.0;
             double qL = gc.r[j]/(r_tmp+1e-100);
             double qR = gc.r[j+1]  /(r_tmp+1e-100);
@@ -810,7 +816,8 @@ void EmfieldModule::solve_Microwave(Params &pm, GridCenter &gc, GridInterfaceX &
         if(mb.sBndWr[k] == 0){ //ディリクレ
             gr.E1r[i-1][j] = -gr.E1r[i][j];
         }else if(mb.sBndWr[k] == 1){ //開放
-            double c0 = sqrt(1.0/(ph::eps0*gc.epsr[i][j]*ph::mu0));
+            double epsr_tmp = (gc.epsr[i][j] + gc.epsr[i][j-1])/2.0;
+            double c0 = sqrt(1.0/(ph::eps0*epsr_tmp*ph::mu0));
             double deno = pow(2.0*c0,2) + pow(pm.omegam*pm.dx,2);
             complex<double> R = complex<double>
                 (pow(2.0*c0,2) - pow(pm.omegam*pm.dx,2),-4.0*c0*pm.omegam*pm.dx);
@@ -1061,6 +1068,7 @@ void EmfieldModule::solve_Microwave_impedanceTest(Params &pm, GridCenter &gc, Gr
                 double rho_tmp  = (gc.rhoe[i][j]  + gc.rhoe[i][j-1] )/2.0;
                 double Bx_tmp   = (gc.r[j]*gc.Bx[i][j]   + gc.r[j-1]*gc.Bx[i][j-1]  )/(2.0*r_tmp);
                 double Br_tmp   = (gc.r[j]*gc.Br[i][j]   + gc.r[j-1]*gc.Br[i][j-1]  )/(2.0*r_tmp);
+                double epsr_tmp = (gc.epsr[i][j] + gc.epsr[i][j-1])/2.0;
 
                 complex<double> nu_cmp(nu_m_tmp,pm.omegam);
                 complex<double> Hallcmpx = ph::e0*Bx_tmp/(pm.masse*nu_cmp + EPS);
@@ -1073,14 +1081,12 @@ void EmfieldModule::solve_Microwave_impedanceTest(Params &pm, GridCenter &gc, Gr
                 complex<double> iomegaMu0(0.0,pm.omegam*ph::mu0);
 
                 aPr[i][j] = 2.0*pm.dx*pm.dx + 2.0*pm.dr*pm.dr + pm.dx*pm.dx*pm.dr*pm.dr/(r_tmp*r_tmp)
-                    - ph::eps0*gc.epsr[i][j]*ph::mu0*pm.omegam*pm.omegam*pm.dx*pm.dx*pm.dr*pm.dr + iomegaMu0*sigmaerr*pm.dx*pm.dx*pm.dr*pm.dr;
+                    - ph::eps0*epsr_tmp*ph::mu0*pm.omegam*pm.omegam*pm.dx*pm.dx*pm.dr*pm.dr + iomegaMu0*sigmaerr*pm.dx*pm.dx*pm.dr*pm.dr;
                 aEr[i][j] = pm.dr*pm.dr;
                 aWr[i][j] = pm.dr*pm.dr;
                 aNr[i][j] = qR*pm.dx*pm.dx;
                 aSr[i][j] = qL*pm.dx*pm.dx;
                 br[i][j] = complex<double>(0,-pm.omegam*ph::mu0*pm.dx*pm.dx*pm.dr*pm.dr)*gr.J1r[i][j];
-
-                
             }
         }
     }
@@ -1094,7 +1100,8 @@ void EmfieldModule::solve_Microwave_impedanceTest(Params &pm, GridCenter &gc, Gr
             aPr[i][j] = aPr[i][j] + aWr[i][j];
             aWr[i][j] = 0.0;
         }else if(mb.sBndWr[k] == 1){ //開放
-            double c0 = sqrt(1.0/(ph::eps0*gc.epsr[i][j]*ph::mu0));
+            double epsr_tmp = (gc.epsr[i][j] + gc.epsr[i][j-1])/2.0;
+            double c0 = sqrt(1.0/(ph::eps0*epsr_tmp*ph::mu0));
             double deno = pow(2.0*c0,2) + pow(pm.omegam*pm.dx,2);
             complex<double> R = complex<double>(pow(2.0*c0,2) - pow(pm.omegam*pm.dx,2),-4.0*c0*pm.omegam*pm.dx);
             R = R/(deno+1e-100);
@@ -1128,7 +1135,8 @@ void EmfieldModule::solve_Microwave_impedanceTest(Params &pm, GridCenter &gc, Gr
             aPr[i][j] = aPr[i][j] + aEr[i][j];
             aEr[i][j] = 0.0;
         }if(mb.sBndEr[k] == 1){ //開放
-            double c0 = sqrt(1.0/(ph::eps0*ph::mu0));
+            double epsr_tmp = (gc.epsr[i][j] + gc.epsr[i][j-1])/2.0;
+            double c0 = sqrt(1.0/(ph::eps0*epsr_tmp*ph::mu0));
             
             //std::complex<double> deno(2.0*c0,omegam*dx);
             //std::complex<double> R(2.0*c0,-omegam*dx);
@@ -1301,7 +1309,8 @@ void EmfieldModule::solve_Microwave_impedanceTest(Params &pm, GridCenter &gc, Gr
         if(mb.sBndWr[k] == 0){ //ディリクレ
             gr.E1r[i-1][j] = -gr.E1r[i][j];
         }else if(mb.sBndWr[k] == 1){ //開放
-            double c0 = sqrt(1.0/(ph::eps0*gc.epsr[i][j]*ph::mu0));
+            double epsr_tmp = (gc.epsr[i][j] + gc.epsr[i][j-1])/2.0;
+            double c0 = sqrt(1.0/(ph::eps0*epsr_tmp*ph::mu0));
             double deno = pow(2.0*c0,2) + pow(pm.omegam*pm.dx,2);
             complex<double> R = complex<double>
                 (pow(2.0*c0,2) - pow(pm.omegam*pm.dx,2),-4.0*c0*pm.omegam*pm.dx);
@@ -1322,7 +1331,8 @@ void EmfieldModule::solve_Microwave_impedanceTest(Params &pm, GridCenter &gc, Gr
         if(mb.sBndEr[k] == 0){ //ディリクレ
             gr.E1r[i+1][j] = -gr.E1r[i][j];
         }else if(mb.sBndEr[k] == 1){ //開放
-            double c0 = sqrt(1.0/(ph::eps0*ph::mu0));
+            double epsr_tmp = (gc.epsr[i][j] + gc.epsr[i][j-1])/2.0;
+            double c0 = sqrt(1.0/(ph::eps0*epsr_tmp*ph::mu0));
             //std::complex<double> deno(2.0*c0,omegam*dx);
             //std::complex<double> R(2.0*c0,-omegam*dx);
 
@@ -1423,7 +1433,7 @@ void EmfieldModule::solve_Microwave_impedanceTest(Params &pm, GridCenter &gc, Gr
             //std::complex<double> Er_tmp = (E1r[i][j] + E1r[i-1][j])/2.0;
             std::complex<double> Er_tmp = (rR*(gr.E1r[i][j+1] + gr.E1r[i-1][j+1]) + rL*(gr.E1r[i][j] + gr.E1r[i-1][j]))/(4.0*gc.r[j]);
             
-            double c0 = sqrt(1.0/(ph::eps0*gc.epsr[i][j]*ph::mu0));
+            //double c0 = sqrt(1.0/(ph::eps0*gc.epsr[i][j]*ph::mu0));
             
             //std::cout << "Check ,i = "<<i <<", j = "<< j << ", "<< std::abs(Er_tmp)*std::abs(Er_tmp)
             //    //<< ","<<std::abs(Er_Fw[j+1])<< ","<<std::abs(Er_Fw[j])
@@ -1610,7 +1620,7 @@ void EmfieldModule::update_energy_profile(Params &pm, GridCenter &gc, GridInterf
             //complex<double> Er_tmp = (gr.E1r[i][j] + gr.E1r[i-1][j])/2.0;
             complex<double> Er_tmp = (rR*(gr.E1r[i][j+1] + gr.E1r[i-1][j+1]) + rL*(gr.E1r[i][j] + gr.E1r[i-1][j]))/(4.0*gc.r[j]);
             
-            double c0 = sqrt(1.0/(ph::eps0*gc.epsr[i][j]*ph::mu0));
+            //double c0 = sqrt(1.0/(ph::eps0*gc.epsr[i][j]*ph::mu0));
             
             //cout << "Check ,i = "<<i <<", j = "<< j << ", "<< abs(Er_tmp)*abs(Er_tmp)
             //    //<< ","<<abs(Er_Fw[j+1])<< ","<<abs(Er_Fw[j])
