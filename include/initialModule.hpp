@@ -943,19 +943,10 @@ void InitialModule::makeBoundary_impedanceTest(Params &pm, GridCenter &gc, GridI
     double r_tmp = 0.0;
     
     pm.x1 = 0.0e-3;
-    //x2 =  5.6e-3 + 7.8e-3; //5.5 mm
     pm.x2 = pm.xR;
-    pm.x3 = 10.0e-3 + 7.8e-3;
-    pm.x4 = 15.0e-3 + 7.8e-3;
-    pm.x5 = 20.0e-3 + 7.8e-3;
-    pm.x6 =  0.0e-3 + 7.8e-3;
-    
+   
     pm.r1 =  0.8e-3;
     pm.r2 =  2.0e-3;
-    pm.r3 =  4.0e-3;
-    pm.r4 =  9.0e-3;
-    pm.r5 =  2.0e-3;
-    pm.r6 = 14.0e-3;
 
     gc.i_flc_bl[5][0] = int(pm.x1/pm.dx + 0.5) + 1; //1
     gc.j_flc_bl[5][0] = int(pm.r1/pm.dr + 0.5) + 1; //5

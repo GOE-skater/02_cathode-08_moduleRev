@@ -148,13 +148,32 @@ void InputModule::inputParam(Params &pm, string inputFileName)
     try {
         string category;
 
-        category = "microwave";
+        category = "domain";
+        READ_INT(category,    pm.ni);
+        READ_INT(category,    pm.nj);
+        READ_DOUBLE(category, pm.xL);
+        READ_DOUBLE(category, pm.xR);
+        READ_DOUBLE(category, pm.rmin);
+        READ_DOUBLE(category, pm.rmax);
+        READ_DOUBLE(category, pm.width_neutIn);
+
+        category = "operating_condition";
+        READ_DOUBLE(category, pm.V_bias);
+        READ_DOUBLE(category, pm.Q_neutIn_mgs);
+        READ_DOUBLE(category, pm.omegam);
         READ_DOUBLE(category, pm.Pmw);
         READ_INT(category,    pm.icon_mwRef);
-        READ_INT(category,    pm.icon_impTest);
-        READ_DOUBLE(category, pm.omegam);
-        READ_DOUBLE(category, pm.nu_eff);
-        READ_DOUBLE(category, pm.deltaECR);
+
+        category = "physical_parameter";
+        READ_DOUBLE(category, pm.masse);
+        READ_DOUBLE(category, pm.massi);
+        READ_DOUBLE(category, pm.ri);
+        READ_DOUBLE(category, pm.Ti);
+        READ_DOUBLE(category, pm.Tn);
+        READ_DOUBLE(category, pm.DmN);
+        READ_DOUBLE(category, pm.epsr_diele);
+        
+        category = "transmission_line";
         READ_DOUBLE(category, pm.S11_mag);     // (double) Magnitude of S11
         READ_DOUBLE(category, pm.S11_arg_deg); // (double) Argument of S11 (deg)
         READ_DOUBLE(category, pm.S21_mag);     // (double) Magnitude of S21
@@ -165,46 +184,32 @@ void InputModule::inputParam(Params &pm, string inputFileName)
         READ_DOUBLE(category, pm.S22_arg_deg); // (double) Argument of S22 (deg)
         READ_DOUBLE(category, pm.Z0_base); // (double) Argument of S22 (deg)
 
-        category = "plasma";
-        READ_DOUBLE(category, pm.Ti);
-        READ_DOUBLE(category, pm.Tn);
-        READ_DOUBLE(category, pm.rhon_ini);
-        READ_DOUBLE(category, pm.DmN);
-        READ_DOUBLE(category, pm.Te_rep_eV);
-
-        category = "material";
-        READ_DOUBLE(category, pm.epsr_diele);
-
-        category = "bias";
-        READ_DOUBLE(category, pm.V_bias);
-
-        category = "neutral_inlet";
-        READ_DOUBLE(category, pm.Q_neutIn_mgs);
-        READ_DOUBLE(category, pm.width_neutIn);
-
-        category = "transport_model";
-        READ_INT(category,    pm.icon_Bohm);
-        READ_INT(category,    pm.icon_Sagdeev);
-        READ_DOUBLE(category, pm.alpha_Bohm);
-        READ_DOUBLE(category, pm.scale_inertia);
-
-        category = "see";
+        category = "secondary_electron_emission";
         READ_DOUBLE(category, pm.coefIISEE_ts);
         READ_DOUBLE(category, pm.coefMISEE_ts);
         READ_DOUBLE(category, pm.Te_emitSEE_eV);
         READ_DOUBLE(category, pm.ratioEngy_EISEE_rd);
 
-        category = "scheme";
-        READ_INT(category,    pm.icon_PC);
+        category = "governing_equation";
         READ_INT(category,    pm.icon_inertia);
-        READ_INT(category,    pm.icon_adp_dt);
-        READ_DOUBLE(category, pm.dt_ini);
-        READ_INT(category,    pm.ndt_i);
-        READ_INT(category,    pm.ndt_m);
-        READ_INT(category,    pm.ndt_n);
-        READ_DOUBLE(category, pm.CFL);
+        READ_DOUBLE(category, pm.scale_inertia);
 
-        category = "solver";
+        category = "anomalous_scattering_model";
+        READ_INT(category,    pm.icon_Sagdeev);
+        READ_INT(category,    pm.icon_Bohm);
+        READ_DOUBLE(category, pm.alpha_Bohm);
+
+        category = "collisionless_heating_model";
+        READ_DOUBLE(category, pm.nu_eff);
+
+        category = "initial_condition";
+        READ_DOUBLE(category, pm.rhon_ini);
+        
+        category = "numerical_scheme";
+        READ_INT(category,    pm.icon_PC);
+        READ_DOUBLE(category, pm.Te_rep_eV);
+
+        category = "solver_setting";
         READ_DOUBLE(category, pm.error_cnv_SOR_Ui);
         READ_INT(category,    pm.maxITR_SOR_Ui);
         READ_INT(category,    pm.icon_iter_Ui);
@@ -224,6 +229,8 @@ void InputModule::inputParam(Params &pm, string inputFileName)
         READ_INT(category,    pm.icon_iter_rhoe);
         READ_DOUBLE(category, pm.error_cnv_HES_rhoe);
         READ_INT(category,    pm.maxITR_HES_rhoe);
+        READ_DOUBLE(category, pm.beta_rhoe);
+        READ_DOUBLE(category, pm.beta_rhoUe);
 
         READ_DOUBLE(category, pm.error_cnv_SOR_rhoeps);
         READ_INT(category,    pm.maxITR_SOR_rhoeps);
@@ -231,21 +238,25 @@ void InputModule::inputParam(Params &pm, string inputFileName)
         READ_DOUBLE(category, pm.error_cnv_HES_rhoeps);
         READ_INT(category,    pm.maxITR_HES_rhoeps);
 
-        category = "microwave_coupling";
-        READ_INT(category,    pm.ndiv_MW);
-
-        category = "relaxation";
-        READ_DOUBLE(category, pm.beta_rhoe);
-        READ_DOUBLE(category, pm.beta_rhoUe);
-
-        category = "simulation";
+        category = "simulation_control";
+        READ_INT(category,    pm.icon_adp_dt);
+        READ_DOUBLE(category, pm.dt_ini);
+        READ_DOUBLE(category, pm.CFL);
         READ_INT(category,    pm.ntime);
+        READ_INT(category,    pm.ndt_i);
+        READ_INT(category,    pm.ndt_m);
+        READ_INT(category,    pm.ndt_n);
+        READ_INT(category,    pm.ndiv_MW);
         READ_INT(category,    pm.icon_autoFinish);
 
-        category = "output";
+        category = "output_control";
         READ_INT(category,    pm.icon_chk);
         READ_INT(category,    pm.icon_gnuRes);
         READ_INT(category,    pm.ndiv_fout);
+
+        category = "test_mode";
+        READ_INT(category,    pm.icon_impTest);
+
     }
     catch (const exception& e) {
         cout << endl;

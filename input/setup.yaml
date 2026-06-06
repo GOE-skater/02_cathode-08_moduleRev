@@ -1,76 +1,90 @@
 # ============================================================
-# Parameter settings
+# Input Parameters
 # ============================================================
 
-microwave:
-  Pmw: 8.0                # (double) Microwave power [W], previous/example: 8
-  icon_mwRef: 0           # (int) Whether to include the microwave reflection
-  icon_impTest: 0         # (int) conduct impedance test
-  omegam: 26703537556e0   # (double) Microwave angular frequency
-  nu_eff: 2.0e9           # (double) Effective collision frequency, sqrt(vth * omegam / deltaB)
-  deltaECR: 1.0e-3        # (double) Width of the ECR region
-  S11_mag: 0.0            # (double) Magnitude of S11
-  S11_arg_deg: 0.0        # (double) Argument of S11 (deg)
-  S21_mag: 1.0            # (double) Magnitude of S21
-  S21_arg_deg: 0.0        # (double) Argument of S21 (deg)
-  S12_mag: 1.0            # (double) Magnitude of S12
-  S12_arg_deg: 0.0        # (double) Argument of S12 (deg)
-  S22_mag: 0.0            # (double) Magnitude of S22
-  S22_arg_deg: 0.0        # (double) Argument of S22 (deg)
-  Z0_base: 38.4885        # (double) Base impedance (Ohm) 38.4885 54.4052
+domain:
+# --------------------------------
+  ni: 194                        # (int) Number of cells in x-direction
+  nj: 70                         # (int) Number of cells in r-direction
+  xL: 0.00                       # (double) Min. x in domain
+  xR: 0.0388                     # (double) Max. x in domain
+  rmin: 0.00                     # (double) Min. r in domain
+  rmax: 0.014                    # (double) Max. r in domain
+  width_neutIn: 0.0055           # (double) Neutral inlet width [m]
+# --------------------------------
 
-plasma:
-  Ti: 300.0               # (double) Ion temperature
-  Tn: 300.0               # (double) Neutral particle temperature
-  rhon_ini: 2.41432e19    # (double) Constant neutral particle density [m^-3] at 1 Pa
-  DmN: 5.2e19             # (double) Diffusion coefficient of metastable species, Wieme 1974 [1/ms]
-  Te_rep_eV: 0.1          # (double) Representative electron temperature for the ion scheme [eV]
+operating_condition:
+# --------------------------------
+  V_bias: 35.0                   # (double) Bias voltage, previous/example: 20
+  Q_neutIn_mgs: 0.069            # (double) Neutral particle flow rate [mg/s], 1 sccm = 0.098 mg/s, previous/example: 0.04881367984087
+  omegam: 26703537556e0          # (double) Microwave angular frequency
+  Pmw: 8.0                       # (double) Microwave power [W], previous/example: 8
+  icon_mwRef: 0                  # (int) Whether to include the microwave reflection
+# --------------------------------
 
-material:
-  epsr_diele: 1.20900093980893  # (double) Relative permittivity of the dielectric material 2.1
+physical_parameter:
+# --------------------------------
+  masse: 9.10938356e-31          # (double) Electron mass
+  massi: 2.18017156e-25          # (double) Ion mass (Xe = 131.293e-3/6.02214076e23)
+  ri: 216.0e-12                  # ion radius  (Xe = 216pm)
+  Ti: 300.0                      # (double) Ion temperature
+  Tn: 300.0                      # (double) Neutral particle temperature
+  DmN: 5.2e19                    # (double) Diffusion coefficient of metastable species, Wieme 1974 [1/ms]
+  epsr_diele: 1.20900093980893   # (double) Relative permittivity of the dielectric material 2.1
+# --------------------------------
 
-bias:
-  V_bias: 35.0            # (double) Bias voltage, previous/example: 20
+transmission_line:
+# --------------------------------
+  S11_mag: 0.0                   # (double) Magnitude of S11
+  S11_arg_deg: 0.0               # (double) Argument of S11 (deg)
+  S21_mag: 1.0                   # (double) Magnitude of S21
+  S21_arg_deg: 0.0               # (double) Argument of S21 (deg)
+  S12_mag: 1.0                   # (double) Magnitude of S12
+  S12_arg_deg: 0.0               # (double) Argument of S12 (deg)
+  S22_mag: 0.0                   # (double) Magnitude of S22
+  S22_arg_deg: 0.0               # (double) Argument of S22 (deg)
+  Z0_base: 38.4885               # (double) Base impedance (Ohm) 38.4885 54.4052
+# --------------------------------
 
-neutral_inlet:
-  Q_neutIn_mgs: 0.069     # (double) Neutral particle flow rate [mg/s], 1 sccm = 0.098 mg/s, previous/example: 0.04881367984087
-  width_neutIn: 0.0055    # (double) Neutral inlet width [m], 0.0055 + 0.0078 = 0.0133
+secondary_electron_emission:
+# --------------------------------
+  coefIISEE_ts: 0.08             # (double) II true-secondary emission coefficient, previous/example: 0.08
+  coefMISEE_ts: 0.08             # (double) MI true-secondary emission coefficient by Auger process, previous/example: 0.08
+  Te_emitSEE_eV: 2.5             # (double) Electron emission temperature [eV], previous/example: 2.5
+  ratioEngy_EISEE_rd: 0.5        # (double) Energy ratio of EI rediffusion
+# --------------------------------
 
-transport_model:
-  icon_Bohm: 1            # (int) Whether to include Bohm diffusion
-  icon_Sagdeev: 1         # (int) Whether to include the Sagdeev model
-  alpha_Bohm: 16.0        # (double) Bohm diffusion coefficient, previous/example: 16
-  scale_inertia: 1.0      # (double) Scaling factor of the inertia term
+governing_equation:
+# --------------------------------
+  icon_inertia: 0                # (int) Whether to include inertia; 0: disabled, 1: enabled
+  scale_inertia: 1.0             # (double) Scaling factor of the inertia term
+# --------------------------------
 
-# ============================================================
-# SEE: Secondary Electron Emission
-# ============================================================
+anomalous_scattering_model:
+# --------------------------------
+  icon_Bohm: 1                   # (int) Whether to include Bohm diffusion
+  icon_Sagdeev: 1                # (int) Whether to include the Sagdeev model
+  alpha_Bohm: 16.0               # (double) Bohm diffusion coefficient, previous/example: 16
+# --------------------------------
 
-see:
-  coefIISEE_ts: 0.08        # (double) II true-secondary emission coefficient, previous/example: 0.08
-  coefMISEE_ts: 0.08        # (double) MI true-secondary emission coefficient by Auger process, previous/example: 0.08
-  Te_emitSEE_eV: 2.5        # (double) Electron emission temperature [eV], previous/example: 2.5
-  ratioEngy_EISEE_rd: 0.5   # (double) Energy ratio of EI rediffusion
+collisionless_heating_model:
+# --------------------------------
+  nu_eff: 2.0e9                  # (double) Effective collision frequency, sqrt(vth * omegam / deltaB)
+# --------------------------------
 
-# ============================================================
-# Fluid scheme settings
-# ============================================================
+initial_condition:
+# --------------------------------
+  rhon_ini: 2.41432e19           # (double) Constant neutral particle density [m^-3] at 1 Pa
+# --------------------------------
 
-scheme:
-  icon_PC: 1              # (int) Whether to use the PC method; 0: direct discretization, 1: PC method
-  icon_inertia: 0         # (int) Whether to include inertia; 0: disabled, 1: enabled
-  icon_adp_dt: 0          # (int) Whether to use adaptive dt; 0: fixed dt, 1: variable dt
-  dt_ini: 1.0e-10         # (double) Initial time step, previous/example: 2.0e-10
-  ndt_i: 1                # (int) Ion time-step multiplier relative to the electron time step
-  ndt_m: 1             # (int) Metastable neutral time-step multiplier relative to the electron time step
-  ndt_n: 1             # (int) Neutral particle time-step multiplier relative to the electron time step
-  CFL: 1.0                # (double) CFL number, previous/example: 0.001
+numerical_scheme:
+# --------------------------------
+  icon_PC: 1                     # (int) Whether to use the PC method; 0: direct discretization, 1: PC method
+  Te_rep_eV: 0.1                 # (double) Representative electron temperature for the ion scheme [eV]
+# --------------------------------
 
-# ============================================================
-# Solver settings
-# ============================================================
-
-solver:
+solver_setting:
+# --------------------------------
   error_cnv_SOR_Ui: 1.0e-10      # (double) Convergence criterion for Ui
   maxITR_SOR_Ui: 30              # (int) Maximum number of iterations for Ui
   icon_iter_Ui: 1                # (int) Iterative method selection for Ui; 0: SOR, 1: SMG
@@ -90,33 +104,37 @@ solver:
   icon_iter_rhoe: 1              # (int) Iterative method selection for rhoe; 0: GMRES, 1: direct solver, original note: 0:SOR 1:SMG
   error_cnv_HES_rhoe: 1.0e-21    # (double) Convergence criterion for the pseudo-time stepping of rhoe
   maxITR_HES_rhoe: 2             # (int) Maximum number of pseudo-time iterations for rhoe
+  beta_rhoe: 1.0                 # (double) Under-relaxation factor for rhoe when inertia is considered
+  beta_rhoUe: 1.0                # (double) Under-relaxation factor for rhoUe when inertia is considered
 
   error_cnv_SOR_rhoeps: 1.0e-10  # (double) Convergence criterion for rhoeps
   maxITR_SOR_rhoeps: 30          # (int) Maximum number of iterations for rhoeps
   icon_iter_rhoeps: 1            # (int) Iterative method selection for rhoeps; 0: GMRES, 1: direct solver, original note: 0:SOR 1:SMG
   error_cnv_HES_rhoeps: 1.0e-21  # (double) Convergence criterion for the pseudo-time stepping of rhoeps
   maxITR_HES_rhoeps: 2           # (int) Maximum number of pseudo-time iterations for rhoeps
+# --------------------------------
 
-microwave_coupling:
-  ndiv_MW: 1000           # (int) Microwave calculation interval
+simulation_control:
+# --------------------------------
+  icon_adp_dt: 0                 # (int) Whether to use adaptive dt; 0: fixed dt, 1: variable dt
+  dt_ini: 1.0e-10                # (double) Initial time step, previous/example: 2.0e-10
+  CFL: 1.0                       # (double) CFL number, previous/example: 0.001
+  ntime: 200                     # (int) Number of time steps, previous/example: 3000000
+  ndt_i: 1                       # (int) Ion time-step multiplier relative to the electron time step
+  ndt_m: 1                       # (int) Metastable neutral time-step multiplier relative to the electron time step
+  ndt_n: 1                       # (int) Neutral particle time-step multiplier relative to the electron time step
+  ndiv_MW: 1000                  # (int) Microwave calculation interval
+  icon_autoFinish: 0             # (int) Whether to automatically finish the simulation
+# --------------------------------
 
-relaxation:
-  beta_rhoe: 1.0          # (double) Under-relaxation factor for rhoe when inertia is considered
-  beta_rhoUe: 1.0         # (double) Under-relaxation factor for rhoUe when inertia is considered
+output_control:
+# --------------------------------
+  icon_chk: 1                    # (int) Whether to output check files
+  icon_gnuRes: 1                 # (int) Whether to display results using gnuplot
+  ndiv_fout: 2000                # (int) Result file output interval
+# --------------------------------
 
-# ============================================================
-# Global simulation settings
-# ============================================================
-
-simulation:
-  ntime: 200           # (int) Number of time steps, previous/example: 3000000
-  icon_autoFinish: 0      # (int) Whether to automatically finish the simulation
-
-# ============================================================
-# Output settings
-# ============================================================
-
-output:
-  icon_chk: 1             # (int) Whether to output check files
-  icon_gnuRes: 1          # (int) Whether to display results using gnuplot
-  ndiv_fout: 2000         # (int) Result file output interval
+test_mode:
+# --------------------------------
+  icon_impTest: 0                # (int) conduct impedance test
+# --------------------------------
