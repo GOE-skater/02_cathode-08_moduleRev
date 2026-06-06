@@ -5,6 +5,7 @@
 *.so
 *.dll
 *.dylib
+*.command
 
 # Generated results
 results/*
