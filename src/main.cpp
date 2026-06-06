@@ -124,6 +124,7 @@ int main(int argc, char *argv[])
     iniM.iniParam(pm,gc,gx,gr); 
     //-------------------------------------
     
+    
     if(pm.icon_impTest == 1){
         
         iniM.makeBoundary_impedanceTest(pm, gc, gx, gr, gk, mb);
