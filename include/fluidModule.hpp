@@ -1493,6 +1493,7 @@ void FluidModule::solve_rhoi_constTe(Params &pm,GridCenter &gc, GridInterfaceX &
                     double um = sqrt(2.0*ph::Boltz*pm.Ti/pm.massi);
                     double utx = gx.Uix[i][j]/(um + 1e-100);
                     GammaPerN_wall_Lx = -0.25*vth*(exp(-utx*utx) + utx*sqrt(M_PI)*(erf(utx) - 1.0));
+                    //if(i == gc.i_flc_bl[2][0]) std::cout << "before,"<< j << ","<<GammaPerN_wall_Lx<<endl;
                 }
                 if(bRx_wall == 0){
                     double vth = sqrt(8.0*ph::Boltz*pm.Ti/(M_PI*pm.massi));
@@ -1597,7 +1598,9 @@ void FluidModule::solve_rhoi_constTe(Params &pm,GridCenter &gc, GridInterfaceX &
         double um = sqrt(2.0*ph::Boltz*pm.Ti/pm.massi);
         double utx = gx.Uix[i][j]/(um + 1e-100);
         double GammaPerN_wall_Lx = -0.25*vth*(exp(-utx*utx) + utx*sqrt(M_PI)*(erf(utx) - 1.0));
+        //std::cout << "after,"<< j << ","<< gc.rhoi[i][j] << ","<<GammaPerN_wall_Lx << ",";
         gx.rhoUix_wall[i][j] = gc.rhoi[i][j]*GammaPerN_wall_Lx;
+        //std::cout <<gx.rhoUix_wall[i][j] <<endl;
     }
     //------------------------------------
 
@@ -5446,23 +5449,23 @@ void FluidModule::update_rhon(Params &pm,GridCenter &gc, GridInterfaceX &gx, Gri
                 //------------------------------------
                 double Gamma_wall_Lx = 0.0;
                 if(bLx_wall == 0){
-                    Gamma_wall_Lx = -gx.rhoUix_wall[i][j] - gx.rhoUix_wall[i][j];
+                    Gamma_wall_Lx = -gx.rhoUix_wall[i][j] - gx.rhoUmx_wall[i][j];
                 }
                 double Gamma_wall_Rx = 0.0;
                 if(bRx_wall == 0){
-                    Gamma_wall_Rx = -gx.rhoUix_wall[i+1][j] - gx.rhoUix_wall[i+1][j];
+                    Gamma_wall_Rx = -gx.rhoUix_wall[i+1][j] - gx.rhoUmx_wall[i+1][j];
                 }
                 double Gamma_wall_Lr = 0.0;
                 if(bLr_wall == 0){
-                    Gamma_wall_Lr = -gr.rhoUir_wall[i][j]   - gr.rhoUir_wall[i][j];
+                    Gamma_wall_Lr = -gr.rhoUir_wall[i][j]   - gr.rhoUmr_wall[i][j];
                 }
                 double Gamma_wall_Rr = 0.0;
                 if(bRr_wall == 0){
-                    Gamma_wall_Rr = -gr.rhoUir_wall[i][j+1] - gr.rhoUir_wall[i][j+1];
+                    Gamma_wall_Rr = -gr.rhoUir_wall[i][j+1] - gr.rhoUmr_wall[i][j+1];
                 }
                 double Gamma_in_Rr = 0.0;
                 if(bRr_in== 0){
-                    Gamma_in_Rr = -gr.rhoUir_wall[i][j+1] - gr.rhoUir_wall[i][j+1] - pm.fn_In;
+                    Gamma_in_Rr = -gr.rhoUir_wall[i][j+1] - gr.rhoUmr_wall[i][j+1] - pm.fn_In;
                     //std::cout << Gamma_in_Rr << ","<<pm.fn_In << std::endl;
                 }
                 double Gamma_open_Rr = 0.0;
@@ -5548,7 +5551,7 @@ void FluidModule::update_rhon(Params &pm,GridCenter &gc, GridInterfaceX &gx, Gri
         int i=gc.i_flc_bl[0][0];
         //gx.rhoUnx[i][j] = -0.25*gc.rhon[i][j]*vth;
         //gx.rhoUnx[i][j] = -gc.rhoi[i][j]*gx.Uix[i][j]; //Recombination
-        double Gamma_wall_Lx = -gx.rhoUix_wall[i][j]   - gx.rhoUix_wall[i][j];
+        double Gamma_wall_Lx = -gx.rhoUix_wall[i][j]   - gx.rhoUmx_wall[i][j];
         gx.rhoUnx[i][j] = Gamma_wall_Lx;
         gx.rhoUnx_wall[i][j] = gx.rhoUnx[i][j];
     }
@@ -5557,7 +5560,7 @@ void FluidModule::update_rhon(Params &pm,GridCenter &gc, GridInterfaceX &gx, Gri
         int i=gc.i_flc_bl[2][0];
         //gx.rhoUnx[i][j] = -0.25*gc.rhon[i][j]*vth;
         //gx.rhoUnx[i][j] = -gc.rhoi[i][j]*gx.Uix[i][j]; //Recombination
-        double Gamma_wall_Lx = -gx.rhoUix_wall[i][j]   - gx.rhoUix_wall[i][j];
+        double Gamma_wall_Lx = -gx.rhoUix_wall[i][j]   - gx.rhoUmx_wall[i][j];
         gx.rhoUnx[i][j] = Gamma_wall_Lx;
         gx.rhoUnx_wall[i][j] = gx.rhoUnx[i][j];
     }
@@ -5566,7 +5569,7 @@ void FluidModule::update_rhon(Params &pm,GridCenter &gc, GridInterfaceX &gx, Gri
         int i=gc.i_flc_bl[3][0];
         //gx.rhoUnx[i][j] = -0.25*gc.rhon[i][j]*vth;
         //gx.rhoUnx[i][j] = -gc.rhoi[i][j]*gx.Uix[i][j]; //Recombination
-        double Gamma_wall_Lx = -gx.rhoUix_wall[i][j]   - gx.rhoUix_wall[i][j];
+        double Gamma_wall_Lx = -gx.rhoUix_wall[i][j]   - gx.rhoUmx_wall[i][j];
         gx.rhoUnx[i][j] = Gamma_wall_Lx;
         gx.rhoUnx_wall[i][j] = gx.rhoUnx[i][j];
     }
@@ -5575,7 +5578,7 @@ void FluidModule::update_rhon(Params &pm,GridCenter &gc, GridInterfaceX &gx, Gri
         int i=gc.i_flc_bl[4][0];
         //gx.rhoUnx[i][j] = -0.25*gc.rhon[i][j]*vth;
         //gx.rhoUnx[i][j] = -gc.rhoi[i][j]*gx.Uix[i][j]; //Recombination
-        double Gamma_wall_Lx = -gx.rhoUix_wall[i][j]   - gx.rhoUix_wall[i][j];
+        double Gamma_wall_Lx = -gx.rhoUix_wall[i][j]   - gx.rhoUmx_wall[i][j];
         gx.rhoUnx[i][j] = Gamma_wall_Lx;
         gx.rhoUnx_wall[i][j] = gx.rhoUnx[i][j];
     }
@@ -5583,7 +5586,7 @@ void FluidModule::update_rhon(Params &pm,GridCenter &gc, GridInterfaceX &gx, Gri
     for (int j=gc.j_flc_bl[1][0];j<=gc.j_flc_bl[1][1];j++){
         int i=gc.i_flc_bl[1][1];
         //gx.rhoUnx[i+1][j] = 0.25*gc.rhon[i][j]*vth;
-        double Gamma_wall_Rx = -gx.rhoUix_wall[i+1][j] - gx.rhoUix_wall[i+1][j];
+        double Gamma_wall_Rx = -gx.rhoUix_wall[i+1][j] - gx.rhoUmx_wall[i+1][j];
         gx.rhoUnx[i+1][j] = Gamma_wall_Rx;
         gx.rhoUnx_wall[i+1][j] = gx.rhoUnx[i+1][j];
     }
@@ -5591,7 +5594,7 @@ void FluidModule::update_rhon(Params &pm,GridCenter &gc, GridInterfaceX &gx, Gri
     for (int j=gc.j_flc_bl[4][0];j<=gc.j_flc_bl[4][1];j++){
         int i=gc.i_flc_bl[4][1];
         //gx.rhoUnx[i+1][j] = 0.25*gc.rhon[i][j]*vth;
-        double Gamma_wall_Rx = -gx.rhoUix_wall[i+1][j] - gx.rhoUix_wall[i+1][j];
+        double Gamma_wall_Rx = -gx.rhoUix_wall[i+1][j] - gx.rhoUmx_wall[i+1][j];
         gx.rhoUnx[i+1][j] = Gamma_wall_Rx;
         gx.rhoUnx_wall[i+1][j] = gx.rhoUnx[i+1][j];
     }
@@ -5600,7 +5603,7 @@ void FluidModule::update_rhon(Params &pm,GridCenter &gc, GridInterfaceX &gx, Gri
         int j=gc.j_flc_bl[0][0];
         //gr.rhoUnr[i][j] = -0.25*gc.rhon[i][j]*vth;
         //gr.rhoUnr[i][j] = -gc.rhoi[i][j]*gr.Uir[i][j]; //Recombination
-        double Gamma_wall_Lr = -gr.rhoUir_wall[i][j]   - gr.rhoUir_wall[i][j];
+        double Gamma_wall_Lr = -gr.rhoUir_wall[i][j]   - gr.rhoUmr_wall[i][j];
         gr.rhoUnr[i][j] = Gamma_wall_Lr;
         gr.rhoUnr_wall[i][j] = gr.rhoUnr[i][j];
     }
@@ -5609,7 +5612,7 @@ void FluidModule::update_rhon(Params &pm,GridCenter &gc, GridInterfaceX &gx, Gri
         int j=gc.j_flc_bl[2][0];
         //gr.rhoUnr[i][j] = -0.25*gc.rhon[i][j]*vth;
         //gr.rhoUnr[i][j] = -gc.rhoi[i][j]*gr.Uir[i][j]; //Recombination
-        double Gamma_wall_Lr = -gr.rhoUir_wall[i][j]   - gr.rhoUir_wall[i][j];
+        double Gamma_wall_Lr = -gr.rhoUir_wall[i][j]   - gr.rhoUmr_wall[i][j];
         gr.rhoUnr[i][j] = Gamma_wall_Lr;
         gr.rhoUnr_wall[i][j] = gr.rhoUnr[i][j];
     }
@@ -5618,11 +5621,11 @@ void FluidModule::update_rhon(Params &pm,GridCenter &gc, GridInterfaceX &gx, Gri
         int j=gc.j_flc_bl[0][1];
         if(gc.x[i] < pm.width_neutIn + pm.x6){ //流入部
             //gr.rhoUnr[i][j+1] = -pm.fn_In;
-            double Gamma_in_Rr = -gr.rhoUir_wall[i][j+1] - gr.rhoUir_wall[i][j+1] - pm.fn_In;
+            double Gamma_in_Rr = -gr.rhoUir_wall[i][j+1] - gr.rhoUmr_wall[i][j+1] - pm.fn_In;
             gr.rhoUnr[i][j+1] = Gamma_in_Rr;
         }else{ //ただの壁
             //gr.rhoUnr[i][j+1] = 0.25*gc.rhon[i][j]*vth;
-            double Gamma_wall_Rr = -gr.rhoUir_wall[i][j+1] - gr.rhoUir_wall[i][j+1];
+            double Gamma_wall_Rr = -gr.rhoUir_wall[i][j+1] - gr.rhoUmr_wall[i][j+1];
             gr.rhoUnr[i][j+1] = Gamma_wall_Rr;
             gr.rhoUnr_wall[i][j+1] = gr.rhoUnr[i][j+1];
         }
@@ -5632,7 +5635,7 @@ void FluidModule::update_rhon(Params &pm,GridCenter &gc, GridInterfaceX &gx, Gri
         int j=gc.j_flc_bl[3][1];
         //gr.rhoUnr[i][j+1] = 0.25*gc.rhon[i][j]*vth;
         //gr.rhoUnr[i][j+1] = -gc.rhoi[i][j]*gr.Uir[i][j+1]; //Recombination
-        double Gamma_wall_Rr = -gr.rhoUir_wall[i][j+1] - gr.rhoUir_wall[i][j+1];
+        double Gamma_wall_Rr = -gr.rhoUir_wall[i][j+1] - gr.rhoUmr_wall[i][j+1];
         gr.rhoUnr[i][j+1] = Gamma_wall_Rr;
         gr.rhoUnr_wall[i][j+1] = gr.rhoUnr[i][j+1];
     }
@@ -5717,7 +5720,7 @@ void FluidModule::update_rhon(Params &pm,GridCenter &gc, GridInterfaceX &gx, Gri
 
                     double Gamma_in_Rr = 0.0;
                     if(bRr_in== 0){
-                        Gamma_in_Rr = -gr.rhoUir_wall[i][j+1] - gr.rhoUir_wall[i][j+1] - pm.fn_In;
+                        Gamma_in_Rr = -gr.rhoUir_wall[i][j+1] - gr.rhoUmr_wall[i][j+1] - pm.fn_In;
                         //std::cout << Gamma_in_Rr << ","<<pm.fn_In << std::endl;
                     }
 
@@ -6029,62 +6032,62 @@ void FluidModule::update_rhom(Params &pm,GridCenter &gc, GridInterfaceX &gx, Gri
     for (int j=gc.j_flc_bl[0][0];j<=gc.j_flc_bl[0][1];j++){
         int i=gc.i_flc_bl[0][0];
         gx.rhoUmx[i][j] = -0.25*gc.rhom[i][j]*vth;
-        gx.rhoUix_wall[i][j] = gx.rhoUmx[i][j];
+        gx.rhoUmx_wall[i][j] = gx.rhoUmx[i][j];
     }
     //左 壁 z1
     for (int j=gc.j_flc_bl[2][0];j<=gc.j_flc_bl[0][0]-1;j++){
         int i=gc.i_flc_bl[2][0];
         gx.rhoUmx[i][j] = -0.25*gc.rhom[i][j]*vth;
-        gx.rhoUix_wall[i][j] = gx.rhoUmx[i][j];
+        gx.rhoUmx_wall[i][j] = gx.rhoUmx[i][j];
     }
     //左 壁 z2
     for (int j=gc.j_flc_bl[3][0];j<=gc.j_flc_bl[2][0]-1;j++){
         int i=gc.i_flc_bl[3][0];
         gx.rhoUmx[i][j] = -0.25*gc.rhom[i][j]*vth;
-        gx.rhoUix_wall[i][j] = gx.rhoUmx[i][j];
+        gx.rhoUmx_wall[i][j] = gx.rhoUmx[i][j];
     }
     //左 壁 z4
     for (int j=gc.j_flc_bl[1][0];j<=gc.j_flc_bl[4][1];j++){
         int i=gc.i_flc_bl[4][0];
         gx.rhoUmx[i][j] = -0.25*gc.rhom[i][j]*vth;
-        gx.rhoUix_wall[i][j] = gx.rhoUmx[i][j];
+        gx.rhoUmx_wall[i][j] = gx.rhoUmx[i][j];
     }
     //右 壁 z3
     for (int j=gc.j_flc_bl[1][0];j<=gc.j_flc_bl[1][1];j++){
         int i=gc.i_flc_bl[1][1];
         gx.rhoUmx[i+1][j] = 0.25*gc.rhom[i][j]*vth;
-        gx.rhoUix_wall[i+1][j] = gx.rhoUmx[i+1][j];
+        gx.rhoUmx_wall[i+1][j] = gx.rhoUmx[i+1][j];
     }
     //右 壁 z5
     for (int j=gc.j_flc_bl[4][0];j<=gc.j_flc_bl[4][1];j++){
         int i=gc.i_flc_bl[4][1];
         gx.rhoUmx[i+1][j] = 0.25*gc.rhom[i][j]*vth;
-        gx.rhoUix_wall[i+1][j] = gx.rhoUmx[i+1][j];
+        gx.rhoUmx_wall[i+1][j] = gx.rhoUmx[i+1][j];
     }
     //下 壁 x0
     for (int i=gc.i_flc_bl[0][0];i<=gc.i_flc_bl[0][1];i++){
         int j=gc.j_flc_bl[0][0];
         gr.rhoUmr[i][j] = -0.25*gc.rhom[i][j]*vth;
-        gr.rhoUir_wall[i][j] = gr.rhoUmr[i][j];
+        gr.rhoUmr_wall[i][j] = gr.rhoUmr[i][j];
     }
     //下 壁 x2
     for (int i=gc.i_flc_bl[2][0];i<=gc.i_flc_bl[2][1];i++){
         int j=gc.j_flc_bl[2][0];
         gr.rhoUmr[i][j] = -0.25*gc.rhom[i][j]*vth;
-        gr.rhoUir_wall[i][j] = gr.rhoUmr[i][j];
+        gr.rhoUmr_wall[i][j] = gr.rhoUmr[i][j];
     }
 
     //上 壁 x1
     for (int i=gc.i_flc_bl[0][0];i<=gc.i_flc_bl[1][1];i++){
         int j=gc.j_flc_bl[0][1];
         gr.rhoUmr[i][j+1] = 0.25*gc.rhom[i][j]*vth;
-        gr.rhoUir_wall[i][j+1] = gr.rhoUmr[i][j+1];
+        gr.rhoUmr_wall[i][j+1] = gr.rhoUmr[i][j+1];
     }
     //上 壁 x4
     for (int i=gc.i_flc_bl[1][1]+1;i<=gc.i_flc_bl[3][1];i++){
         int j=gc.j_flc_bl[3][1];
         gr.rhoUmr[i][j+1] = 0.25*gc.rhom[i][j]*vth;
-        gr.rhoUir_wall[i][j+1] = gr.rhoUmr[i][j+1];
+        gr.rhoUmr_wall[i][j+1] = gr.rhoUmr[i][j+1];
     }
     //上 開放 x5
     for (int i=gc.i_flc_bl[4][0];i<=gc.i_flc_bl[4][1];i++){
@@ -6094,7 +6097,7 @@ void FluidModule::update_rhom(Params &pm,GridCenter &gc, GridInterfaceX &gx, Gri
         double rR = (gc.r[j]+gc.r[j+1])/2.0;
         double rhoUmr_Rr = gr.rhoUmr_old[i][j]*rL/rR;
         gr.rhoUmr[i][j+1] = rhoUmr_Rr;
-        gr.rhoUir_wall[i][j+1] = 0.0;
+        gr.rhoUmr_wall[i][j+1] = 0.0;
     }
 
     
@@ -6161,8 +6164,8 @@ void FluidModule::update_rhom(Params &pm,GridCenter &gc, GridInterfaceX &gx, Gri
 
                     double nabla_rhoUm = (gx.rhoUmx[i+1][j]*bRx_wall - gx.rhoUmx[i][j]*bLx_wall)/pm.dx 
                                        + (qR*gr.rhoUmr[i][j+1]*bRr_wall - qL*gr.rhoUmr[i][j]*bLr_wall)/pm.dr
-                                       + (gx.rhoUix_wall[i+1][j] -gx.rhoUix_wall[i][j])/pm.dx 
-                                       + (qR*gr.rhoUir_wall[i][j+1] - qL*gr.rhoUir_wall[i][j])/pm.dr;
+                                       + (gx.rhoUmx_wall[i+1][j] -gx.rhoUmx_wall[i][j])/pm.dx 
+                                       + (qR*gr.rhoUmr_wall[i][j+1] - qL*gr.rhoUmr_wall[i][j])/pm.dr;
 
                     double volume = 2.0*M_PI*gc.r[j]*pm.dr*pm.dx;
                     

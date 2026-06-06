@@ -412,6 +412,7 @@ void OutputModule::output(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridIn
                 << "," << truncate(gx.rhoUnx_wall[i][j]) << "," << truncate(gr.rhoUnr_wall[i][j]) 
                 << "," << truncate(gx.Gx_wall[i][j])     << "," << truncate(gr.Gr_wall[i][j]) 
                 << "," << 0.0<< std::endl;
+                //if(i == gc.i_flc_bl[2][0]) std::cout << "output, j = "<<j << " , " << truncate(gx.rhoUix_wall[i][j]) << ","<<gx.rhoUix_wall[i][j]<<endl;
         }
     }
     outputfile2.close();
