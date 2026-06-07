@@ -50,6 +50,11 @@ void InitialModule::iniParam(Params &pm,GridCenter &gc,GridInterfaceX &gx,GridIn
     pm.dt = pm.dt_ini;
     //--------------------------------
 
+    //microwave angular frequency
+    //--------------------------------
+    pm.omegam = 2.0*M_PI*pm.fmw;
+    //--------------------------------
+
     //mesh Gegeration
     //--------------------------------
     for (int i = 0; i < pm.ni+2; i++){

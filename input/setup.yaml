@@ -17,7 +17,7 @@ operating_condition:
 # --------------------------------
   V_bias: 35.0                   # (double) Bias voltage, previous/example: 20
   Q_neutIn_mgs: 0.069            # (double) Neutral particle flow rate [mg/s], 1 sccm = 0.098 mg/s, previous/example: 0.04881367984087
-  omegam: 26703537556e0          # (double) Microwave angular frequency
+  fmw: 4.25e9                    # (double) Microwave frequency [Hz]
   Pmw: 8.0                       # (double) Microwave power [W], previous/example: 8
   icon_mwRef: 0                  # (int) Whether to include the microwave reflection
 # --------------------------------

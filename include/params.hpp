@@ -24,7 +24,7 @@ struct Params{
     //--------------------------------
     double V_bias = 0.0; //バイアス電圧
     double Q_neutIn_mgs = 0.0; //中性粒子の流量 mg/s
-    double omegam = 2.0*M_PI*2.45e9; //マイクロ波周波数
+    double fmw = 2.45e9; //マイクロ波周波数 (Hz)
     double Pmw = 8.0; //マイクロ波電力 (W)
     int icon_mwRef = 1; //反射を解くか
     //--------------------------------
@@ -154,7 +154,8 @@ struct Params{
 
     double deltaECR = 1e-3; //ECRの領域の幅
 
-    
+    double omegam = 0.0; //マイクロ波角周波数
+
     int icon_error = 1; //errorの種類 0:max 1:rms
 
     double Lx=0.0; //計算領域のx方向の大きさ

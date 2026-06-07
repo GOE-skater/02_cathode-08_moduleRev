@@ -160,7 +160,7 @@ void InputModule::inputParam(Params &pm, string inputFileName)
         category = "operating_condition";
         READ_DOUBLE(category, pm.V_bias);
         READ_DOUBLE(category, pm.Q_neutIn_mgs);
-        READ_DOUBLE(category, pm.omegam);
+        READ_DOUBLE(category, pm.fmw);
         READ_DOUBLE(category, pm.Pmw);
         READ_INT(category,    pm.icon_mwRef);
 
