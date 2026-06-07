@@ -82,6 +82,7 @@ struct Params{
     //initial_condition
     //--------------------------------
     double rhon_ini = 2.41432e19; //中性粒子密度 (初期値) m^-3 @1Pa
+    double J1r_exc = 0.212687; //励起電流
     //--------------------------------
 
     //numerical_scheme
@@ -89,7 +90,6 @@ struct Params{
     int icon_PC = 0; //PC methodを使うか (0:直接離散化，1:PC method)
     double Te_rep_eV = 3.0; //代表電子温度 (イオンスキーム用)
     //--------------------------------
-
 
     //solver_setting
     //--------------------------------
@@ -154,7 +154,6 @@ struct Params{
 
     double deltaECR = 1e-3; //ECRの領域の幅
 
-    complex<double> J1r_exc = complex<double>(0.212687,0.0); //励起電流
     
     int icon_error = 1; //errorの種類 0:max 1:rms
 

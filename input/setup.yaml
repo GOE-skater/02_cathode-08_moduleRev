@@ -75,6 +75,7 @@ collisionless_heating_model:
 initial_condition:
 # --------------------------------
   rhon_ini: 2.41432e19           # (double) Constant neutral particle density [m^-3] at 1 Pa
+  J1r_exc: 0.212687              # (double) Microwave excitation current
 # --------------------------------
 
 numerical_scheme:

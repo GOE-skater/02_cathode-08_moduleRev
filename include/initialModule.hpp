@@ -69,15 +69,14 @@ void InitialModule::iniParam(Params &pm,GridCenter &gc,GridInterfaceX &gx,GridIn
 
         double r_tmp = (gc.r[j] + gc.r[j-1])/2.0;
         gr.J1r[i_exc][j] = pm.J1r_exc/r_tmp/pm.dx;
-
-        std::cout << i_exc << ","<<j << std::endl;
+        //cout << j << ","<< gc.r[j] << ", gr.J1r[i_exc][j] = " << gr.J1r[i_exc][j] << endl;
+        //std::cout << i_exc << ","<< j <<","<<gr.J1r[i_exc][j] << std::endl;
     }
 
     std::string folder_name = ("./results");
     mkdir(folder_name.c_str(), 0777);
 
 }
-
 
 //*****************************************************************
 //**                                                             **

@@ -204,6 +204,7 @@ void InputModule::inputParam(Params &pm, string inputFileName)
 
         category = "initial_condition";
         READ_DOUBLE(category, pm.rhon_ini);
+        READ_DOUBLE(category, pm.J1r_exc);
         
         category = "numerical_scheme";
         READ_INT(category,    pm.icon_PC);
