@@ -1937,6 +1937,14 @@ void FluidModule::correct_Ui_constTe(Params &pm,GridCenter &gc, GridInterfaceX &
     //------------------------------------
 
     //Caluculate residuals
+    //------------------------------------
+    calcRes(pm.error_rhoi, gc.rhoi,gc.rhoi_old,gc.i_flc_bl, gc.j_flc_bl, pm.n_bl-1, 1e-100, pm.icon_error);
+    calcRes(pm.error_Uix, gx.Uix, gx.Uix_old, gx.i_flx_bl, gx.j_flx_bl, pm.n_bl-1, 1e-100, pm.icon_error);
+    calcRes(pm.error_Uir, gr.Uir, gr.Uir_old, gr.i_flr_bl, gr.j_flr_bl, pm.n_bl-1, 1e-100, pm.icon_error);
+    calcRes(pm.error_Uip, gc.Uip, gc.Uip_old, gc.i_flc_bl, gc.j_flc_bl, pm.n_bl-1, 1e-100, pm.icon_error);
+    //------------------------------------
+
+    //Caluculate residuals
     //=====================================================================================
     //ion density
     //------------------------------------
@@ -2090,7 +2098,7 @@ void FluidModule::solve_phi_couple_wdTe_wSEE_PC(Params &pm,GridCenter &gc, GridI
 
     //convergence criteria
     //------------------------------------
-    int icon_error2 = 1; //擬似ステップのエラー収束判定 0:max, 1:RMS
+    int icon_error2 = pm.icon_error;
     //------------------------------------
 
     //output duration
@@ -2229,6 +2237,7 @@ void FluidModule::solve_phi_couple_wdTe_wSEE_PC(Params &pm,GridCenter &gc, GridI
     do{
         
         ncount ++;
+        pm.itime_PC_phi++;
 
         //Reserve previous-step values
         //------------------------------------
@@ -3015,94 +3024,20 @@ void FluidModule::solve_phi_couple_wdTe_wSEE_PC(Params &pm,GridCenter &gc, GridI
         
         //==============================================
         
+
         //Caluculate residuals
-        //=====================================================================================
-        //phi
         //------------------------------------
         double error_phi2 = 0.0;
-        if(icon_error2 == 0){ //normalized maximum
-            for (int iblock=0;iblock<pm.n_bl-1;iblock++){ 
-                for (int i=gc.i_flc_bl[iblock][0];i<=gc.i_flc_bl[iblock][1];i++){ 
-                    for (int j=gc.j_flc_bl[iblock][0];j<=gc.j_flc_bl[iblock][1];j++){
-                        double error_rhoe_tmp = fabs((gc.phi[i][j]-phi_old_tmp[i][j])/(gc.phi[i][j]+phi_old_tmp[i][j]+1e-100));
-                        if(error_rhoe_tmp > error_phi2){
-                            error_phi2 = error_rhoe_tmp;
-                        }
-                    }
-                }
-            }
-        }else{ //normalized L2 norm
-            double ncount_phi = 0;
-            for (int iblock=0;iblock<pm.n_bl-1;iblock++){ 
-                for (int i=gc.i_flc_bl[iblock][0];i<=gc.i_flc_bl[iblock][1];i++){ 
-                    for (int j=gc.j_flc_bl[iblock][0];j<=gc.j_flc_bl[iblock][1];j++){
-                        error_phi2 += pow(gc.phi[i][j]-phi_old_tmp[i][j],2)/(pow(phi_old_tmp[i][j]+1e-6,2));
-                        ncount_phi++;
-                    }
-                }
-            }
-            error_phi2 = sqrt(error_phi2/double(ncount_phi));
-        }
-        //------------------------------------
-
-        //x-directional flux
-        //------------------------------------
         double error_nUex2 = 0.0;
-        if(icon_error2 == 0){ //normalized maximum
-            for (int iblock=0;iblock<pm.n_bl-1;iblock++){ 
-                for (int i=gc.i_flc_bl[iblock][0] + 1 - iblock;i<=gc.i_flc_bl[iblock][1];i++){ //一番左右は更新しない
-                    for (int j=gc.j_flc_bl[iblock][0];j<=gc.j_flc_bl[iblock][1];j++){
-                        double error_nUex_tmp = fabs((gx.nUex[i][j]-nUex_old_tmp[i][j])/(gx.nUex[i][j]+nUex_old_tmp[i][j]+1e-100));
-                        if(error_nUex_tmp > error_nUex2){
-                            error_nUex2 = error_nUex_tmp;
-                        }
-                    }
-                }
-            }
-        }else{ //normalized L2 norm
-            double ncount_nUex = 0;
-            for (int iblock=0;iblock<pm.n_bl-1;iblock++){ 
-                for (int i=gc.i_flc_bl[iblock][0] + 1 - iblock;i<=gc.i_flc_bl[iblock][1];i++){ //一番左右は更新しない
-                    for (int j=gc.j_flc_bl[iblock][0];j<=gc.j_flc_bl[iblock][1];j++){
-                        error_nUex2 += pow(gx.nUex[i][j]-nUex_old_tmp[i][j],2)/(pow(nUex_old_tmp[i][j]+1e16,2));
-                        ncount_nUex++;
-                    }
-                }
-            }
-            error_nUex2 = sqrt(error_nUex2/double(ncount_nUex));
-        }
-        //------------------------------------
-
-        //r-directional flux
-        //------------------------------------
         double error_nUer2 = 0.0;
-        if(icon_error2 == 0){ //normalized maximum
-            for (int iblock=0;iblock<pm.n_bl-1;iblock++){
-                for (int i=gc.i_flc_bl[iblock][0];i<=gc.i_flc_bl[iblock][1];i++){ 
-                    for (int j=gc.j_flc_bl[iblock][0] + 1;j<=gc.j_flc_bl[iblock][1];j++){
-                        double error_nUer_tmp = fabs((gr.nUer[i][j]-nUer_old_tmp[i][j])/(gr.nUer[i][j]+nUer_old_tmp[i][j]+1e-100));
-                        if(error_nUer_tmp > error_nUer2){
-                            error_nUer2 = error_nUer_tmp;
-                        }
-                    }
-                }
-            }
-        }else{ //normalized L2 norm
-            double ncount_nUer = 0;
-            for (int iblock=0;iblock<pm.n_bl-1;iblock++){
-                for (int i=gc.i_flc_bl[iblock][0];i<=gc.i_flc_bl[iblock][1];i++){ 
-                    for (int j=gc.j_flc_bl[iblock][0] + 1;j<=gc.j_flc_bl[iblock][1];j++){
-                        error_nUer2 += pow(gr.nUer[i][j]-nUer_old_tmp[i][j],2)/(pow(nUer_old_tmp[i][j]+1e16,2))/pm.CFL;
-                        ncount_nUer++;
-                    }
-                }
-            }
-            error_nUer2 = sqrt(error_nUer2/double(ncount_nUer));
-        }
-        //------------------------------------
-        //=====================================================================================
+        calcRes(error_phi2, gc.phi,  phi_old_tmp,  gc.i_flc_bl, gc.j_flc_bl, pm.n_bl-1,1e-100,icon_error2);
+        calcRes(error_nUex2,gx.nUex, nUex_old_tmp, gx.i_flx_bl, gx.j_flx_bl, pm.n_bl-1,1e-100,icon_error2);
+        calcRes(error_nUer2,gr.nUer, nUer_old_tmp, gr.i_flr_bl, gr.j_flr_bl, pm.n_bl-1,1e-100,icon_error2);
+        
+        if(pm.icon_chk == 1) output_residual_for_PC("phi",pm.gtime, pm.itime, error_phi2, error_nUex2, error_nUer2, pm.itime_PC_phi, ncount);
         
         double error_global = fmax(fmax(error_phi2,error_nUex2),error_nUer2);
+        
         if(ncount % ndiv_out == 0){
             std::cout << "ncount = "<<ncount<<std::endl;
             std::cout << "error_phi = " << error_phi2
@@ -3118,37 +3053,13 @@ void FluidModule::solve_phi_couple_wdTe_wSEE_PC(Params &pm,GridCenter &gc, GridI
 
     } while (icon_end == 0);
 
-    //std::cout << "ncount_phi = "<<ncount<<std::endl;
-    
-    //Caluculate residuals
-    //=====================================================================================
-    //phi
-    //------------------------------------
-    pm.error_phi = 0.0;
-    if(pm.icon_error == 0){
-        for (int iblock=0;iblock<pm.n_bl-1;iblock++){ 
-            for (int i=gc.i_flc_bl[iblock][0];i<=gc.i_flc_bl[iblock][1];i++){ 
-                for (int j=gc.j_flc_bl[iblock][0];j<=gc.j_flc_bl[iblock][1];j++){
-                    double error_tmp = fabs((gc.phi[i][j] - gc.phi_old[i][j])/(gc.phi[i][j] + gc.phi_old[i][j]+1e-100)*2.0/pm.CFL);
-                    if(error_tmp > pm.error_phi){
-                        pm.error_phi = error_tmp;
-                    }
-                }
-            }
-        }
-    }else{
-        double ncount = 0;
-        for (int iblock=0;iblock<pm.n_bl-1;iblock++){ 
-            for (int i=gc.i_flc_bl[iblock][0];i<=gc.i_flc_bl[iblock][1];i++){ 
-                for (int j=gc.j_flc_bl[iblock][0];j<=gc.j_flc_bl[iblock][1];j++){
-                    pm.error_phi += pow(gc.phi[i][j]-gc.phi_old[i][j],2)/(pow(gc.phi_old[i][j],2)+1e-12)/pm.CFL;
-                    ncount++;
-                }
-            }
-        }
-        pm.error_phi = sqrt(pm.error_phi/double(ncount));
-    }
 
+    //Caluculate residuals
+    //------------------------------------
+    calcRes(pm.error_phi, gc.phi,gc.phi_old,gc.i_flc_bl, gc.j_flc_bl, pm.n_bl-1, 1e-100, pm.icon_error);
+    calcRes(pm.error_nUex, gx.nUex, gx.nUex_old, gx.i_flx_bl, gx.j_flx_bl, pm.n_bl-1, 1e-100, pm.icon_error);
+    calcRes(pm.error_nUer, gr.nUer, gr.nUer_old, gr.i_flr_bl, gr.j_flr_bl, pm.n_bl-1, 1e-100, pm.icon_error);
+    //------------------------------------
 
 }
 
@@ -3185,7 +3096,7 @@ void FluidModule::solve_rhoe_wdTe_wSEE_PC(Params &pm,GridCenter &gc, GridInterfa
 
     //convergence criteria
     //------------------------------------
-    int icon_error2 = 1; //擬似ステップのエラー収束判定 0:max, 1:RMS
+    int icon_error2 = pm.icon_error; //擬似ステップのエラー収束判定 0:max, 1:RMS
     //------------------------------------
 
     //output duration
@@ -3225,6 +3136,7 @@ void FluidModule::solve_rhoe_wdTe_wSEE_PC(Params &pm,GridCenter &gc, GridInterfa
     do{
         
         ncount ++;
+        pm.itime_PC_rhoe++;
 
         //Reserve previous-step values
         //------------------------------------
@@ -3836,93 +3748,18 @@ void FluidModule::solve_rhoe_wdTe_wSEE_PC(Params &pm,GridCenter &gc, GridInterfa
         //==============================================
 
         //Caluculate residuals
-        //=====================================================================================
-        //rhoe
         //------------------------------------
         double error_rhoe2 = 0.0;
-        if(icon_error2 == 0){ //normalized maximum
-            for (int iblock=0;iblock<pm.n_bl-1;iblock++){ 
-                for (int i=gc.i_flc_bl[iblock][0];i<=gc.i_flc_bl[iblock][1];i++){ 
-                    for (int j=gc.j_flc_bl[iblock][0];j<=gc.j_flc_bl[iblock][1];j++){
-                        double error_rhoe_tmp = fabs((gc.rhoe[i][j]-rhoe_old_tmp[i][j])/(gc.rhoe[i][j]+rhoe_old_tmp[i][j]+1e-100));
-                        if(error_rhoe_tmp > error_rhoe2){
-                            error_rhoe2 = error_rhoe_tmp;
-                        }
-                    }
-                }
-            }
-        }else{ //normalized L2 norm
-            double ncount_rhoe = 0;
-            for (int iblock=0;iblock<pm.n_bl-1;iblock++){ 
-                for (int i=gc.i_flc_bl[iblock][0];i<=gc.i_flc_bl[iblock][1];i++){ 
-                    for (int j=gc.j_flc_bl[iblock][0];j<=gc.j_flc_bl[iblock][1];j++){
-                        error_rhoe2 += pow(gc.rhoe[i][j]-rhoe_old_tmp[i][j],2)/(pow(rhoe_old_tmp[i][j]+1e10,2));
-                        ncount_rhoe++;
-                    }
-                }
-            }
-            error_rhoe2 = sqrt(error_rhoe2/double(ncount_rhoe));
-        }
-        //------------------------------------
-
-        //x-directional flux
-        //------------------------------------
         double error_rhoUex2 = 0.0;
-        if(icon_error2 == 0){ //normalized maximum
-            for (int iblock=0;iblock<pm.n_bl-1;iblock++){ 
-                for (int i=gc.i_flc_bl[iblock][0] + 1 - iblock;i<=gc.i_flc_bl[iblock][1];i++){ //一番左右は更新しない
-                    for (int j=gc.j_flc_bl[iblock][0];j<=gc.j_flc_bl[iblock][1];j++){
-                        double error_rhoUex_tmp = fabs((gx.rhoUex[i][j]-rhoUex_old_tmp[i][j])/(gx.rhoUex[i][j]+rhoUex_old_tmp[i][j]+1e-100));
-                        if(error_rhoUex_tmp > error_rhoUex2){
-                            error_rhoUex2 = error_rhoUex_tmp;
-                        }
-                    }
-                }
-            }
-        }else{ //normalized L2 norm
-            double ncount_rhoUex = 0;
-            for (int iblock=0;iblock<pm.n_bl-1;iblock++){ 
-                for (int i=gc.i_flc_bl[iblock][0] + 1 - iblock;i<=gc.i_flc_bl[iblock][1];i++){ //一番左右は更新しない
-                    for (int j=gc.j_flc_bl[iblock][0];j<=gc.j_flc_bl[iblock][1];j++){
-                        error_rhoUex2 += pow(gx.rhoUex[i][j]-rhoUex_old_tmp[i][j],2)/(pow(rhoUex_old_tmp[i][j]+1e16,2));
-                        ncount_rhoUex++;
-                    }
-                }
-            }
-            error_rhoUex2 = sqrt(error_rhoUex2/double(ncount_rhoUex));
-        }
-        //------------------------------------
-
-        //r-directional flux
-        //------------------------------------
         double error_rhoUer2 = 0.0;
-        if(icon_error2 == 0){ //normalized maximum
-            for (int iblock=0;iblock<pm.n_bl-1;iblock++){
-                for (int i=gc.i_flc_bl[iblock][0];i<=gc.i_flc_bl[iblock][1];i++){ 
-                    for (int j=gc.j_flc_bl[iblock][0] + 1;j<=gc.j_flc_bl[iblock][1];j++){
-                        double error_rhoUer_tmp = fabs((gr.rhoUer[i][j]-rhoUer_old_tmp[i][j])/(gr.rhoUer[i][j]+rhoUer_old_tmp[i][j]+1e-100));
-                        if(error_rhoUer_tmp > error_rhoUer2){
-                            error_rhoUer2 = error_rhoUer_tmp;
-                        }
-                    }
-                }
-            }
-        }else{ //normalized L2 norm
-            double ncount_rhoUer = 0;
-            for (int iblock=0;iblock<pm.n_bl-1;iblock++){
-                for (int i=gc.i_flc_bl[iblock][0];i<=gc.i_flc_bl[iblock][1];i++){ 
-                    for (int j=gc.j_flc_bl[iblock][0] + 1;j<=gc.j_flc_bl[iblock][1];j++){
-                        error_rhoUer2 += pow(gr.rhoUer[i][j]-rhoUer_old_tmp[i][j],2)/(pow(rhoUer_old_tmp[i][j]+1e16,2))/pm.CFL;
-                        ncount_rhoUer++;
-                    }
-                }
-            }
-            error_rhoUer2 = sqrt(error_rhoUer2/double(ncount_rhoUer));
-        }
-        //------------------------------------
-        //=====================================================================================
+        calcRes(error_rhoe2, gc.rhoe,  rhoe_old_tmp,  gc.i_flc_bl, gc.j_flc_bl, pm.n_bl-1,1e-100,icon_error2);
+        calcRes(error_rhoUex2,gx.rhoUex, rhoUex_old_tmp, gx.i_flx_bl, gx.j_flx_bl, pm.n_bl-1,1e-100,icon_error2);
+        calcRes(error_rhoUer2,gr.rhoUer, rhoUer_old_tmp, gr.i_flr_bl, gr.j_flr_bl, pm.n_bl-1,1e-100,icon_error2);
+        
+        if(pm.icon_chk == 1) output_residual_for_PC("rhoe",pm.gtime, pm.itime, error_rhoe2, error_rhoUex2, error_rhoUer2, pm.itime_PC_rhoe, ncount);
         
         double error_global = fmax(fmax(error_rhoe2,error_rhoUex2),error_rhoUer2);
+        
         if(ncount % ndiv_out == 0){
             std::cout << "ncount = "<<ncount<<std::endl;
             std::cout << "error_rhoe = " << error_rhoe2
@@ -3938,7 +3775,6 @@ void FluidModule::solve_rhoe_wdTe_wSEE_PC(Params &pm,GridCenter &gc, GridInterfa
 
     } while (icon_end == 0);
 
-    
     //calculation of particle balance
     //------------------------------------
     if(pm.itime%pm.ndiv_fout == 0 || pm.itime == pm.ntime){
@@ -4142,91 +3978,11 @@ void FluidModule::solve_rhoe_wdTe_wSEE_PC(Params &pm,GridCenter &gc, GridInterfa
     //------------------------------------
 
     //Caluculate residuals
-    //=====================================================================================
-    //Electron density
     //------------------------------------
-    pm.error_rhoe = 0.0;
-    if(pm.icon_error == 0){ //normalized maximum
-        for (int iblock=0;iblock<pm.n_bl-1;iblock++){ 
-            for (int i=gc.i_flc_bl[iblock][0];i<=gc.i_flc_bl[iblock][1];i++){ 
-                for (int j=gc.j_flc_bl[iblock][0];j<=gc.j_flc_bl[iblock][1];j++){
-                    double error_tmp = fabs((gc.rhoe[i][j] - gc.rhoe_old[i][j])/(gc.rhoe[i][j] + gc.rhoe_old[i][j]+1e-100)*2.0/pm.CFL);
-                    if(error_tmp > pm.error_rhoe){
-                        pm.error_rhoe = error_tmp;
-                    }
-                }
-            }
-        }
-    }else{ //normalized L2 norm
-        double ncount = 0;
-        for (int iblock=0;iblock<pm.n_bl-1;iblock++){ 
-            for (int i=gc.i_flc_bl[iblock][0];i<=gc.i_flc_bl[iblock][1];i++){ 
-                for (int j=gc.j_flc_bl[iblock][0];j<=gc.j_flc_bl[iblock][1];j++){
-                    pm.error_rhoe += pow(gc.rhoe[i][j]-gc.rhoe_old[i][j],2)/(pow(gc.rhoe_old[i][j]+1e10,2))/pm.CFL;
-                    ncount++;
-                }
-            }
-        }
-        pm.error_rhoe = sqrt(pm.error_rhoe/double(ncount));
-    }
+    calcRes(pm.error_rhoe, gc.rhoe,gc.rhoe_old,gc.i_flc_bl, gc.j_flc_bl, pm.n_bl-1, 1e-100, pm.icon_error);
+    calcRes(pm.error_rhoUex, gx.rhoUex, gx.rhoUex_old, gx.i_flx_bl, gx.j_flx_bl, pm.n_bl-1, 1e-100, pm.icon_error);
+    calcRes(pm.error_rhoUer, gr.rhoUer, gr.rhoUer_old, gr.i_flr_bl, gr.j_flr_bl, pm.n_bl-1, 1e-100, pm.icon_error);
     //------------------------------------
-
-    //x-directional flux
-    //------------------------------------
-    pm.error_rhoUex = 0.0;
-    if(pm.icon_error == 0){ //normalized maximum
-        for (int iblock=0;iblock<pm.n_bl-1;iblock++){ 
-            for (int i=gx.i_flx_bl[iblock][0];i<=gx.i_flx_bl[iblock][1];i++){ 
-                for (int j=gx.j_flx_bl[iblock][0];j<=gx.j_flx_bl[iblock][1];j++){
-                    double error_tmp = fabs((gx.rhoUex[i][j] - gx.rhoUex_old[i][j])/(gx.rhoUex[i][j] + gx.rhoUex_old[i][j]+1e-100)*2.0/pm.CFL);
-                    if(error_tmp > pm.error_rhoUex){
-                        pm.error_rhoUex = error_tmp;
-                    }
-                }
-            }
-        }
-    }else{ //normalized L2 norm
-        double ncount = 0;
-        for (int iblock=0;iblock<pm.n_bl-1;iblock++){ 
-            for (int i=gx.i_flx_bl[iblock][0];i<=gx.i_flx_bl[iblock][1];i++){ 
-                for (int j=gx.j_flx_bl[iblock][0];j<=gx.j_flx_bl[iblock][1];j++){
-                    pm.error_rhoUex += pow(gx.rhoUex[i][j]-gx.rhoUex_old[i][j],2)/(pow(gx.rhoUex_old[i][j]+1e16,2))/pm.CFL;
-                    ncount++;
-                }
-            }
-        }
-        pm.error_rhoUex = sqrt(pm.error_rhoUex/double(ncount));
-    }
-    //------------------------------------
-
-    //r-directional flux
-    //------------------------------------
-    pm.error_rhoUer = 0.0;
-    if(pm.icon_error == 0){ //normalized maximum
-        for (int iblock=0;iblock<pm.n_bl-1;iblock++){ 
-            for (int i=gr.i_flr_bl[iblock][0];i<=gr.i_flr_bl[iblock][1];i++){ 
-                for (int j=gr.j_flr_bl[iblock][0];j<=gr.j_flr_bl[iblock][1];j++){
-                    double error_tmp = fabs((gr.rhoUer[i][j] - gr.rhoUer_old[i][j])/(gr.rhoUer[i][j] + gr.rhoUer_old[i][j]+1e-100)*2.0/pm.CFL);
-                    if(error_tmp > pm.error_rhoUer){
-                        pm.error_rhoUer = error_tmp;
-                    }
-                }
-            }
-        }
-    }else{ //normalized L2 norm
-        double ncount = 0;
-        for (int iblock=0;iblock<pm.n_bl-1;iblock++){ 
-            for (int i=gr.i_flr_bl[iblock][0];i<=gr.i_flr_bl[iblock][1];i++){ 
-                for (int j=gr.j_flr_bl[iblock][0];j<=gr.j_flr_bl[iblock][1];j++){
-                    pm.error_rhoUer += pow(gr.rhoUer[i][j]-gr.rhoUer_old[i][j],2)/(pow(gr.rhoUer_old[i][j]+1e16,2))/pm.CFL;
-                    ncount++;
-                }
-            }
-        }
-        pm.error_rhoUer = sqrt(pm.error_rhoUer/double(ncount));
-    }
-    //------------------------------------
-    //=====================================================================================
 
 }
 //*****************************************************************
@@ -4260,7 +4016,7 @@ void FluidModule::solve_Te_wdTe_wSEE_PC(Params &pm,GridCenter &gc, GridInterface
 
     //convergence criteria
     //------------------------------------
-    int icon_error2 = 1; //擬似ステップのエラー収束判定 0:max, 1:RMS
+    int icon_error2 = pm.icon_error; //擬似ステップのエラー収束判定 0:max, 1:RMS
     //------------------------------------
 
     //output duration
@@ -4301,6 +4057,7 @@ void FluidModule::solve_Te_wdTe_wSEE_PC(Params &pm,GridCenter &gc, GridInterface
     do{
         
         ncount ++;
+        pm.itime_PC_rhoeps++;
 
         //Reserve previous-step values
         //------------------------------------
@@ -4967,93 +4724,18 @@ void FluidModule::solve_Te_wdTe_wSEE_PC(Params &pm,GridCenter &gc, GridInterface
         //==============================================
        
         //Caluculate residuals
-        //=====================================================================================
-        //rhoeps
         //------------------------------------
         double error_rhoeps2 = 0.0;
-        if(icon_error2 == 0){ //normalized maximum
-            for (int iblock=0;iblock<pm.n_bl-1;iblock++){ 
-                for (int i=gc.i_flc_bl[iblock][0];i<=gc.i_flc_bl[iblock][1];i++){ 
-                    for (int j=gc.j_flc_bl[iblock][0];j<=gc.j_flc_bl[iblock][1];j++){
-                        double error_rhoeps_tmp = fabs((gc.rhoeps[i][j]-rhoeps_old_tmp[i][j])/(gc.rhoeps[i][j]+rhoeps_old_tmp[i][j]+1e-100));
-                        if(error_rhoeps_tmp > error_rhoeps2){
-                            error_rhoeps2 = error_rhoeps_tmp;
-                        }
-                    }
-                }
-            }
-        }else{ //normalized L2 norm
-            double ncount_rhoeps = 0;
-            for (int iblock=0;iblock<pm.n_bl-1;iblock++){ 
-                for (int i=gc.i_flc_bl[iblock][0];i<=gc.i_flc_bl[iblock][1];i++){ 
-                    for (int j=gc.j_flc_bl[iblock][0];j<=gc.j_flc_bl[iblock][1];j++){
-                        error_rhoeps2 += pow(gc.rhoeps[i][j]-rhoeps_old_tmp[i][j],2)/(pow(rhoeps_old_tmp[i][j]+1e10,2));
-                        ncount_rhoeps++;
-                    }
-                }
-            }
-            error_rhoeps2 = sqrt(error_rhoeps2/double(ncount_rhoeps));
-        }
-        //------------------------------------
-
-        //x-directional flux
-        //------------------------------------
         double error_Gx2 = 0.0;
-        if(icon_error2 == 0){ //normalized maximum
-            for (int iblock=0;iblock<pm.n_bl-1;iblock++){ 
-                for (int i=gc.i_flc_bl[iblock][0] + 1 - iblock;i<=gc.i_flc_bl[iblock][1];i++){ //一番左右は更新しない
-                    for (int j=gc.j_flc_bl[iblock][0];j<=gc.j_flc_bl[iblock][1];j++){
-                        double error_Gx_tmp = fabs((gx.Gx[i][j]-Gx_old_tmp[i][j])/(gx.Gx[i][j]+Gx_old_tmp[i][j]+1e-100));
-                        if(error_Gx_tmp > error_Gx2){
-                            error_Gx2 = error_Gx_tmp;
-                        }
-                    }
-                }
-            }
-        }else{ //normalized L2 norm
-            double ncount_Gx = 0;
-            for (int iblock=0;iblock<pm.n_bl-1;iblock++){ 
-                for (int i=gc.i_flc_bl[iblock][0] + 1 - iblock;i<=gc.i_flc_bl[iblock][1];i++){ //一番左右は更新しない
-                    for (int j=gc.j_flc_bl[iblock][0];j<=gc.j_flc_bl[iblock][1];j++){
-                        error_Gx2 += pow(gx.Gx[i][j]-Gx_old_tmp[i][j],2)/(pow(Gx_old_tmp[i][j]+1e16,2));
-                        ncount_Gx++;
-                    }
-                }
-            }
-            error_Gx2 = sqrt(error_Gx2/double(ncount_Gx));
-        }
-        //------------------------------------
-        
-        //r-directional flux
-        //------------------------------------
         double error_Gr2 = 0.0;
-        if(icon_error2 == 0){ //normalized maximum
-            for (int iblock=0;iblock<pm.n_bl-1;iblock++){
-                for (int i=gc.i_flc_bl[iblock][0];i<=gc.i_flc_bl[iblock][1];i++){ 
-                    for (int j=gc.j_flc_bl[iblock][0] + 1;j<=gc.j_flc_bl[iblock][1];j++){
-                        double error_Gr_tmp = fabs((gr.Gr[i][j]-Gr_old_tmp[i][j])/(gr.Gr[i][j]+Gr_old_tmp[i][j]+1e-100));
-                        if(error_Gr_tmp > error_Gr2){
-                            error_Gr2 = error_Gr_tmp;
-                        }
-                    }
-                }
-            }
-        }else{ //normalized L2 norm
-            double ncount_Gr = 0;
-            for (int iblock=0;iblock<pm.n_bl-1;iblock++){
-                for (int i=gc.i_flc_bl[iblock][0];i<=gc.i_flc_bl[iblock][1];i++){ 
-                    for (int j=gc.j_flc_bl[iblock][0] + 1;j<=gc.j_flc_bl[iblock][1];j++){
-                        error_Gr2 += pow(gr.Gr[i][j]-Gr_old_tmp[i][j],2)/(pow(Gr_old_tmp[i][j]+1e16,2))/pm.CFL;
-                        ncount_Gr++;
-                    }
-                }
-            }
-            error_Gr2 = sqrt(error_Gr2/double(ncount_Gr));
-        }
-        //------------------------------------
-        //=====================================================================================
-
+        calcRes(error_rhoeps2, gc.rhoeps,  rhoeps_old_tmp,  gc.i_flc_bl, gc.j_flc_bl, pm.n_bl-1,1e-100,icon_error2);
+        calcRes(error_Gx2,gx.Gx, Gx_old_tmp, gx.i_flx_bl, gx.j_flx_bl, pm.n_bl-1,1e-100,icon_error2);
+        calcRes(error_Gr2,gr.Gr, Gr_old_tmp, gr.i_flr_bl, gr.j_flr_bl, pm.n_bl-1,1e-100,icon_error2);
+        
+        if(pm.icon_chk == 1) output_residual_for_PC("rhoeps",pm.gtime, pm.itime, error_rhoeps2, error_Gx2, error_Gr2, pm.itime_PC_rhoeps, ncount);
+        
         double error_global = fmax(fmax(error_rhoeps2,error_Gx2),error_Gr2);
+        
         if(ncount % ndiv_out == 0){
             std::cout << "ncount = "<<ncount<<std::endl;
             std::cout << "error_rhoeps = " << error_rhoeps2
@@ -5062,13 +4744,12 @@ void FluidModule::solve_Te_wdTe_wSEE_PC(Params &pm,GridCenter &gc, GridInterface
                 <<  " error_max = " << fmax(fmax(error_rhoeps2,error_Gx2),error_Gr2)
                 << std::endl;
         }
-       
+
         if(error_global < pm.error_cnv_HES_rhoeps || ncount >= pm.maxITR_HES_rhoeps){
             icon_end = 1;
         }
     
     } while (icon_end == 0);
-
 
     
     //calculation of energy balance
@@ -5254,95 +4935,11 @@ void FluidModule::solve_Te_wdTe_wSEE_PC(Params &pm,GridCenter &gc, GridInterface
     //------------------------------------
 
     //Caluculate residuals
-    //=====================================================================================
-    //Electron density
     //------------------------------------
-    pm.error_rhoeps = 0.0;
-    if(pm.icon_error == 0){ //normalized maximum
-        for (int iblock=0;iblock<pm.n_bl-1;iblock++){ 
-            for (int i=gc.i_flc_bl[iblock][0];i<=gc.i_flc_bl[iblock][1];i++){ 
-                for (int j=gc.j_flc_bl[iblock][0];j<=gc.j_flc_bl[iblock][1];j++){
-                    double error_tmp = fabs((gc.rhoeps[i][j] - gc.rhoeps_old[i][j])/(gc.rhoeps[i][j] + gc.rhoeps_old[i][j]+1e-100)*2.0/pm.CFL);
-                    if(error_tmp > pm.error_rhoeps){
-                        pm.error_rhoeps = error_tmp;
-                    }
-                }
-            }
-        }
-    }else{ //normalized L2 norm
-        double ncount = 0;
-        for (int iblock=0;iblock<pm.n_bl-1;iblock++){ 
-            for (int i=gc.i_flc_bl[iblock][0];i<=gc.i_flc_bl[iblock][1];i++){ 
-                for (int j=gc.j_flc_bl[iblock][0];j<=gc.j_flc_bl[iblock][1];j++){
-                    pm.error_rhoeps += pow(gc.rhoeps[i][j]-gc.rhoeps_old[i][j],2)/(pow(gc.rhoeps_old[i][j]+1e10,2))/pm.CFL;
-                    ncount++;
-                }
-            }
-        }
-        pm.error_rhoeps = sqrt(pm.error_rhoeps/double(ncount));
-    }
+    calcRes(pm.error_rhoeps, gc.rhoeps,gc.rhoeps_old,gc.i_flc_bl, gc.j_flc_bl, pm.n_bl-1, 1e-100, pm.icon_error);
+    calcRes(pm.error_Gx, gx.Gx, gx.Gx_old, gx.i_flx_bl, gx.j_flx_bl, pm.n_bl-1, 1e-100, pm.icon_error);
+    calcRes(pm.error_Gr, gr.Gr, gr.Gr_old, gr.i_flr_bl, gr.j_flr_bl, pm.n_bl-1, 1e-100, pm.icon_error);
     //------------------------------------
-
-    //x-directional flux
-    //------------------------------------
-    pm.error_Gx = 0.0;
-    if(pm.icon_error == 0){ //normalized maximum
-        for (int iblock=0;iblock<pm.n_bl-1;iblock++){ 
-            for (int i=gx.i_flx_bl[iblock][0];i<=gx.i_flx_bl[iblock][1];i++){ 
-                for (int j=gx.j_flx_bl[iblock][0];j<=gx.j_flx_bl[iblock][1];j++){
-                    double error_tmp = fabs((gx.Gx[i][j] - gx.Gx_old[i][j])/(gx.Gx[i][j] + gx.Gx_old[i][j]+1e-100)*2.0/pm.CFL);
-                    if(error_tmp > pm.error_Gx){
-                        pm.error_Gx = error_tmp;
-                    }
-                }
-            }
-        }
-    }else{ //normalized L2 norm
-        double ncount = 0;
-        for (int iblock=0;iblock<pm.n_bl-1;iblock++){ 
-            for (int i=gx.i_flx_bl[iblock][0];i<=gx.i_flx_bl[iblock][1];i++){ 
-                for (int j=gx.j_flx_bl[iblock][0];j<=gx.j_flx_bl[iblock][1];j++){
-                    pm.error_Gx += pow(gx.Gx[i][j]-gx.Gx_old[i][j],2)/(pow(gx.Gx_old[i][j]+1.0,2))/pm.CFL;
-                    ncount++;
-                }
-            }
-        }
-        pm.error_Gx = sqrt(pm.error_Gx/double(ncount));
-    }
-    //------------------------------------
-
-    //r-directional flux
-    //------------------------------------
-    pm.error_Gr = 0.0;
-    if(pm.icon_error == 0){ //normalized maximum
-        for (int iblock=0;iblock<pm.n_bl-1;iblock++){ 
-            for (int i=gr.i_flr_bl[iblock][0];i<=gr.i_flr_bl[iblock][1];i++){ 
-                for (int j=gr.j_flr_bl[iblock][0];j<=gr.j_flr_bl[iblock][1];j++){
-                    double error_tmp = fabs((gr.Gr[i][j] - gr.Gr_old[i][j])/(gr.Gr[i][j] + gr.Gr_old[i][j]+1e-100)*2.0/pm.CFL);
-                    if(error_tmp > pm.error_Gr){
-                        pm.error_Gr = error_tmp;
-                    }
-                }
-            }
-        }
-    }else{ //normalized L2 norm
-        double ncount = 0;
-        for (int iblock=0;iblock<pm.n_bl-1;iblock++){ 
-            for (int i=gr.i_flr_bl[iblock][0];i<=gr.i_flr_bl[iblock][1];i++){ 
-                for (int j=gr.j_flr_bl[iblock][0];j<=gr.j_flr_bl[iblock][1];j++){
-                    pm.error_Gr += pow(gr.Gr[i][j]-gr.Gr_old[i][j],2)/(pow(gr.Gr_old[i][j]+1.0,2)+1e-100)/pm.CFL;
-                    ncount++;
-                }
-            }
-        }
-        pm.error_Gr = sqrt(pm.error_Gr/double(ncount));
-    }
-    //------------------------------------
-    //=====================================================================================
-
-
-
-    
 
 }
 //*****************************************************************
@@ -5791,31 +5388,10 @@ void FluidModule::update_rhon(Params &pm,GridCenter &gc, GridInterfaceX &gx, Gri
         std::cout << "negative rhon count = " << ncount << std::endl;
     }
 
-    //エラー計算
-    pm.error_rhon = 0.0;
-    if(pm.icon_error == 0){
-        for (int iblock=0;iblock<pm.n_bl-1;iblock++){ 
-            for (int i=gc.i_flc_bl[iblock][0];i<=gc.i_flc_bl[iblock][1];i++){ 
-                for (int j=gc.j_flc_bl[iblock][0];j<=gc.j_flc_bl[iblock][1];j++){
-                    double error_tmp = fabs((gc.rhon[i][j] - gc.rhon_old[i][j])/(gc.rhon[i][j] + gc.rhon_old[i][j]+1e-100)*2.0/pm.CFL);
-                    if(error_tmp > pm.error_rhon){
-                        pm.error_rhon = error_tmp;
-                    }
-                }
-            }
-        }
-    }else{
-        double ncount = 0;
-        for (int iblock=0;iblock<pm.n_bl-1;iblock++){ 
-            for (int i=gc.i_flc_bl[iblock][0];i<=gc.i_flc_bl[iblock][1];i++){ 
-                for (int j=gc.j_flc_bl[iblock][0];j<=gc.j_flc_bl[iblock][1];j++){
-                    pm.error_rhon += pow(gc.rhon[i][j]-gc.rhon_old[i][j],2)/(pow(gc.rhon_old[i][j],2)+1e9)/pm.CFL;
-                    ncount++;
-                }
-            }
-        }
-        pm.error_rhon = sqrt(pm.error_rhon/double(ncount));
-    }
+    //Caluculate residuals
+    //------------------------------------
+    calcRes(pm.error_rhon, gc.rhon,gc.rhon_old,gc.i_flc_bl, gc.j_flc_bl, pm.n_bl-1, 1e-100, pm.icon_error);
+    //------------------------------------
 
 }
 
@@ -6196,32 +5772,10 @@ void FluidModule::update_rhom(Params &pm,GridCenter &gc, GridInterfaceX &gx, Gri
     }
     //------------------------------------
     
-    //エラー計算
-    pm.error_rhom = 0.0;
-    if(pm.icon_error == 0){
-        for (int iblock=0;iblock<2;iblock++){ 
-            for (int i=gc.i_flc_bl[iblock][0];i<=gc.i_flc_bl[iblock][1];i++){ 
-                for (int j=gc.j_flc_bl[iblock][0];j<=gc.j_flc_bl[iblock][1];j++){
-                    double error_tmp = fabs((gc.rhom[i][j] - gc.rhom_old[i][j])/(gc.rhom[i][j] + gc.rhom_old[i][j]+1e-100)*2.0/pm.CFL);
-                    if(error_tmp > pm.error_rhom){
-                        pm.error_rhom = error_tmp;
-                    }
-                }
-            }
-        }
-    }else{
-        double ncount = 0;
-        for (int iblock=0;iblock<2;iblock++){ 
-            for (int i=gc.i_flc_bl[iblock][0];i<=gc.i_flc_bl[iblock][1];i++){ 
-                for (int j=gc.j_flc_bl[iblock][0];j<=gc.j_flc_bl[iblock][1];j++){
-                    pm.error_rhom += pow(gc.rhom[i][j]-gc.rhom_old[i][j],2)/(pow(gc.rhom_old[i][j],2)+1e9)/pm.CFL;
-                    ncount++;
-                }
-            }
-        }
-        pm.error_rhom = sqrt(pm.error_rhom/double(ncount));
-    }
-
+    //Caluculate residuals
+    //------------------------------------
+    calcRes(pm.error_rhom, gc.rhom,gc.rhom_old,gc.i_flc_bl, gc.j_flc_bl, pm.n_bl-1, 1e-100, pm.icon_error);
+    //------------------------------------
 }
 
 //*****************************************************************

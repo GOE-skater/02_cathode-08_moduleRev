@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
     int nGnuMaxTimeRange = 100000*GnuFactor; //Gnuplotで粒子の履歴を表示する最大幅
     int nGnuDivTime = fmax(10*GnuFactor,1); //Gnuplotで何ステップごとに出力するか
     
-    int nErr = 13; //エラーを表示する数
+    int nErr = 15; //エラーを表示する数
     vector<vector<double> > error_history(nErr,vector<double>(0)); //エラーの履歴
     vector<vector<double> > current_history(3,vector<double>(0)); //エラーの履歴
     vector<int> itime_history(0,0); //時間ステップの履歴
@@ -151,7 +151,7 @@ int main(int argc, char *argv[])
     outM.output(pm, gc, gx, gr, bo); 
 
     ofstream outputfile1("results/residuals.csv");
-    outputfile1 << "itime,time,rhoi,Uix,Uir,Uip,phi,rhoe,rhoUex,rhoUer,rhoeps,Gx,Gr,rhom,rhon" << endl;
+    outputfile1 << "itime,time,rhoi,Uix,Uir,Uip,phi,nUex,nUer,rhoe,rhoUex,rhoUer,rhoeps,Gx,Gr,rhom,rhon" << endl;
 
     do {
 
@@ -249,6 +249,8 @@ int main(int argc, char *argv[])
                 <<  " error_Uir = "    << pm.error_Uir
                 <<  " error_Uip = "    << pm.error_Uip
                 <<  " error_phi = "    << pm.error_phi
+                <<  " error_rhoUex = " << pm.error_nUex
+                <<  " error_rhoUer = " << pm.error_nUer
                 <<  " error_rhoe = "   << pm.error_rhoe
                 <<  " error_rhoUex = " << pm.error_rhoUex
                 <<  " error_rhoUer = " << pm.error_rhoUer
@@ -257,8 +259,8 @@ int main(int argc, char *argv[])
                 <<  " error_Gr = "     << pm.error_Gr
                 <<  " error_rhom = "   << pm.error_rhom
                 <<  " error_rhon = "   << pm.error_rhon
-                <<  " error_max = "    << fmax(fmax(fmax(fmax(fmax(fmax(fmax(fmax(fmax(fmax(fmax(fmax(pm.error_rhoi,pm.error_Uix),pm.error_Uir),pm.error_Uip),pm.error_phi),pm.error_rhoe),pm.error_rhoUex),pm.error_rhoUer)
-                                        ,pm.error_rhoeps),pm.error_Gx),pm.error_Gr),pm.error_rhom),pm.error_rhon)
+                <<  " error_max = "    << fmax(fmax(fmax(fmax(fmax(fmax(fmax(fmax(fmax(fmax(fmax(fmax(fmax(fmax(pm.error_rhoi,pm.error_Uix),pm.error_Uir),pm.error_Uip),pm.error_phi),pm.error_rhoe),pm.error_rhoUex),pm.error_rhoUer)
+                                        ,pm.error_rhoeps),pm.error_Gx),pm.error_Gr),pm.error_rhom),pm.error_rhon),pm.error_nUex),pm.error_nUer)
                 << endl;
         }
 
@@ -269,6 +271,8 @@ int main(int argc, char *argv[])
                 <<","<< pm.error_Uir
                 <<","<< pm.error_Uip
                 <<","<< pm.error_phi
+                <<","<< pm.error_nUex
+                <<","<< pm.error_nUer
                 <<","<< pm.error_rhoe
                 <<","<< pm.error_rhoUex
                 <<","<< pm.error_rhoUer
@@ -289,14 +293,16 @@ int main(int argc, char *argv[])
                 errorVec[2] = pm.error_Uir;
                 errorVec[3] = pm.error_Uip;
                 errorVec[4] = pm.error_phi;
-                errorVec[5] = pm.error_rhoe;
-                errorVec[6] = pm.error_rhoUex;
-                errorVec[7] = pm.error_rhoUer;
-                errorVec[8] = pm.error_rhoeps;
-                errorVec[9] = pm.error_Gx;
-                errorVec[10] = pm.error_Gr;
-                errorVec[11] = pm.error_rhom;
-                errorVec[12] = pm.error_rhon;
+                errorVec[5] = pm.error_nUex;
+                errorVec[6] = pm.error_nUer;
+                errorVec[7] = pm.error_rhoe;
+                errorVec[8] = pm.error_rhoUex;
+                errorVec[9] = pm.error_rhoUer;
+                errorVec[10] = pm.error_rhoeps;
+                errorVec[11] = pm.error_Gx;
+                errorVec[12] = pm.error_Gr;
+                errorVec[13] = pm.error_rhom;
+                errorVec[14] = pm.error_rhon;
 
                 vector<double> currentVec(3,0.0);
                 currentVec[0] = pm.Ii_Anode*1000;

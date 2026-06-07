@@ -265,7 +265,8 @@ void OutputModule::output(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridIn
             //if(j==1) std::cout << gr.rhoUer[i][j-1] << std::endl;
 
             //double nabla_rhoUe = (gx.rhoUex[i+1][j]-gx.rhoUex[i][j])/pm.dx + (qR*gr.rhoUer[i][j+1]-qL*gr.rhoUer[i][j])/pm.dr;
-            double nabla_rhoUe = (gx.rhoUex[i+1][j] - gx.rhoUex[i][j])/pm.dx + (qR*gr.rhoUer[i][j+1] - qL*gr.rhoUer[i][j])/pm.dr;
+            double nabla_rhoUe = (gx.rhoUex[i+1][j] - gx.rhoUex[i][j])/pm.dx 
+                + (qR*gr.rhoUer[i][j+1] - qL*gr.rhoUer[i][j])/pm.dr;
 
             //double nabla_rhoUi = (rhoi_Rx*gx.Uix[i+1][j]-rhoi_Lx*gx.Uix[i][j])/pm.dx + (qR*rhoi_Rr*gr.Uir[i][j+1]-qL*rhoi_Lr*gr.Uir[i][j])/pm.dr;
             double nabla_rhoUi = (gx.rhoUix[i+1][j]*bRx_wall - gx.rhoUix[i][j]*bLx_wall)/pm.dx 
@@ -278,7 +279,7 @@ void OutputModule::output(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridIn
 
             double rate_rhon = (gc.nu_excStep[i][j] + gc.nu_super[i][j])*gc.rhoe[i][j] - (gc.nu_excMeta[i][j] + 0.5*gc.nu_exc[i][j] + gc.nu_ionz[i][j])*gc.rhoe[i][j];
             double lapPhi =  -(gx.Ex[i+1][j] - gx.Ex[i][j])/pm.dx - (qR*gr.Er[i][j+1] - qL*gr.Er[i][j])/pm.dr;
-            double nabla_nUe = (gx.nUex[i+1][j]-gx.nUex[i][j])/pm.dx + (qR*gr.nUer[i][j+1]-qL*gr.nUer[i][j])/pm.dr;
+            double nabla_nUe = (gx.nUex[i+1][j] - gx.nUex[i][j])/pm.dx + (qR*gr.nUer[i][j+1] - qL*gr.nUer[i][j])/pm.dr;
             double nUex_tmp = (gx.nUex[i][j] + gx.nUex[i+1][j])/2.0;
             double nUer_tmp = (rL*gr.nUer[i][j] + rR*gr.nUer[i][j+1])/(2.0*gc.r[j]);
 

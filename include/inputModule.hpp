@@ -248,6 +248,7 @@ void InputModule::inputParam(Params &pm, string inputFileName)
         READ_INT(category,    pm.ndt_m);
         READ_INT(category,    pm.ndt_n);
         READ_INT(category,    pm.ndiv_MW);
+        READ_INT(category,    pm.icon_error);
         READ_INT(category,    pm.icon_autoFinish);
 
         category = "output_control";

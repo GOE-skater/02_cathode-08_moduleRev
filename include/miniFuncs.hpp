@@ -160,6 +160,18 @@ inline void plotHistory(FILE* gnuplot_name,vector<vector<double> > value,vector<
     graphLegend = graphLegend+", ";
 
     graphLegend = graphLegend+"'-' with lines title '";
+    graphLegend = graphLegend+"nUex";
+    graphLegend = graphLegend+"'";
+
+    graphLegend = graphLegend+", ";
+
+    graphLegend = graphLegend+"'-' with lines title '";
+    graphLegend = graphLegend+"nUer";
+    graphLegend = graphLegend+"'";
+
+    graphLegend = graphLegend+", ";
+
+    graphLegend = graphLegend+"'-' with lines title '";
     graphLegend = graphLegend+"rhoe";
     graphLegend = graphLegend+"'";
 
@@ -272,3 +284,118 @@ inline void plotCurrentHistory(FILE* gnuplot_name,vector<vector<double> > value,
     }
 }
 
+//*****************************************************************
+//**                                                             **
+//**           void calcRes()                                    **
+//**                                                             **
+//*****************************************************************
+inline void calcRes(double &error, 
+        std::vector<std::vector<double> > &val_new, 
+        std::vector<std::vector<double> > &val_old,
+        std::vector<std::vector<int> > i_fl_bl,
+        std::vector<std::vector<int> > j_fl_bl,
+        int n_bl,
+        double EPS,
+        int icon_error //0: cell-center, 1: cell-interface-x, 2: cell-interface-r
+    ){
+
+    error = 0.0;
+
+    int ni = val_old.size()-2;
+    int nj = val_old[0].size()-2;
+    
+    //0:Linf_個別正規化 (max)
+    //------------------------------------
+    if(icon_error == 0){
+        for (int iblock=0;iblock<n_bl;iblock++){ 
+            for (int i=i_fl_bl[iblock][0];i<=i_fl_bl[iblock][1];i++){ 
+                for (int j=j_fl_bl[iblock][0];j<=j_fl_bl[iblock][1];j++){
+                    double error_tmp = fabs(val_new[i][j]-val_old[i][j]);
+                    if(error_tmp > error){
+                        error = error_tmp;
+                    }
+                }
+            }
+        }
+    //------------------------------------
+
+    //1:L2_個別正規化
+    //------------------------------------
+    }else if(icon_error == 1){
+        int ncount = 0;
+        for (int iblock=0;iblock<n_bl;iblock++){ 
+            for (int i=i_fl_bl[iblock][0];i<=i_fl_bl[iblock][1];i++){ 
+                for (int j=j_fl_bl[iblock][0];j<=j_fl_bl[iblock][1];j++){
+                    error += pow(val_new[i][j]-val_old[i][j],2)/(pow(val_old[i][j],2)+EPS);
+                    ncount = ncount + 1;
+                }
+            }
+        }
+        error = sqrt(error/double(ncount));
+    //------------------------------------
+
+    //2:Linf (max)_一括正規化
+    //------------------------------------
+    }else if(icon_error == 2){
+        double norm = 0.0;
+        for (int iblock=0;iblock<n_bl;iblock++){ 
+            for (int i=i_fl_bl[iblock][0];i<=i_fl_bl[iblock][1];i++){ 
+                for (int j=j_fl_bl[iblock][0];j<=j_fl_bl[iblock][1];j++){
+                    double error_tmp = fabs(val_new[i][j]-val_old[i][j]);
+                    if(error_tmp > error){
+                        error = error_tmp;
+                    }
+                    double norm_tmp = fabs(val_old[i][j]);
+                    if(norm_tmp > norm){
+                        norm = norm_tmp;
+                    }
+                }
+            }
+        }
+        error = error/norm;
+    //------------------------------------
+    
+    //3:L2_一括正規化
+    //------------------------------------
+    }else if(icon_error == 3){
+        double norm = 0.0;
+        for (int iblock=0;iblock<n_bl;iblock++){ 
+            for (int i=i_fl_bl[iblock][0];i<=i_fl_bl[iblock][1];i++){ 
+                for (int j=j_fl_bl[iblock][0];j<=j_fl_bl[iblock][1];j++){
+                    error += pow(val_new[i][j]-val_old[i][j],2);
+                    norm += pow(val_old[i][j],2);
+                }
+            }
+        }
+        error = sqrt(error/norm);
+    }
+    //------------------------------------
+
+    //========================================
+}
+
+//*****************************************************************
+//**                                                             **
+//**           void output_residual_for_PC                       **
+//**                                                             **
+//*****************************************************************
+void output_residual_for_PC(std::string name, double gtime, int itime, double error_val, double error_Fx, double error_Fr, int itime_PC, int ncount){
+    
+    std::ofstream outputfile1;
+    if(itime_PC == 1){
+        outputfile1.open("results/residuals_PC_" + name + ".csv");
+        outputfile1 << "gtime,itime,ncount,itime_PC,err_val,err_Fx,err_Fr" << std::endl;
+    }else{
+        outputfile1.open("results/residuals_PC_" + name + ".csv",std::ios::app);
+    }
+    outputfile1 << gtime
+                <<","<< itime
+                <<","<< ncount
+                <<","<< itime_PC
+                <<","<< error_val
+                <<","<< error_Fx
+                <<","<< error_Fr
+                << std::endl;
+    
+    outputfile1.close();      
+}

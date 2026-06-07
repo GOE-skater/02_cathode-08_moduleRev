@@ -132,6 +132,7 @@ struct Params{
     int ndt_m = 1000; //中性 (準安定) の電子に対するタイムステップ倍率
     int ndt_n = 10000; //中性 (準安定) の電子に対するタイムステップ倍率
     int ndiv_MW = 200000; ///マイクロ波の計算間隔
+    int icon_error = 1; //errorの種類 0:max 1:rms
     int icon_autoFinish = 0;
     //--------------------------------
     
@@ -156,13 +157,15 @@ struct Params{
 
     double omegam = 0.0; //マイクロ波角周波数
 
-    int icon_error = 1; //errorの種類 0:max 1:rms
-
+    
     double Lx=0.0; //計算領域のx方向の大きさ
     double Lr=0.0; //計算領域のx方向の大きさ
     
     double gtime=0.0; //時間
     int itime=0; //時間(整数)
+    int itime_PC_phi = 0; //時間(整数)
+    int itime_PC_rhoe = 0; //時間(整数)
+    int itime_PC_rhoeps = 0; //時間(整数)
     
     double dx=0.0; //x方向の刻み
     double dr=0.0; //r方向の刻み
@@ -181,18 +184,22 @@ struct Params{
     int icon_restart = 0;
     
     double error_rhoi = 0.0;
+    double error_Uix = 0.0;
+    double error_Uir = 0.0;
+    double error_Uip = 0.0;
+
     double error_rhoe = 0.0;
-    
     double error_rhoUex = 0.0;
     double error_rhoUer = 0.0;
+
     double error_rhoeps = 0.0;
     double error_Gx = 0.0;
     double error_Gr = 0.0;
     
-    double error_Uix = 0.0;
-    double error_Uir = 0.0;
-    double error_Uip = 0.0;
     double error_phi = 0.0;
+    double error_nUex = 0.0;
+    double error_nUer = 0.0;
+
     double error_rhom = 0.0;
     double error_rhon = 0.0;
     

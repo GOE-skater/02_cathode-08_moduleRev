@@ -125,6 +125,7 @@ simulation_control:
   ndt_m: 1                       # (int) Metastable neutral time-step multiplier relative to the electron time step
   ndt_n: 1                       # (int) Neutral particle time-step multiplier relative to the electron time step
   ndiv_MW: 1000                  # (int) Microwave calculation interval
+  icon_error: 3                  # (int) Error evaluation 0:Linf_個別正規化 (max) 1:L2_個別正規化 2:Linf (max)_一括正規化 3:L2_一括正規化
   icon_autoFinish: 0             # (int) Whether to automatically finish the simulation
 # --------------------------------
 
