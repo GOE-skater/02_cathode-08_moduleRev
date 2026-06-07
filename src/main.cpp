@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
     //-------------------------------------
 
     int ndiv_out = 10;
-    int icon_end = 0;
+    int flag_end = 0;
     double GnuFactor = 0.1;
     int nGnuOutTime = 1000*GnuFactor;
     int nGnuMaxTimeRange = 100000*GnuFactor; //Gnuplotで粒子の履歴を表示する最大幅
@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
     FILE* rhoi_plot;
     FILE* Uex_plot;
 
-    if(pm.icon_gnuRes == 1){
+    if(pm.flag_gnuRes == 1){
         error_plot = popen("gnuplot", "w"); 
         fprintf(error_plot, "set title 'Error History'\n");
 
@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
     //-------------------------------------
     
 
-    if(pm.icon_impTest == 1){
+    if(pm.flag_impTest == 1){
         
         iniM.makeBoundary_impedanceTest(pm, gc, gx, gr, mb);
         emfM.solve_Microwave_impedanceTest(pm, gc, gx, gr, mb); //マイクロ波更新
@@ -200,17 +200,17 @@ int main(int argc, char *argv[])
         //------------------------------------
 
 
-        if(pm.icon_PC == 1){
+        if(pm.flag_PC == 1){
             
             fluM.solve_phi_couple_wdTe_wSEE_PC(pm, gc, gx, gr, se);
 
-            if(pm.icon_inertia == 0){
+            if(pm.flag_inertia == 0){
 
                 fluM.solve_rhoe_wdTe_wSEE_PC(pm, gc, gx, gr, se);
 
                 fluM.solve_Te_wdTe_wSEE_PC(pm, gc, gx, gr, se);
             
-            }else if(pm.icon_inertia == 1){
+            }else if(pm.flag_inertia == 1){
                 //solve_rhoe_wdTe_wSEE_wInertia_PC();
                 //solve_Te_wdTe_wSEE_wInertia_PC();
             }
@@ -284,7 +284,7 @@ int main(int argc, char *argv[])
                 << endl;
 
         //****************** Gnuplot結果出力 History ****************** 
-        if(pm.icon_gnuRes == 1){
+        if(pm.flag_gnuRes == 1){
             
             if(pm.itime % nGnuDivTime ==0){
                 vector<double> errorVec(nErr,0.0);
@@ -352,7 +352,7 @@ int main(int argc, char *argv[])
             oneMoreTime:
             int tmp;
 
-            if(pm.icon_autoFinish == 0){
+            if(pm.flag_autoFinish == 0){
                 cout << "[Terminal Outpput] Continue Calculation? Yes = 1, No = 0"<<endl;
                 cin >> tmp;
             }else{
@@ -361,15 +361,15 @@ int main(int argc, char *argv[])
             
             if(tmp == 0){
                 int input1;
-                if(pm.icon_autoFinish == 0){
+                if(pm.flag_autoFinish == 0){
                     cout << "[Terminal Outpput] Really? Yes = 1, No = 0"<<endl;
                     cin >> input1;
                 }else{
-                    icon_end = 1;
+                    flag_end = 1;
                 }
 
                 if(input1 == 1){
-                    icon_end = 1;
+                    flag_end = 1;
                 }else{
                     goto oneMoreTime;
                 }
@@ -383,7 +383,7 @@ int main(int argc, char *argv[])
                 cin >> tmp1;
 
                 if(tmp1 == 0){
-                    if(pm.icon_adp_dt == 1){
+                    if(pm.flag_adp_dt == 1){
                         cout << "[Terminal Outpput] CFL = "<<endl;
                         cin >> pm.CFL;
                     }else{
@@ -392,12 +392,12 @@ int main(int argc, char *argv[])
                     }
                 }
 
-                if(pm.icon_adp_dt == 1) cout << "[Terminal Outpput] Next Max Steps = "<< pm.ntime << " CFL = " << pm.CFL << endl;
-                if(pm.icon_adp_dt == 0) cout << "[Terminal Outpput] Next Max Steps = "<< pm.ntime << " dt = " << pm.dt << endl;
+                if(pm.flag_adp_dt == 1) cout << "[Terminal Outpput] Next Max Steps = "<< pm.ntime << " CFL = " << pm.CFL << endl;
+                if(pm.flag_adp_dt == 0) cout << "[Terminal Outpput] Next Max Steps = "<< pm.ntime << " dt = " << pm.dt << endl;
                 cout << "[Terminal Outpput] Is it OK? Yes = 1, No = 0"<< endl;
                 cin >> input;
                 if(input == 1){
-                    icon_end = 0;
+                    flag_end = 0;
                 }else{
                     goto oneMoreTime;
                 }
@@ -405,10 +405,10 @@ int main(int argc, char *argv[])
         }
 
         if(pm.itime==pm.ntime){
-            icon_end = 1;
+            flag_end = 1;
         }
 
-    } while (icon_end == 0);
+    } while (flag_end == 0);
 
     outM.output_phase(pm, gc, gx, gr);
     outputfile1.close();

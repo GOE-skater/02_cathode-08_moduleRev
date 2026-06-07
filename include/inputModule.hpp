@@ -162,7 +162,7 @@ void InputModule::inputParam(Params &pm, string inputFileName)
         READ_DOUBLE(category, pm.Q_neutIn_mgs);
         READ_DOUBLE(category, pm.fmw);
         READ_DOUBLE(category, pm.Pmw);
-        READ_INT(category,    pm.icon_mwRef);
+        READ_INT(category,    pm.flag_mwRef);
 
         category = "physical_parameter";
         READ_DOUBLE(category, pm.masse);
@@ -191,12 +191,12 @@ void InputModule::inputParam(Params &pm, string inputFileName)
         READ_DOUBLE(category, pm.ratioEngy_EISEE_rd);
 
         category = "governing_equation";
-        READ_INT(category,    pm.icon_inertia);
+        READ_INT(category,    pm.flag_inertia);
         READ_DOUBLE(category, pm.scale_inertia);
 
         category = "anomalous_scattering_model";
-        READ_INT(category,    pm.icon_Sagdeev);
-        READ_INT(category,    pm.icon_Bohm);
+        READ_INT(category,    pm.flag_Sagdeev);
+        READ_INT(category,    pm.flag_Bohm);
         READ_DOUBLE(category, pm.alpha_Bohm);
 
         category = "collisionless_heating_model";
@@ -207,27 +207,27 @@ void InputModule::inputParam(Params &pm, string inputFileName)
         READ_DOUBLE(category, pm.J1r_exc);
         
         category = "numerical_scheme";
-        READ_INT(category,    pm.icon_PC);
+        READ_INT(category,    pm.flag_PC);
         READ_DOUBLE(category, pm.Te_rep_eV);
 
         category = "solver_setting";
         READ_DOUBLE(category, pm.error_cnv_SOR_Ui);
         READ_INT(category,    pm.maxITR_SOR_Ui);
-        READ_INT(category,    pm.icon_iter_Ui);
+        READ_INT(category,    pm.flag_iter_Ui);
 
         READ_DOUBLE(category, pm.error_cnv_SOR_rhoi);
         READ_INT(category,    pm.maxITR_SOR_rhoi);
-        READ_INT(category,    pm.icon_iter_rhoi);
+        READ_INT(category,    pm.flag_iter_rhoi);
 
         READ_DOUBLE(category, pm.error_cnv_SOR_phi);
         READ_INT(category,    pm.maxITR_SOR_phi);
-        READ_INT(category,    pm.icon_iter_phi);
+        READ_INT(category,    pm.flag_iter_phi);
         READ_DOUBLE(category, pm. error_cnv_HES_phi);
         READ_INT(category,    pm.maxITR_HES_phi);
 
         READ_DOUBLE(category, pm.error_cnv_SOR_rhoe);
         READ_INT(category,    pm.maxITR_SOR_rhoe);
-        READ_INT(category,    pm.icon_iter_rhoe);
+        READ_INT(category,    pm.flag_iter_rhoe);
         READ_DOUBLE(category, pm.error_cnv_HES_rhoe);
         READ_INT(category,    pm.maxITR_HES_rhoe);
         READ_DOUBLE(category, pm.beta_rhoe);
@@ -235,12 +235,12 @@ void InputModule::inputParam(Params &pm, string inputFileName)
 
         READ_DOUBLE(category, pm.error_cnv_SOR_rhoeps);
         READ_INT(category,    pm.maxITR_SOR_rhoeps);
-        READ_INT(category,    pm.icon_iter_rhoeps);
+        READ_INT(category,    pm.flag_iter_rhoeps);
         READ_DOUBLE(category, pm.error_cnv_HES_rhoeps);
         READ_INT(category,    pm.maxITR_HES_rhoeps);
 
         category = "simulation_control";
-        READ_INT(category,    pm.icon_adp_dt);
+        READ_INT(category,    pm.flag_adp_dt);
         READ_DOUBLE(category, pm.dt_ini);
         READ_DOUBLE(category, pm.CFL);
         READ_INT(category,    pm.ntime);
@@ -248,16 +248,16 @@ void InputModule::inputParam(Params &pm, string inputFileName)
         READ_INT(category,    pm.ndt_m);
         READ_INT(category,    pm.ndt_n);
         READ_INT(category,    pm.ndiv_MW);
-        READ_INT(category,    pm.icon_error);
-        READ_INT(category,    pm.icon_autoFinish);
+        READ_INT(category,    pm.flag_error);
+        READ_INT(category,    pm.flag_autoFinish);
 
         category = "output_control";
-        READ_INT(category,    pm.icon_chk);
-        READ_INT(category,    pm.icon_gnuRes);
+        READ_INT(category,    pm.flag_chk);
+        READ_INT(category,    pm.flag_gnuRes);
         READ_INT(category,    pm.ndiv_fout);
 
         category = "test_mode";
-        READ_INT(category,    pm.icon_impTest);
+        READ_INT(category,    pm.flag_impTest);
 
     }
     catch (const exception& e) {
@@ -369,8 +369,8 @@ void inputParam_old(Params &pm, string inputFileName)
 
         category = "microwave";
         READ_DOUBLE(category, pm.Pmw);
-        READ_INT(category,    pm.icon_mwRef);
-        READ_INT(category,    pm.icon_impTest);
+        READ_INT(category,    pm.flag_mwRef);
+        READ_INT(category,    pm.flag_impTest);
         READ_DOUBLE(category, pm.omegam);
         READ_DOUBLE(category, pm.nu_eff);
         READ_DOUBLE(category, pm.deltaECR);
@@ -402,8 +402,8 @@ void inputParam_old(Params &pm, string inputFileName)
         READ_DOUBLE(category, pm.width_neutIn);
 
         category = "transport_model";
-        READ_INT(category,    pm.icon_Bohm);
-        READ_INT(category,    pm.icon_Sagdeev);
+        READ_INT(category,    pm.flag_Bohm);
+        READ_INT(category,    pm.flag_Sagdeev);
         READ_DOUBLE(category, pm.alpha_Bohm);
         READ_DOUBLE(category, pm.scale_inertia);
 
@@ -414,9 +414,9 @@ void inputParam_old(Params &pm, string inputFileName)
         READ_DOUBLE(category, pm.ratioEngy_EISEE_rd);
 
         category = "scheme";
-        READ_INT(category,    pm.icon_PC);
-        READ_INT(category,    pm.icon_inertia);
-        READ_INT(category,    pm.icon_adp_dt);
+        READ_INT(category,    pm.flag_PC);
+        READ_INT(category,    pm.flag_inertia);
+        READ_INT(category,    pm.flag_adp_dt);
         READ_DOUBLE(category, pm.dt_ini);
         READ_INT(category,    pm.ndt_i);
         READ_INT(category,    pm.ndt_m);
@@ -426,27 +426,27 @@ void inputParam_old(Params &pm, string inputFileName)
         category = "solver";
         READ_DOUBLE(category, pm.error_cnv_SOR_Ui);
         READ_INT(category,    pm.maxITR_SOR_Ui);
-        READ_INT(category,    pm.icon_iter_Ui);
+        READ_INT(category,    pm.flag_iter_Ui);
 
         READ_DOUBLE(category, pm.error_cnv_SOR_rhoi);
         READ_INT(category,    pm.maxITR_SOR_rhoi);
-        READ_INT(category,    pm.icon_iter_rhoi);
+        READ_INT(category,    pm.flag_iter_rhoi);
 
         READ_DOUBLE(category, pm.error_cnv_SOR_phi);
         READ_INT(category,    pm.maxITR_SOR_phi);
-        READ_INT(category,    pm.icon_iter_phi);
+        READ_INT(category,    pm.flag_iter_phi);
         READ_DOUBLE(category, pm. error_cnv_HES_phi);
         READ_INT(category,    pm.maxITR_HES_phi);
 
         READ_DOUBLE(category, pm.error_cnv_SOR_rhoe);
         READ_INT(category,    pm.maxITR_SOR_rhoe);
-        READ_INT(category,    pm.icon_iter_rhoe);
+        READ_INT(category,    pm.flag_iter_rhoe);
         READ_DOUBLE(category, pm.error_cnv_HES_rhoe);
         READ_INT(category,    pm.maxITR_HES_rhoe);
 
         READ_DOUBLE(category, pm.error_cnv_SOR_rhoeps);
         READ_INT(category,    pm.maxITR_SOR_rhoeps);
-        READ_INT(category,    pm.icon_iter_rhoeps);
+        READ_INT(category,    pm.flag_iter_rhoeps);
         READ_DOUBLE(category, pm.error_cnv_HES_rhoeps);
         READ_INT(category,    pm.maxITR_HES_rhoeps);
 
@@ -459,11 +459,11 @@ void inputParam_old(Params &pm, string inputFileName)
 
         category = "simulation";
         READ_INT(category,    pm.ntime);
-        READ_INT(category,    pm.icon_autoFinish);
+        READ_INT(category,    pm.flag_autoFinish);
 
         category = "output";
-        READ_INT(category,    pm.icon_chk);
-        READ_INT(category,    pm.icon_gnuRes);
+        READ_INT(category,    pm.flag_chk);
+        READ_INT(category,    pm.flag_gnuRes);
         READ_INT(category,    pm.ndiv_fout);
     }
     catch (const exception& e) {
@@ -1097,7 +1097,7 @@ void InputModule::input_restart_data(Params &pm, GridCenter &gc, GridInterfaceX 
     }
     //------------------------------------
     
-    pm.icon_restart = 1;
+    pm.flag_restart = 1;
 
     /*
     ////プラズマ密度プロファイル作成
@@ -1353,7 +1353,7 @@ void input_restart_data_old(Params &pm, GridCenter &gc, GridInterfaceX &gx, Grid
     //------------------------------------
 
     cout << "[restart.csv] Imported" << endl;
-    pm.icon_restart = 1;
+    pm.flag_restart = 1;
 
     /*
     ////プラズマ密度プロファイル作成

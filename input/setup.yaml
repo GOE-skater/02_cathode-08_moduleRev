@@ -19,7 +19,7 @@ operating_condition:
   Q_neutIn_mgs: 0.069            # (double) Neutral particle flow rate [mg/s], 1 sccm = 0.098 mg/s, previous/example: 0.04881367984087
   fmw: 4.25e9                    # (double) Microwave frequency [Hz]
   Pmw: 8.0                       # (double) Microwave power [W], previous/example: 8
-  icon_mwRef: 0                  # (int) Whether to include the microwave reflection
+  flag_mwRef: 0                  # (int) Whether to include the microwave reflection
 # --------------------------------
 
 physical_parameter:
@@ -56,14 +56,14 @@ secondary_electron_emission:
 
 governing_equation:
 # --------------------------------
-  icon_inertia: 0                # (int) Whether to include inertia; 0: disabled, 1: enabled
+  flag_inertia: 0                # (int) Whether to include inertia; 0: disabled, 1: enabled
   scale_inertia: 1.0             # (double) Scaling factor of the inertia term
 # --------------------------------
 
 anomalous_scattering_model:
 # --------------------------------
-  icon_Bohm: 1                   # (int) Whether to include Bohm diffusion
-  icon_Sagdeev: 1                # (int) Whether to include the Sagdeev model
+  flag_Bohm: 1                   # (int) Whether to include Bohm diffusion
+  flag_Sagdeev: 1                # (int) Whether to include the Sagdeev model
   alpha_Bohm: 16.0               # (double) Bohm diffusion coefficient, previous/example: 16
 # --------------------------------
 
@@ -80,7 +80,7 @@ initial_condition:
 
 numerical_scheme:
 # --------------------------------
-  icon_PC: 1                     # (int) Whether to use the PC method; 0: direct discretization, 1: PC method
+  flag_PC: 1                     # (int) Whether to use the PC method; 0: direct discretization, 1: PC method
   Te_rep_eV: 0.1                 # (double) Representative electron temperature for the ion scheme [eV]
 # --------------------------------
 
@@ -88,21 +88,21 @@ solver_setting:
 # --------------------------------
   error_cnv_SOR_Ui: 1.0e-10      # (double) Convergence criterion for Ui
   maxITR_SOR_Ui: 30              # (int) Maximum number of iterations for Ui
-  icon_iter_Ui: 1                # (int) Iterative method selection for Ui; 0: SOR, 1: SMG
+  flag_iter_Ui: 1                # (int) Iterative method selection for Ui; 0: SOR, 1: SMG
 
   error_cnv_SOR_rhoi: 1.0e-10    # (double) Convergence criterion for rhoi
   maxITR_SOR_rhoi: 30            # (int) Maximum number of iterations for rhoi
-  icon_iter_rhoi: 1              # (int) Iterative method selection for rhoi; 0: SOR, 1: SMG
+  flag_iter_rhoi: 1              # (int) Iterative method selection for rhoi; 0: SOR, 1: SMG
 
   error_cnv_SOR_phi: 1.0e-10     # (double) Convergence criterion for phi
   maxITR_SOR_phi: 30             # (int) Maximum number of iterations for phi
-  icon_iter_phi: 1               # (int) Iterative method selection for phi; 0: SOR, 1: SMG
+  flag_iter_phi: 1               # (int) Iterative method selection for phi; 0: SOR, 1: SMG
   error_cnv_HES_phi: 1.0e-21     # (double) Convergence criterion for the pseudo-time stepping of phi
   maxITR_HES_phi: 2              # (int) Maximum number of pseudo-time iterations for phi
 
   error_cnv_SOR_rhoe: 1.0e-10    # (double) Convergence criterion for rhoe
   maxITR_SOR_rhoe: 30            # (int) Maximum number of iterations for rhoe
-  icon_iter_rhoe: 1              # (int) Iterative method selection for rhoe; 0: GMRES, 1: direct solver, original note: 0:SOR 1:SMG
+  flag_iter_rhoe: 1              # (int) Iterative method selection for rhoe; 0: GMRES, 1: direct solver, original note: 0:SOR 1:SMG
   error_cnv_HES_rhoe: 1.0e-21    # (double) Convergence criterion for the pseudo-time stepping of rhoe
   maxITR_HES_rhoe: 2             # (int) Maximum number of pseudo-time iterations for rhoe
   beta_rhoe: 1.0                 # (double) Under-relaxation factor for rhoe when inertia is considered
@@ -110,14 +110,14 @@ solver_setting:
 
   error_cnv_SOR_rhoeps: 1.0e-10  # (double) Convergence criterion for rhoeps
   maxITR_SOR_rhoeps: 30          # (int) Maximum number of iterations for rhoeps
-  icon_iter_rhoeps: 1            # (int) Iterative method selection for rhoeps; 0: GMRES, 1: direct solver, original note: 0:SOR 1:SMG
+  flag_iter_rhoeps: 1            # (int) Iterative method selection for rhoeps; 0: GMRES, 1: direct solver, original note: 0:SOR 1:SMG
   error_cnv_HES_rhoeps: 1.0e-21  # (double) Convergence criterion for the pseudo-time stepping of rhoeps
   maxITR_HES_rhoeps: 2           # (int) Maximum number of pseudo-time iterations for rhoeps
 # --------------------------------
 
 simulation_control:
 # --------------------------------
-  icon_adp_dt: 0                 # (int) Whether to use adaptive dt; 0: fixed dt, 1: variable dt
+  flag_adp_dt: 0                 # (int) Whether to use adaptive dt; 0: fixed dt, 1: variable dt
   dt_ini: 1.0e-10                # (double) Initial time step, previous/example: 2.0e-10
   CFL: 1.0                       # (double) CFL number, previous/example: 0.001
   ntime: 200                     # (int) Number of time steps, previous/example: 3000000
@@ -125,18 +125,18 @@ simulation_control:
   ndt_m: 1                       # (int) Metastable neutral time-step multiplier relative to the electron time step
   ndt_n: 1                       # (int) Neutral particle time-step multiplier relative to the electron time step
   ndiv_MW: 1000                  # (int) Microwave calculation interval
-  icon_error: 3                  # (int) Error evaluation 0:Linf_個別正規化 (max) 1:L2_個別正規化 2:Linf (max)_一括正規化 3:L2_一括正規化
-  icon_autoFinish: 0             # (int) Whether to automatically finish the simulation
+  flag_error: 3                  # (int) Error evaluation 0:Linf_個別正規化 (max) 1:L2_個別正規化 2:Linf (max)_一括正規化 3:L2_一括正規化
+  flag_autoFinish: 0             # (int) Whether to automatically finish the simulation
 # --------------------------------
 
 output_control:
 # --------------------------------
-  icon_chk: 1                    # (int) Whether to output check files
-  icon_gnuRes: 1                 # (int) Whether to display results using gnuplot
+  flag_chk: 1                    # (int) Whether to output check files
+  flag_gnuRes: 1                 # (int) Whether to display results using gnuplot
   ndiv_fout: 2000                # (int) Result file output interval
 # --------------------------------
 
 test_mode:
 # --------------------------------
-  icon_impTest: 0                # (int) conduct impedance test
+  flag_impTest: 0                # (int) conduct impedance test
 # --------------------------------

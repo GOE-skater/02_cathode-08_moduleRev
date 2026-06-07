@@ -296,7 +296,7 @@ inline void calcRes(double &error,
         std::vector<std::vector<int> > j_fl_bl,
         int n_bl,
         double EPS,
-        int icon_error //0: cell-center, 1: cell-interface-x, 2: cell-interface-r
+        int flag_error //0: cell-center, 1: cell-interface-x, 2: cell-interface-r
     ){
 
     error = 0.0;
@@ -306,7 +306,7 @@ inline void calcRes(double &error,
     
     //0:Linf_個別正規化 (max)
     //------------------------------------
-    if(icon_error == 0){
+    if(flag_error == 0){
         for (int iblock=0;iblock<n_bl;iblock++){ 
             for (int i=i_fl_bl[iblock][0];i<=i_fl_bl[iblock][1];i++){ 
                 for (int j=j_fl_bl[iblock][0];j<=j_fl_bl[iblock][1];j++){
@@ -321,7 +321,7 @@ inline void calcRes(double &error,
 
     //1:L2_個別正規化
     //------------------------------------
-    }else if(icon_error == 1){
+    }else if(flag_error == 1){
         int ncount = 0;
         for (int iblock=0;iblock<n_bl;iblock++){ 
             for (int i=i_fl_bl[iblock][0];i<=i_fl_bl[iblock][1];i++){ 
@@ -336,7 +336,7 @@ inline void calcRes(double &error,
 
     //2:Linf (max)_一括正規化
     //------------------------------------
-    }else if(icon_error == 2){
+    }else if(flag_error == 2){
         double norm = 0.0;
         for (int iblock=0;iblock<n_bl;iblock++){ 
             for (int i=i_fl_bl[iblock][0];i<=i_fl_bl[iblock][1];i++){ 
@@ -357,7 +357,7 @@ inline void calcRes(double &error,
     
     //3:L2_一括正規化
     //------------------------------------
-    }else if(icon_error == 3){
+    }else if(flag_error == 3){
         double norm = 0.0;
         for (int iblock=0;iblock<n_bl;iblock++){ 
             for (int i=i_fl_bl[iblock][0];i<=i_fl_bl[iblock][1];i++){ 

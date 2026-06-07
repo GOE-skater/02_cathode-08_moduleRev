@@ -31,7 +31,7 @@ void solver_SMG(std::vector<std::vector<double> > aP
     ,std::vector<std::vector<double> > b
     ,std::vector<std::vector<int> > i_bl
     ,std::vector<std::vector<int> > j_bl
-    ,int n_bl,int maxITR,double error_cnv,int icon_msg
+    ,int n_bl,int maxITR,double error_cnv,int flag_msg
     ,std::vector<std::vector<double> > &solution
 ){
 
@@ -115,7 +115,7 @@ void solver_SMG(std::vector<std::vector<double> > aP
     // SMGソルバの設定
     HYPRE_StructSMGSetTol(solver, error_cnv);
     HYPRE_StructSMGSetMaxIter(solver, maxITR);
-    if(icon_msg==1){
+    if(flag_msg==1){
         HYPRE_StructSMGSetPrintLevel(solver, 2);
         HYPRE_StructSMGSetLogging(solver, 1);
     }
@@ -128,7 +128,7 @@ void solver_SMG(std::vector<std::vector<double> > aP
     double time_real = (double)(time2-time1)/CLOCKS_PER_SEC;
     
     // イタレーション数の出力
-    if(icon_msg==1){
+    if(flag_msg==1){
         std::cout << "solver time = " << time_real << " sec" << std::endl;
         HYPRE_Int num_iterations;
         HYPRE_StructSMGGetNumIterations(solver, &num_iterations);
@@ -174,7 +174,7 @@ void solver_SOR(std::vector<std::vector<double> > aP
     ,std::vector<std::vector<double> > b
     ,std::vector<std::vector<int> > i_bl
     ,std::vector<std::vector<int> > j_bl
-    ,int n_bl, double alpha_SOR,int maxITR,double error_cnv,int icon_msg
+    ,int n_bl, double alpha_SOR,int maxITR,double error_cnv,int flag_msg
     ,std::vector<std::vector<double> > &solution
 ){
 
@@ -202,14 +202,14 @@ void solver_SOR(std::vector<std::vector<double> > aP
             }
         }
 
-        //if(icon_msg==1){
+        //if(flag_msg==1){
         //    std::cout <<"ncount = " << ncount<< " error_max = " << error << std::endl;
         //}
         if(ncount > maxITR) break;
 
     }while(error > error_cnv);
 
-    if(icon_msg==1){
+    if(flag_msg==1){
         std::cout <<"ncount = " << ncount<< " error_max = " << error << std::endl;
     }
 
@@ -232,7 +232,7 @@ void solver_LU_9p(std::vector<std::vector<double> > aP
     ,std::vector<std::vector<double> > b
     ,std::vector<std::vector<int> > i_bl
     ,std::vector<std::vector<int> > j_bl
-    ,int n_bl, int icon_msg
+    ,int n_bl, int flag_msg
     ,std::vector<std::vector<double> > &solution
 ){
 
@@ -360,7 +360,7 @@ void solver_LU_9p(std::vector<std::vector<double> > aP
     solver.compute(A);
     xv = solver.solve(bv);
 
-    if(icon_msg == 1){
+    if(flag_msg == 1){
         // 実際の誤差を計算
         Eigen::VectorXd residual = A*xv- bv;
         //std::cout << residual<< std::endl;

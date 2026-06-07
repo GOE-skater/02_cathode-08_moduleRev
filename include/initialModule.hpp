@@ -283,7 +283,7 @@ void InitialModule::makeBoundary(Params &pm, GridCenter &gc, GridInterfaceX &gx,
     }
 
     //Output boundary check file
-    if(pm.icon_chk == 1){
+    if(pm.flag_chk == 1){
 
         std::ofstream outputfile1("results/boundary0.csv");
         //outputfile1<<"i,j,x,r,jdgBnd_Ep,jdgBnd_Ex,jdgBnd_Er,jdgBnd_flc,jdgBnd_flx,jdgBnd_flr,kx,kr,kp,zero" << std::endl;
@@ -364,7 +364,7 @@ void InitialModule::makeBoundary(Params &pm, GridCenter &gc, GridInterfaceX &gx,
         mb.sBndWx.push_back(0); //ディリクレ
     }
     //出力
-    if(pm.icon_chk == 1){
+    if(pm.flag_chk == 1){
         std::ofstream outputfileWx("results/BCx0.csv");
         outputfileWx <<"i,j,x,r,BC,zero" << std::endl;
         for (int k=0;k<mb.iBndWx.size();k++){
@@ -409,7 +409,7 @@ void InitialModule::makeBoundary(Params &pm, GridCenter &gc, GridInterfaceX &gx,
         mb.sBndEx.push_back(4); //凹角 上側壁
     }
     //出力
-    if(pm.icon_chk == 1){
+    if(pm.flag_chk == 1){
         std::ofstream outputfileEx("results/BCx1.csv");
         outputfileEx <<"i,j,x,r,BC,zero" << std::endl;
         for (int k=0;k<mb.iBndEx.size();k++){
@@ -454,7 +454,7 @@ void InitialModule::makeBoundary(Params &pm, GridCenter &gc, GridInterfaceX &gx,
         mb.sBndSx.push_back(6); //凸角 右側Open
     }
     //出力
-    if(pm.icon_chk == 1){
+    if(pm.flag_chk == 1){
         std::ofstream outputfileSx("results/BCx2.csv");
         outputfileSx <<"i,j,x,r,BC,zero" << std::endl;
         for (int k=0;k<mb.iBndSx.size();k++){
@@ -529,7 +529,7 @@ void InitialModule::makeBoundary(Params &pm, GridCenter &gc, GridInterfaceX &gx,
     }
 
     //出力
-    if(pm.icon_chk == 1){
+    if(pm.flag_chk == 1){
         std::ofstream outputfileNx("results/BCx3.csv");
         outputfileNx <<"i,j,x,r,BC,zero" << std::endl;
         for (int k=0;k<mb.iBndNx.size();k++){
@@ -612,7 +612,7 @@ void InitialModule::makeBoundary(Params &pm, GridCenter &gc, GridInterfaceX &gx,
         mb.sBndWr.push_back(1); //開放
     }
     //出力
-    if(pm.icon_chk == 1){
+    if(pm.flag_chk == 1){
         std::ofstream outputfileWr("results/BCr0.csv");
         outputfileWr <<"i,j,x,r,BC,zero" << std::endl;
         for (int k=0;k<mb.iBndWr.size();k++){
@@ -649,7 +649,7 @@ void InitialModule::makeBoundary(Params &pm, GridCenter &gc, GridInterfaceX &gx,
         mb.sBndEr.push_back(0); //ディリクレ
     }
     //出力
-    if(pm.icon_chk == 1){
+    if(pm.flag_chk == 1){
         std::ofstream outputfileEr("results/BCr1.csv");
         outputfileEr <<"i,j,x,r,BC,zero" << std::endl;
         for (int k=0;k<mb.iBndEr.size();k++){
@@ -686,7 +686,7 @@ void InitialModule::makeBoundary(Params &pm, GridCenter &gc, GridInterfaceX &gx,
         mb.sBndSr.push_back(2); //ガウス
     }
     //出力
-    if(pm.icon_chk == 1){
+    if(pm.flag_chk == 1){
         std::ofstream outputfileSr("results/BCr2.csv");
         outputfileSr <<"i,j,x,r,BC,zero" << std::endl;
         for (int k=0;k<mb.iBndSr.size();k++){
@@ -761,7 +761,7 @@ void InitialModule::makeBoundary(Params &pm, GridCenter &gc, GridInterfaceX &gx,
         mb.sBndNr.push_back(4); //凹角 右側壁
     }
     //出力
-    if(pm.icon_chk == 1){
+    if(pm.flag_chk == 1){
         std::ofstream outputfileNr("results/BCr3.csv");
         outputfileNr <<"i,j,x,r,BC,zero" << std::endl;
         for (int k=0;k<mb.iBndNr.size();k++){
@@ -812,7 +812,7 @@ void InitialModule::makeBoundary(Params &pm, GridCenter &gc, GridInterfaceX &gx,
         mb.sBndWp.push_back(1); //開放
     }
     //出力
-    if(pm.icon_chk == 1){
+    if(pm.flag_chk == 1){
         std::ofstream outputfileWp("results/BCp0.csv");
         outputfileWp <<"i,j,x,r,BC,zero" << std::endl;
         for (int k=0;k<mb.iBndWp.size();k++){
@@ -841,7 +841,7 @@ void InitialModule::makeBoundary(Params &pm, GridCenter &gc, GridInterfaceX &gx,
         mb.sBndEp.push_back(0); //ディリクレ
     }
     //出力
-    if(pm.icon_chk == 1){
+    if(pm.flag_chk == 1){
         std::ofstream outputfileEp("results/BCp1.csv");
         outputfileEp <<"i,j,x,r,BC,zero" << std::endl;
         for (int k=0;k<mb.iBndEp.size();k++){
@@ -870,7 +870,7 @@ void InitialModule::makeBoundary(Params &pm, GridCenter &gc, GridInterfaceX &gx,
         mb.sBndSp.push_back(0); //ディリクレ
     }
     //出力
-    if(pm.icon_chk == 1){
+    if(pm.flag_chk == 1){
         std::ofstream outputfileSp("results/BCp2.csv");
         outputfileSp <<"i,j,x,r,BC,zero" << std::endl;
         for (int k=0;k<mb.iBndSp.size();k++){
@@ -921,7 +921,7 @@ void InitialModule::makeBoundary(Params &pm, GridCenter &gc, GridInterfaceX &gx,
     }
     
     //出力
-    if(pm.icon_chk == 1){
+    if(pm.flag_chk == 1){
         std::ofstream outputfileNp("results/BCp3.csv");
         outputfileNp <<"i,j,x,r,BC,zero" << std::endl;
         for (int k=0;k<mb.iBndNp.size();k++){
@@ -1010,7 +1010,7 @@ void InitialModule::makeBoundary_impedanceTest(Params &pm, GridCenter &gc, GridI
     }
 
     //Output boundary check file
-    if(pm.icon_chk == 1){
+    if(pm.flag_chk == 1){
 
         std::ofstream outputfile1("results/boundary0.csv");
         //outputfile1<<"i,j,x,r,jdgBnd_Ep,jdgBnd_Ex,jdgBnd_Er,jdgBnd_flc,jdgBnd_flx,jdgBnd_flr,kx,kr,kp,zero" << std::endl;
@@ -1043,7 +1043,7 @@ void InitialModule::makeBoundary_impedanceTest(Params &pm, GridCenter &gc, GridI
         //mb.sBndWr.push_back(7); //励振
     }
     //出力
-    if(pm.icon_chk == 1){
+    if(pm.flag_chk == 1){
         std::ofstream outputfileWr("results/BCr0.csv");
         outputfileWr <<"i,j,x,r,BC,zero" << std::endl;
         for (int k=0;k<mb.iBndWr.size();k++){
@@ -1064,7 +1064,7 @@ void InitialModule::makeBoundary_impedanceTest(Params &pm, GridCenter &gc, GridI
         mb.sBndEr.push_back(1); //開放
     }
     //出力
-    if(pm.icon_chk == 1){
+    if(pm.flag_chk == 1){
         std::ofstream outputfileEr("results/BCr1.csv");
         outputfileEr <<"i,j,x,r,BC,zero" << std::endl;
         for (int k=0;k<mb.iBndEr.size();k++){
@@ -1085,7 +1085,7 @@ void InitialModule::makeBoundary_impedanceTest(Params &pm, GridCenter &gc, GridI
         mb.sBndSr.push_back(2); //ガウス
     }
     //出力
-    if(pm.icon_chk == 1){
+    if(pm.flag_chk == 1){
         std::ofstream outputfileSr("results/BCr2.csv");
         outputfileSr <<"i,j,x,r,BC,zero" << std::endl;
         for (int k=0;k<mb.iBndSr.size();k++){
@@ -1106,7 +1106,7 @@ void InitialModule::makeBoundary_impedanceTest(Params &pm, GridCenter &gc, GridI
         mb.sBndNr.push_back(2); //ガウス
     }
     //出力
-    if(pm.icon_chk == 1){
+    if(pm.flag_chk == 1){
         std::ofstream outputfileNr("results/BCr3.csv");
         outputfileNr <<"i,j,x,r,BC,zero" << std::endl;
         for (int k=0;k<mb.iBndNr.size();k++){

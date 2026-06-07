@@ -94,7 +94,7 @@ void FluidModule::check_CFL(Params &pm,GridCenter &gc, GridInterfaceX &gx, GridI
 
     double dt_min = ph::eps0/(ph::e0*rhoe_max*mu_max);
 
-    if(pm.icon_adp_dt == 1){ //アダプティブdt (dtを計算)
+    if(pm.flag_adp_dt == 1){ //アダプティブdt (dtを計算)
         pm.dt = dt_min*pm.CFL;
     }else{ //固定dt (CFLを計算)
         pm.CFL = pm.dt/dt_min;
@@ -373,7 +373,7 @@ void FluidModule::solve_Uix_tmp(Params &pm,GridCenter &gc, GridInterfaceX &gx, G
 
     //Solver
     //=====================================================================
-    if(pm.icon_iter_Ui == 0){
+    if(pm.flag_iter_Ui == 0){
         //SOR
         //------------------------------------
         double alpha = 1.9;
@@ -848,7 +848,7 @@ void FluidModule::solve_Uir_tmp(Params &pm,GridCenter &gc, GridInterfaceX &gx, G
 
     //Solver
     //=====================================================================
-    if(pm.icon_iter_Ui == 0){
+    if(pm.flag_iter_Ui == 0){
         //SOR
         //------------------------------------
         double alpha = 1.9; //acceleration factor
@@ -1249,7 +1249,7 @@ void FluidModule::solve_Uip_tmp(Params &pm,GridCenter &gc, GridInterfaceX &gx, G
 
     //Solver
     //=====================================================================
-    if(pm.icon_iter_Ui == 0){
+    if(pm.flag_iter_Ui == 0){
         //SOR
         //------------------------------------
         double alpha = 1.9; //acceleration factor
@@ -1563,7 +1563,7 @@ void FluidModule::solve_rhoi_constTe(Params &pm,GridCenter &gc, GridInterfaceX &
     
     //Solver
     //=====================================================================
-    if(pm.icon_iter_rhoi==0){
+    if(pm.flag_iter_rhoi==0){
         //SOR
         //------------------------------------
         double alpha = 1.9;
@@ -1938,10 +1938,10 @@ void FluidModule::correct_Ui_constTe(Params &pm,GridCenter &gc, GridInterfaceX &
 
     //Caluculate residuals
     //------------------------------------
-    calcRes(pm.error_rhoi, gc.rhoi,gc.rhoi_old,gc.i_flc_bl, gc.j_flc_bl, pm.n_bl-1, 1e-100, pm.icon_error);
-    calcRes(pm.error_Uix, gx.Uix, gx.Uix_old, gx.i_flx_bl, gx.j_flx_bl, pm.n_bl-1, 1e-100, pm.icon_error);
-    calcRes(pm.error_Uir, gr.Uir, gr.Uir_old, gr.i_flr_bl, gr.j_flr_bl, pm.n_bl-1, 1e-100, pm.icon_error);
-    calcRes(pm.error_Uip, gc.Uip, gc.Uip_old, gc.i_flc_bl, gc.j_flc_bl, pm.n_bl-1, 1e-100, pm.icon_error);
+    calcRes(pm.error_rhoi, gc.rhoi,gc.rhoi_old,gc.i_flc_bl, gc.j_flc_bl, pm.n_bl-1, 1e-100, pm.flag_error);
+    calcRes(pm.error_Uix, gx.Uix, gx.Uix_old, gx.i_flx_bl, gx.j_flx_bl, pm.n_bl-1, 1e-100, pm.flag_error);
+    calcRes(pm.error_Uir, gr.Uir, gr.Uir_old, gr.i_flr_bl, gr.j_flr_bl, pm.n_bl-1, 1e-100, pm.flag_error);
+    calcRes(pm.error_Uip, gc.Uip, gc.Uip_old, gc.i_flc_bl, gc.j_flc_bl, pm.n_bl-1, 1e-100, pm.flag_error);
     //------------------------------------
 
     //Caluculate residuals
@@ -1949,7 +1949,7 @@ void FluidModule::correct_Ui_constTe(Params &pm,GridCenter &gc, GridInterfaceX &
     //ion density
     //------------------------------------
     pm.error_rhoi = 0.0;
-    if(pm.icon_error == 0){ //normalized maximum
+    if(pm.flag_error == 0){ //normalized maximum
         for (int iblock=0;iblock<pm.n_bl-1;iblock++){ 
             for (int i=gc.i_flc_bl[iblock][0];i<=gc.i_flc_bl[iblock][1];i++){ 
                 for (int j=gc.j_flc_bl[iblock][0];j<=gc.j_flc_bl[iblock][1];j++){
@@ -1977,7 +1977,7 @@ void FluidModule::correct_Ui_constTe(Params &pm,GridCenter &gc, GridInterfaceX &
     //x-directional ion bulk velocity
     //------------------------------------
     pm.error_Uix = 0.0;
-    if(pm.icon_error == 0){ //normalized maximum
+    if(pm.flag_error == 0){ //normalized maximum
         for (int iblock=0;iblock<pm.n_bl-1;iblock++){ 
             for (int i=gx.i_flx_bl[iblock][0];i<=gx.i_flx_bl[iblock][1] + 1;i++){
                 for (int j=gx.j_flx_bl[iblock][0];j<=gx.j_flx_bl[iblock][1];j++){
@@ -2005,7 +2005,7 @@ void FluidModule::correct_Ui_constTe(Params &pm,GridCenter &gc, GridInterfaceX &
     //r-directional ion bulk velocity
     //------------------------------------
     pm.error_Uir = 0.0;
-    if(pm.icon_error == 0){ //normalized maximum
+    if(pm.flag_error == 0){ //normalized maximum
         for (int iblock=0;iblock<pm.n_bl-1;iblock++){
             for (int i=gr.i_flr_bl[iblock][0];i<=gr.i_flr_bl[iblock][1];i++){ 
                 for (int j=gr.j_flr_bl[iblock][0]+1;j<=gr.j_flr_bl[iblock][1];j++){
@@ -2033,7 +2033,7 @@ void FluidModule::correct_Ui_constTe(Params &pm,GridCenter &gc, GridInterfaceX &
     //p-directional ion bulk velocity
     //------------------------------------
     pm.error_Uip = 0.0;
-    if(pm.icon_error == 0){ //normalized maximum
+    if(pm.flag_error == 0){ //normalized maximum
         for (int iblock=0;iblock<pm.n_bl-1;iblock++){ 
             for (int i=gc.i_flc_bl[iblock][0];i<=gc.i_flc_bl[iblock][1];i++){ 
                 for (int j=gc.j_flc_bl[iblock][0];j<=gc.j_flc_bl[iblock][1];j++){
@@ -2098,7 +2098,7 @@ void FluidModule::solve_phi_couple_wdTe_wSEE_PC(Params &pm,GridCenter &gc, GridI
 
     //convergence criteria
     //------------------------------------
-    int icon_error2 = pm.icon_error;
+    int flag_error2 = pm.flag_error;
     //------------------------------------
 
     //output duration
@@ -2233,7 +2233,7 @@ void FluidModule::solve_phi_couple_wdTe_wSEE_PC(Params &pm,GridCenter &gc, GridI
     //PC method iteration
     //------------------------------------
     int ncount = 0; //number of iteration of PC method
-    int icon_end = 0;
+    int flag_end = 0;
     do{
         
         ncount ++;
@@ -2814,7 +2814,7 @@ void FluidModule::solve_phi_couple_wdTe_wSEE_PC(Params &pm,GridCenter &gc, GridI
 
         //Solver
         //------------------------------------
-        if(pm.icon_iter_phi == 0){
+        if(pm.flag_iter_phi == 0){
             //SOR
             //------------------------------------
             double alpha = 1.9;
@@ -3030,11 +3030,11 @@ void FluidModule::solve_phi_couple_wdTe_wSEE_PC(Params &pm,GridCenter &gc, GridI
         double error_phi2 = 0.0;
         double error_nUex2 = 0.0;
         double error_nUer2 = 0.0;
-        calcRes(error_phi2, gc.phi,  phi_old_tmp,  gc.i_flc_bl, gc.j_flc_bl, pm.n_bl-1,1e-100,icon_error2);
-        calcRes(error_nUex2,gx.nUex, nUex_old_tmp, gx.i_flx_bl, gx.j_flx_bl, pm.n_bl-1,1e-100,icon_error2);
-        calcRes(error_nUer2,gr.nUer, nUer_old_tmp, gr.i_flr_bl, gr.j_flr_bl, pm.n_bl-1,1e-100,icon_error2);
+        calcRes(error_phi2, gc.phi,  phi_old_tmp,  gc.i_flc_bl, gc.j_flc_bl, pm.n_bl-1,1e-100,flag_error2);
+        calcRes(error_nUex2,gx.nUex, nUex_old_tmp, gx.i_flx_bl, gx.j_flx_bl, pm.n_bl-1,1e-100,flag_error2);
+        calcRes(error_nUer2,gr.nUer, nUer_old_tmp, gr.i_flr_bl, gr.j_flr_bl, pm.n_bl-1,1e-100,flag_error2);
         
-        if(pm.icon_chk == 1) output_residual_for_PC("phi",pm.gtime, pm.itime, error_phi2, error_nUex2, error_nUer2, pm.itime_PC_phi, ncount);
+        if(pm.flag_chk == 1) output_residual_for_PC("phi",pm.gtime, pm.itime, error_phi2, error_nUex2, error_nUer2, pm.itime_PC_phi, ncount);
         
         double error_global = fmax(fmax(error_phi2,error_nUex2),error_nUer2);
         
@@ -3048,17 +3048,17 @@ void FluidModule::solve_phi_couple_wdTe_wSEE_PC(Params &pm,GridCenter &gc, GridI
         }
 
         if(error_global < pm.error_cnv_HES_phi || ncount >= pm.maxITR_HES_phi){
-            icon_end = 1;
+            flag_end = 1;
         }
 
-    } while (icon_end == 0);
+    } while (flag_end == 0);
 
 
     //Caluculate residuals
     //------------------------------------
-    calcRes(pm.error_phi, gc.phi,gc.phi_old,gc.i_flc_bl, gc.j_flc_bl, pm.n_bl-1, 1e-100, pm.icon_error);
-    calcRes(pm.error_nUex, gx.nUex, gx.nUex_old, gx.i_flx_bl, gx.j_flx_bl, pm.n_bl-1, 1e-100, pm.icon_error);
-    calcRes(pm.error_nUer, gr.nUer, gr.nUer_old, gr.i_flr_bl, gr.j_flr_bl, pm.n_bl-1, 1e-100, pm.icon_error);
+    calcRes(pm.error_phi, gc.phi,gc.phi_old,gc.i_flc_bl, gc.j_flc_bl, pm.n_bl-1, 1e-100, pm.flag_error);
+    calcRes(pm.error_nUex, gx.nUex, gx.nUex_old, gx.i_flx_bl, gx.j_flx_bl, pm.n_bl-1, 1e-100, pm.flag_error);
+    calcRes(pm.error_nUer, gr.nUer, gr.nUer_old, gr.i_flr_bl, gr.j_flr_bl, pm.n_bl-1, 1e-100, pm.flag_error);
     //------------------------------------
 
 }
@@ -3096,7 +3096,7 @@ void FluidModule::solve_rhoe_wdTe_wSEE_PC(Params &pm,GridCenter &gc, GridInterfa
 
     //convergence criteria
     //------------------------------------
-    int icon_error2 = pm.icon_error; //擬似ステップのエラー収束判定 0:max, 1:RMS
+    int flag_error2 = pm.flag_error; //擬似ステップのエラー収束判定 0:max, 1:RMS
     //------------------------------------
 
     //output duration
@@ -3132,7 +3132,7 @@ void FluidModule::solve_rhoe_wdTe_wSEE_PC(Params &pm,GridCenter &gc, GridInterfa
     //PC method iteration
     //------------------------------------
     int ncount = 0; //number of iteration of PC method
-    int icon_end = 0;
+    int flag_end = 0;
     do{
         
         ncount ++;
@@ -3654,7 +3654,7 @@ void FluidModule::solve_rhoe_wdTe_wSEE_PC(Params &pm,GridCenter &gc, GridInterfa
 
         //Solver
         //------------------------------------
-        if(pm.icon_iter_rhoe == 0){
+        if(pm.flag_iter_rhoe == 0){
             //SOR
             //------------------------------------
             double alpha = 1.9;
@@ -3752,11 +3752,11 @@ void FluidModule::solve_rhoe_wdTe_wSEE_PC(Params &pm,GridCenter &gc, GridInterfa
         double error_rhoe2 = 0.0;
         double error_rhoUex2 = 0.0;
         double error_rhoUer2 = 0.0;
-        calcRes(error_rhoe2, gc.rhoe,  rhoe_old_tmp,  gc.i_flc_bl, gc.j_flc_bl, pm.n_bl-1,1e-100,icon_error2);
-        calcRes(error_rhoUex2,gx.rhoUex, rhoUex_old_tmp, gx.i_flx_bl, gx.j_flx_bl, pm.n_bl-1,1e-100,icon_error2);
-        calcRes(error_rhoUer2,gr.rhoUer, rhoUer_old_tmp, gr.i_flr_bl, gr.j_flr_bl, pm.n_bl-1,1e-100,icon_error2);
+        calcRes(error_rhoe2, gc.rhoe,  rhoe_old_tmp,  gc.i_flc_bl, gc.j_flc_bl, pm.n_bl-1,1e-100,flag_error2);
+        calcRes(error_rhoUex2,gx.rhoUex, rhoUex_old_tmp, gx.i_flx_bl, gx.j_flx_bl, pm.n_bl-1,1e-100,flag_error2);
+        calcRes(error_rhoUer2,gr.rhoUer, rhoUer_old_tmp, gr.i_flr_bl, gr.j_flr_bl, pm.n_bl-1,1e-100,flag_error2);
         
-        if(pm.icon_chk == 1) output_residual_for_PC("rhoe",pm.gtime, pm.itime, error_rhoe2, error_rhoUex2, error_rhoUer2, pm.itime_PC_rhoe, ncount);
+        if(pm.flag_chk == 1) output_residual_for_PC("rhoe",pm.gtime, pm.itime, error_rhoe2, error_rhoUex2, error_rhoUer2, pm.itime_PC_rhoe, ncount);
         
         double error_global = fmax(fmax(error_rhoe2,error_rhoUex2),error_rhoUer2);
         
@@ -3770,10 +3770,10 @@ void FluidModule::solve_rhoe_wdTe_wSEE_PC(Params &pm,GridCenter &gc, GridInterfa
         }
 
         if(error_global < pm.error_cnv_HES_rhoe || ncount >= pm.maxITR_HES_rhoe){
-            icon_end = 1;
+            flag_end = 1;
         }
 
-    } while (icon_end == 0);
+    } while (flag_end == 0);
 
     //calculation of particle balance
     //------------------------------------
@@ -3979,9 +3979,9 @@ void FluidModule::solve_rhoe_wdTe_wSEE_PC(Params &pm,GridCenter &gc, GridInterfa
 
     //Caluculate residuals
     //------------------------------------
-    calcRes(pm.error_rhoe, gc.rhoe,gc.rhoe_old,gc.i_flc_bl, gc.j_flc_bl, pm.n_bl-1, 1e-100, pm.icon_error);
-    calcRes(pm.error_rhoUex, gx.rhoUex, gx.rhoUex_old, gx.i_flx_bl, gx.j_flx_bl, pm.n_bl-1, 1e-100, pm.icon_error);
-    calcRes(pm.error_rhoUer, gr.rhoUer, gr.rhoUer_old, gr.i_flr_bl, gr.j_flr_bl, pm.n_bl-1, 1e-100, pm.icon_error);
+    calcRes(pm.error_rhoe, gc.rhoe,gc.rhoe_old,gc.i_flc_bl, gc.j_flc_bl, pm.n_bl-1, 1e-100, pm.flag_error);
+    calcRes(pm.error_rhoUex, gx.rhoUex, gx.rhoUex_old, gx.i_flx_bl, gx.j_flx_bl, pm.n_bl-1, 1e-100, pm.flag_error);
+    calcRes(pm.error_rhoUer, gr.rhoUer, gr.rhoUer_old, gr.i_flr_bl, gr.j_flr_bl, pm.n_bl-1, 1e-100, pm.flag_error);
     //------------------------------------
 
 }
@@ -4016,7 +4016,7 @@ void FluidModule::solve_Te_wdTe_wSEE_PC(Params &pm,GridCenter &gc, GridInterface
 
     //convergence criteria
     //------------------------------------
-    int icon_error2 = pm.icon_error; //擬似ステップのエラー収束判定 0:max, 1:RMS
+    int flag_error2 = pm.flag_error; //擬似ステップのエラー収束判定 0:max, 1:RMS
     //------------------------------------
 
     //output duration
@@ -4053,7 +4053,7 @@ void FluidModule::solve_Te_wdTe_wSEE_PC(Params &pm,GridCenter &gc, GridInterface
     //PC method iteration
     //------------------------------------
     int ncount = 0; //number of iteration of PC method
-    int icon_end = 0;
+    int flag_end = 0;
     do{
         
         ncount ++;
@@ -4629,7 +4629,7 @@ void FluidModule::solve_Te_wdTe_wSEE_PC(Params &pm,GridCenter &gc, GridInterface
         //------------------------------------
 
         //solve
-        if(pm.icon_iter_rhoeps==0){
+        if(pm.flag_iter_rhoeps==0){
             //SOR
             //------------------------------------
             double alpha = 1.9;
@@ -4728,11 +4728,11 @@ void FluidModule::solve_Te_wdTe_wSEE_PC(Params &pm,GridCenter &gc, GridInterface
         double error_rhoeps2 = 0.0;
         double error_Gx2 = 0.0;
         double error_Gr2 = 0.0;
-        calcRes(error_rhoeps2, gc.rhoeps,  rhoeps_old_tmp,  gc.i_flc_bl, gc.j_flc_bl, pm.n_bl-1,1e-100,icon_error2);
-        calcRes(error_Gx2,gx.Gx, Gx_old_tmp, gx.i_flx_bl, gx.j_flx_bl, pm.n_bl-1,1e-100,icon_error2);
-        calcRes(error_Gr2,gr.Gr, Gr_old_tmp, gr.i_flr_bl, gr.j_flr_bl, pm.n_bl-1,1e-100,icon_error2);
+        calcRes(error_rhoeps2, gc.rhoeps,  rhoeps_old_tmp,  gc.i_flc_bl, gc.j_flc_bl, pm.n_bl-1,1e-100,flag_error2);
+        calcRes(error_Gx2,gx.Gx, Gx_old_tmp, gx.i_flx_bl, gx.j_flx_bl, pm.n_bl-1,1e-100,flag_error2);
+        calcRes(error_Gr2,gr.Gr, Gr_old_tmp, gr.i_flr_bl, gr.j_flr_bl, pm.n_bl-1,1e-100,flag_error2);
         
-        if(pm.icon_chk == 1) output_residual_for_PC("rhoeps",pm.gtime, pm.itime, error_rhoeps2, error_Gx2, error_Gr2, pm.itime_PC_rhoeps, ncount);
+        if(pm.flag_chk == 1) output_residual_for_PC("rhoeps",pm.gtime, pm.itime, error_rhoeps2, error_Gx2, error_Gr2, pm.itime_PC_rhoeps, ncount);
         
         double error_global = fmax(fmax(error_rhoeps2,error_Gx2),error_Gr2);
         
@@ -4746,10 +4746,10 @@ void FluidModule::solve_Te_wdTe_wSEE_PC(Params &pm,GridCenter &gc, GridInterface
         }
 
         if(error_global < pm.error_cnv_HES_rhoeps || ncount >= pm.maxITR_HES_rhoeps){
-            icon_end = 1;
+            flag_end = 1;
         }
     
-    } while (icon_end == 0);
+    } while (flag_end == 0);
 
     
     //calculation of energy balance
@@ -4936,9 +4936,9 @@ void FluidModule::solve_Te_wdTe_wSEE_PC(Params &pm,GridCenter &gc, GridInterface
 
     //Caluculate residuals
     //------------------------------------
-    calcRes(pm.error_rhoeps, gc.rhoeps,gc.rhoeps_old,gc.i_flc_bl, gc.j_flc_bl, pm.n_bl-1, 1e-100, pm.icon_error);
-    calcRes(pm.error_Gx, gx.Gx, gx.Gx_old, gx.i_flx_bl, gx.j_flx_bl, pm.n_bl-1, 1e-100, pm.icon_error);
-    calcRes(pm.error_Gr, gr.Gr, gr.Gr_old, gr.i_flr_bl, gr.j_flr_bl, pm.n_bl-1, 1e-100, pm.icon_error);
+    calcRes(pm.error_rhoeps, gc.rhoeps,gc.rhoeps_old,gc.i_flc_bl, gc.j_flc_bl, pm.n_bl-1, 1e-100, pm.flag_error);
+    calcRes(pm.error_Gx, gx.Gx, gx.Gx_old, gx.i_flx_bl, gx.j_flx_bl, pm.n_bl-1, 1e-100, pm.flag_error);
+    calcRes(pm.error_Gr, gr.Gr, gr.Gr_old, gr.i_flr_bl, gr.j_flr_bl, pm.n_bl-1, 1e-100, pm.flag_error);
     //------------------------------------
 
 }
@@ -5111,7 +5111,7 @@ void FluidModule::update_rhon(Params &pm,GridCenter &gc, GridInterfaceX &gx, Gri
         }
     }
 
-    if(pm.icon_iter_phi==0){
+    if(pm.flag_iter_phi==0){
         double alpha = 1.9;
         solver_SOR(aP,aE,aW,aN,aS,b,gc.i_flc_bl,gc.j_flc_bl,pm.n_bl-1,alpha,pm.maxITR_SOR_phi,pm.error_cnv_SOR_phi,0,gc.rhon);
     }else{
@@ -5390,7 +5390,7 @@ void FluidModule::update_rhon(Params &pm,GridCenter &gc, GridInterfaceX &gx, Gri
 
     //Caluculate residuals
     //------------------------------------
-    calcRes(pm.error_rhon, gc.rhon,gc.rhon_old,gc.i_flc_bl, gc.j_flc_bl, pm.n_bl-1, 1e-100, pm.icon_error);
+    calcRes(pm.error_rhon, gc.rhon,gc.rhon_old,gc.i_flc_bl, gc.j_flc_bl, pm.n_bl-1, 1e-100, pm.flag_error);
     //------------------------------------
 
 }
@@ -5556,7 +5556,7 @@ void FluidModule::update_rhom(Params &pm,GridCenter &gc, GridInterfaceX &gx, Gri
     }
     //=================================================================================
 
-    if(pm.icon_iter_phi==0){
+    if(pm.flag_iter_phi==0){
         double alpha = 1.9;
         solver_SOR(aP,aE,aW,aN,aS,b,gc.i_flc_bl,gc.j_flc_bl,pm.n_bl-1,alpha,pm.maxITR_SOR_phi,pm.error_cnv_SOR_phi,0,gc.rhom);
     }else{
@@ -5774,7 +5774,7 @@ void FluidModule::update_rhom(Params &pm,GridCenter &gc, GridInterfaceX &gx, Gri
     
     //Caluculate residuals
     //------------------------------------
-    calcRes(pm.error_rhom, gc.rhom,gc.rhom_old,gc.i_flc_bl, gc.j_flc_bl, pm.n_bl-1, 1e-100, pm.icon_error);
+    calcRes(pm.error_rhom, gc.rhom,gc.rhom_old,gc.i_flc_bl, gc.j_flc_bl, pm.n_bl-1, 1e-100, pm.flag_error);
     //------------------------------------
 }
 
@@ -5911,8 +5911,8 @@ void FluidModule::update_transport_coef(Params &pm,GridCenter &gc, GridInterface
             //運動量移動周波数
             double nu_m_real = gc.rhon[i][j]*func_Te(bo.nu_elas_N,gc.Te[i][j],pm.dTe);
             gc.nu_m[i][j] = nu_m_real
-                + double(pm.icon_Bohm)*gc.nu_ano[i][j] 
-                + double(pm.icon_Sagdeev)*gc.nu_ano_IAT[i][j];
+                + double(pm.flag_Bohm)*gc.nu_ano[i][j] 
+                + double(pm.flag_Sagdeev)*gc.nu_ano_IAT[i][j];
             gc.nu_m1[i][j] = (nu_m_real + pm.nu_eff); //マイクロ波用
 
             //イオン生成レート

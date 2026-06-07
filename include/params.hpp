@@ -26,7 +26,7 @@ struct Params{
     double Q_neutIn_mgs = 0.0; //中性粒子の流量 mg/s
     double fmw = 2.45e9; //マイクロ波周波数 (Hz)
     double Pmw = 8.0; //マイクロ波電力 (W)
-    int icon_mwRef = 1; //反射を解くか
+    int flag_mwRef = 1; //反射を解くか
     //--------------------------------
 
     //physical_parameter
@@ -63,14 +63,14 @@ struct Params{
 
     //governing_equation
     //--------------------------------
-    int icon_inertia = 0; //慣性を考慮するか
+    int flag_inertia = 0; //慣性を考慮するか
     double scale_inertia = 1.0; //scaling factor of inertia term
     //--------------------------------
 
     //anomalous_scattering_model
     //--------------------------------
-    int icon_Sagdeev = 0; //Sagdeevモデルを考慮するか
-    int icon_Bohm = 0; //Bohm拡散を考慮するか
+    int flag_Sagdeev = 0; //Sagdeevモデルを考慮するか
+    int flag_Bohm = 0; //Bohm拡散を考慮するか
     double alpha_Bohm = 16.0; //ボーム拡散係数
     //--------------------------------
 
@@ -87,7 +87,7 @@ struct Params{
 
     //numerical_scheme
     //--------------------------------
-    int icon_PC = 0; //PC methodを使うか (0:直接離散化，1:PC method)
+    int flag_PC = 0; //PC methodを使うか (0:直接離散化，1:PC method)
     double Te_rep_eV = 3.0; //代表電子温度 (イオンスキーム用)
     //--------------------------------
 
@@ -95,21 +95,21 @@ struct Params{
     //--------------------------------
     double error_cnv_SOR_Ui = 1e-10;  //Uiの収束基準
     int maxITR_SOR_Ui = 30;           //Uiの最大反復数
-    int icon_iter_Ui = 1;             //Uiの反復法の選択 0:SOR 1:SMG
+    int flag_iter_Ui = 1;             //Uiの反復法の選択 0:SOR 1:SMG
 
     double error_cnv_SOR_rhoi = 1e-8; //rhoiの収束基準
     int maxITR_SOR_rhoi = 2000;       //rhoiの最大反復数
-    int icon_iter_rhoi = 1;           //rhoiの反復法の選択 0:SOR 1:SMG
+    int flag_iter_rhoi = 1;           //rhoiの反復法の選択 0:SOR 1:SMG
 
     double error_cnv_SOR_phi = 1e-8;  //phiの収束基準
     int maxITR_SOR_phi = 2000;        //phiの最大反復数
-    int icon_iter_phi = 1;            //phiの反復法の選択 0:SOR 1:SMG
+    int flag_iter_phi = 1;            //phiの反復法の選択 0:SOR 1:SMG
     double error_cnv_HES_phi = 1e-6; //phiの擬似タイムステップの収束
     int maxITR_HES_phi = 1; //phiの擬似時間の最大反復数
 
     double error_cnv_SOR_rhoe = 1e-6;  //rhoeの収束基準
     int maxITR_SOR_rhoe = 30;        //rhoeの最大反復数
-    int icon_iter_rhoe = 1;          //rhoeの反復法の選択 0:直接法 1:GMRES (0:SOR 1:SMG)
+    int flag_iter_rhoe = 1;          //rhoeの反復法の選択 0:直接法 1:GMRES (0:SOR 1:SMG)
     double error_cnv_HES_rhoe = 1e-6; //rhoeの擬似タイムステップの収束
     int maxITR_HES_rhoe = 1; //rhoeの擬似時間の最大反復数
     double beta_rhoe = 1.0; //rhoeの不足緩和係数 (慣性考慮時)
@@ -117,14 +117,14 @@ struct Params{
 
     double error_cnv_SOR_rhoeps = 1e-6;  //rhoepsの収束基準
     int maxITR_SOR_rhoeps = 30;        //rhoepsの最大反復数
-    int icon_iter_rhoeps = 1;          //rhoepsの反復法の選択 0:GMRES 0:直接法
+    int flag_iter_rhoeps = 1;          //rhoepsの反復法の選択 0:GMRES 0:直接法
     double error_cnv_HES_rhoeps = 1e-6; //rhoepsの擬似タイムステップの収束
     int maxITR_HES_rhoeps = 1; //rhoepsの擬似時間の最大反復数
     //--------------------------------
 
     //simulation_control
     //--------------------------------
-    int icon_adp_dt = 0;  //アダプティブなdtを用いるか 0:固定dt, 1:可変dt
+    int flag_adp_dt = 0;  //アダプティブなdtを用いるか 0:固定dt, 1:可変dt
     double dt_ini = 5.0e-12; //初期CFL 誘電緩和時間 3.38e-13 5.0e-13
     double CFL = 1.0e1; //CFL数 0.001
     int ntime = 2000; //3000000
@@ -132,20 +132,20 @@ struct Params{
     int ndt_m = 1000; //中性 (準安定) の電子に対するタイムステップ倍率
     int ndt_n = 10000; //中性 (準安定) の電子に対するタイムステップ倍率
     int ndiv_MW = 200000; ///マイクロ波の計算間隔
-    int icon_error = 1; //errorの種類 0:max 1:rms
-    int icon_autoFinish = 0;
+    int flag_error = 1; //errorの種類 0:max 1:rms
+    int flag_autoFinish = 0;
     //--------------------------------
     
     //output_control
     //--------------------------------
-    int icon_chk = 0; //チェックファイルを出力するか
-    int icon_gnuRes = 1; //gnuplot結果表示
+    int flag_chk = 0; //チェックファイルを出力するか
+    int flag_gnuRes = 1; //gnuplot結果表示
     int ndiv_fout = 2000;
     //--------------------------------
 
     //test_mode
     //--------------------------------
-    int icon_impTest= 1;      // (int) conduct impedance test
+    int flag_impTest= 1;      // (int) conduct impedance test
     //--------------------------------
     
     // ============================================================
@@ -181,7 +181,7 @@ struct Params{
     
     int nOut = 0; //ファイルアウトプット回数
     
-    int icon_restart = 0;
+    int flag_restart = 0;
     
     double error_rhoi = 0.0;
     double error_Uix = 0.0;

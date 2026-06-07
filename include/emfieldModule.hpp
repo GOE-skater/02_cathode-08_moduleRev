@@ -1685,7 +1685,7 @@ void EmfieldModule::update_energy_profile(Params &pm, GridCenter &gc, GridInterf
     cout << "Total power = " << power_sum << " W" << endl;
 
     //calculate reflection
-    if(pm.icon_mwRef == 1){
+    if(pm.flag_mwRef == 1){
 
         //set refelence plane
         //---------------------------------
