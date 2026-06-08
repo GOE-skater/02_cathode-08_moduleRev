@@ -374,28 +374,3 @@ inline void calcRes(double &error,
     //========================================
 }
 
-//*****************************************************************
-//**                                                             **
-//**           void output_residual_for_PC                       **
-//**                                                             **
-//*****************************************************************
-void output_residual_for_PC(std::string name, double gtime, int itime, double error_val, double error_Fx, double error_Fr, int itime_PC, int ncount){
-    
-    std::ofstream outputfile1;
-    if(itime_PC == 1){
-        outputfile1.open("results/residuals_PC_" + name + ".csv");
-        outputfile1 << "gtime,itime,ncount,itime_PC,err_val,err_Fx,err_Fr" << std::endl;
-    }else{
-        outputfile1.open("results/residuals_PC_" + name + ".csv",std::ios::app);
-    }
-    outputfile1 << gtime
-                <<","<< itime
-                <<","<< ncount
-                <<","<< itime_PC
-                <<","<< error_val
-                <<","<< error_Fx
-                <<","<< error_Fr
-                << std::endl;
-    
-    outputfile1.close();      
-}

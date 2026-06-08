@@ -13,7 +13,7 @@ domain: #for cathode
   width_neutIn: 0.0055           # (double) Neutral inlet width [m]
 # --------------------------------
 
-#domain: #for test
+#domain: #for test (coaxial cable)
 # --------------------------------
 #  ni: 194                        # (int) Number of cells in x-direction (typical:194)
 #  nj: 7                          # (int) Number of cells in r-direction (typical:70)
@@ -30,7 +30,7 @@ operating_condition:
   Q_neutIn_mgs: 0.069            # (double) Neutral particle flow rate [mg/s], 1 sccm = 0.098 mg/s, previous/example: 0.04881367984087
   fmw: 4.25e9                    # (double) Microwave frequency [Hz]
   Pmw: 8.0                       # (double) Microwave power [W], previous/example: 8
-  flag_mwRef: 1                  # (int) Whether to include the microwave reflection
+  flag_mwRef: 1                  # (int) Whether to include the microwave reflection (0: fix abosorbed power, 1: fix input power)
 # --------------------------------
 
 physical_parameter:

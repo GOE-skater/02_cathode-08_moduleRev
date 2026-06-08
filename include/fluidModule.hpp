@@ -19,7 +19,16 @@ using namespace std;
 //*****************************************************************
 class FluidModule{
     private:
-
+        void output_residual_for_PC(std::string name
+            , double gtime
+            , int itime
+            , double error_val
+            , double error_Fx
+            , double error_Fr
+            , int itime_PC
+            , int ncount
+        );
+    
     public:
         void check_CFL(Params &pm,GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr);
         
@@ -5960,4 +5969,34 @@ void FluidModule::update_transport_coef(Params &pm,GridCenter &gc, GridInterface
             gc.mu_min[i][j] = gc.mu_para[i][j]*2.0/deno;
         }
     }
+}
+
+//===========================================================================
+//                           private functions
+//===========================================================================
+
+//*****************************************************************
+//**                                                             **
+//**           void output_residual_for_PC                       **
+//**                                                             **
+//*****************************************************************
+void FluidModule::output_residual_for_PC(std::string name, double gtime, int itime, double error_val, double error_Fx, double error_Fr, int itime_PC, int ncount){
+    
+    std::ofstream outputfile1;
+    if(itime_PC == 1){
+        outputfile1.open("results/residuals_PC_" + name + ".csv");
+        outputfile1 << "gtime,itime,ncount,itime_PC,err_val,err_Fx,err_Fr" << std::endl;
+    }else{
+        outputfile1.open("results/residuals_PC_" + name + ".csv",std::ios::app);
+    }
+    outputfile1 << gtime
+                <<","<< itime
+                <<","<< ncount
+                <<","<< itime_PC
+                <<","<< error_val
+                <<","<< error_Fx
+                <<","<< error_Fr
+                << std::endl;
+    
+    outputfile1.close();      
 }

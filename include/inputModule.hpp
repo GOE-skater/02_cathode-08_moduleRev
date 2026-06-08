@@ -966,6 +966,15 @@ void InputModule::input_restart_data(Params &pm, GridCenter &gc, GridInterfaceX 
     cout << "[restart.csv] Restart data was successfully loaded." << endl;
 
 
+    //data clearning (masking) for rhoe
+    //------------------------------------
+     for (int i = 0; i <= pm.ni + 1; i++) {
+        for (int j = 0; j <= pm.nj + 1; j++) {
+            gc.rhoe[i][j] = gc.rhoe[i][j]*double(gc.jdgBnd_flc[i][j]);
+        }
+    }
+    //------------------------------------
+
     //Update Ex
     //------------------------------------
     for (int iblock=0;iblock<pm.n_bl-1;iblock++){

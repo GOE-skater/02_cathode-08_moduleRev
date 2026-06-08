@@ -518,19 +518,19 @@ void InitialModule::makeBoundary(Params &pm, GridCenter &gc, GridInterfaceX &gx,
         mb.sBndNx.push_back(6); //凸角 右側Open
     }
     //x5
-    //for (int i=gc.i_flc_bl[4][0]+1;i<=gc.i_flc_bl[4][1];i++){
-    //    int j=gc.j_flc_bl[4][1];
-    //    mb.iBndNx.push_back(i);
-    //    mb.jBndNx.push_back(j);
-    //    mb.sBndNx.push_back(1); //開放
-    //}
-    //x5 (仮)
     for (int i=gc.i_flc_bl[4][0]+1;i<=gc.i_flc_bl[4][1];i++){
         int j=gc.j_flc_bl[4][1];
         mb.iBndNx.push_back(i);
         mb.jBndNx.push_back(j);
-        mb.sBndNx.push_back(0); //ディリクレ
+        mb.sBndNx.push_back(1); //開放
     }
+    //x5 (仮)
+    //for (int i=gc.i_flc_bl[4][0]+1;i<=gc.i_flc_bl[4][1];i++){
+    //    int j=gc.j_flc_bl[4][1];
+    //    mb.iBndNx.push_back(i);
+    //    mb.jBndNx.push_back(j);
+    //    mb.sBndNx.push_back(0); //ディリクレ
+    //}
 
     //出力
     if(pm.flag_chk == 1){
@@ -911,19 +911,19 @@ void InitialModule::makeBoundary(Params &pm, GridCenter &gc, GridInterfaceX &gx,
         mb.sBndNp.push_back(0); //ディリクレ
     }
     //x5
-    //for (int i=gc.i_flc_bl[4][0];i<=gc.i_flc_bl[4][1];i++){
-    //    int j=gc.j_flc_bl[4][1];
-    //    mb.iBndNp.push_back(i);
-    //    mb.jBndNp.push_back(j);
-    //    mb.sBndNp.push_back(1); //開放
-    //}
-    //x5 (仮)
     for (int i=gc.i_flc_bl[4][0];i<=gc.i_flc_bl[4][1];i++){
         int j=gc.j_flc_bl[4][1];
         mb.iBndNp.push_back(i);
         mb.jBndNp.push_back(j);
-        mb.sBndNp.push_back(0); //ディリクレ
+        mb.sBndNp.push_back(1); //開放
     }
+    //x5 (仮)
+    //for (int i=gc.i_flc_bl[4][0];i<=gc.i_flc_bl[4][1];i++){
+    //    int j=gc.j_flc_bl[4][1];
+    //    mb.iBndNp.push_back(i);
+    //    mb.jBndNp.push_back(j);
+    //    mb.sBndNp.push_back(0); //ディリクレ
+    //}
     
     //出力
     if(pm.flag_chk == 1){

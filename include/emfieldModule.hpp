@@ -24,7 +24,28 @@ using namespace std;
 class EmfieldModule
 {
     private:
-    
+        void mWLoss_at_boundary_rR(double &P_loss
+            , int j
+            , int iMin, int iMax
+            , vector<vector<complex<double> > > E1x
+            , vector<vector<complex<double> > > E1r
+            , vector<vector<complex<double> > > E1p
+            , vector<double> x
+            , vector<double> r
+            , Params &pm
+        );
+
+        void mWLoss_at_boundary_xL(double &P_loss
+            , int i
+            , int jMin, int jMax
+            , vector<vector<complex<double> > > E1x
+            , vector<vector<complex<double> > > E1r
+            , vector<vector<complex<double> > > E1p
+            , vector<double> x
+            , vector<double> r
+            , Params &pm
+        );
+
     public:
         void solve_Microwave(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr, MicrowaveBC &mb);
         void solve_Microwave_impedanceTest(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr, MicrowaveBC &mb);
@@ -5385,11 +5406,50 @@ void EmfieldModule::update_energy_profile(Params &pm, GridCenter &gc, GridInterf
     }
 
     cout  << endl;
-    cout << "---------------------------------" << endl;
-    cout << "Total power = " << power_sum << " W" << endl;
-
+    
     //calculate reflection
     if(pm.flag_mwRef == 1){
+
+        
+        //calculate boudary loss
+        //---------------------------------
+        
+
+        double P_loss = 0.0;
+        mWLoss_at_boundary_rR(P_loss,gc.j_flc_bl[4][1],gc.i_flc_bl[4][0],gc.i_flc_bl[4][1],gx.E1x,gr.E1r,gc.E1p,gc.x,gc.r,pm);
+          
+        /*
+        for (int i=gc.i_flc_bl[4][0];i<=gc.i_flc_bl[4][1];i++){
+            int j = gc.j_flc_bl[4][1];
+
+            double r_tmp = (gc.r[j] + gc.r[j+1])/2.0;
+
+            complex<double> dE1rdx_Lx = (gr.E1r[i][j] - gr.E1r[i-1][j])/pm.dx;
+            complex<double> dE1xdr_Lx = (gx.E1x[i][j+1] - gx.E1x[i][j])/pm.dr;
+            complex<double> dE1rdx_Rx = (gr.E1r[i+1][j] - gr.E1r[i][j])/pm.dx;
+            complex<double> dE1xdr_Rx = (gx.E1x[i+1][j+1] - gx.E1x[i+1][j])/pm.dr;
+
+            complex<double> H1p_Lx = complex<double>(0.0,1.0/(pm.omegam*ph::mu0))*(dE1rdx_Lx - dE1xdr_Lx);
+            complex<double> H1p_Rx = complex<double>(0.0,1.0/(pm.omegam*ph::mu0))*(dE1rdx_Rx - dE1xdr_Rx);
+            complex<double> H1p_tmp = (H1p_Rx + H1p_Lx)/2.0;
+            
+            complex<double> dE1pdr = (gc.r[j+1]*gc.E1p[i][j+1] - gc.r[j]*gc.E1p[i][j])/(r_tmp*pm.dr);
+            complex<double> H1x_tmp = complex<double>(0.0,-1.0/(pm.omegam*ph::mu0))*dE1pdr;
+
+            complex<double> E1p_tmp = (gc.r[j+1]*gc.E1p[i][j+1] + gc.r[j]*gc.E1p[i][j])/(2.0*r_tmp);
+            //cout << gc.E1p[i][j+1] << ","<<gc.E1p[i][j] << endl;
+            complex<double> E1x_Lx = (gc.r[j+1]*gx.E1x[i][j+1] + gc.r[j]*gx.E1x[i][j])/(2.0*r_tmp);
+            complex<double> E1x_Rx = (gc.r[j+1]*gx.E1x[i+1][j+1] + gc.r[j]*gx.E1x[i+1][j])/(2.0*r_tmp);
+            complex<double> E1x_tmp = (E1x_Rx + E1x_Lx)/2.0;
+
+            complex<double> ExH = E1p_tmp*conj(H1x_tmp) - E1x_tmp*conj(H1p_tmp);
+            double S = 0.5*real(ExH);
+
+            P_loss = P_loss + 2.0*M_PI*r_tmp*S*pm.dx;
+
+            //cout << i << ","<<j << ","<< E1x_tmp << ","<< E1p_tmp << ","<<H1x_tmp  << ","<< H1p_tmp << ","<< ExH << ","<<S << ","<<P_loss << endl;
+        }
+        */
 
         //set refelence plane
         //---------------------------------
@@ -5417,6 +5477,7 @@ void EmfieldModule::update_energy_profile(Params &pm, GridCenter &gc, GridInterf
         }
         I_ref_tmp = I_ref_tmp/double(ncount);
         //---------------------------------
+        
 
         //calculate current V
         //---------------------------------
@@ -5453,6 +5514,7 @@ void EmfieldModule::update_energy_profile(Params &pm, GridCenter &gc, GridInterf
 
         complex<double> Z_ref_tmp = V_ref_tmp/(I_ref_tmp + 1e-100);
         
+        cout << "---------------------------------" << endl;
         cout << "Impedance at reference plane x = " << x_tmp << endl;
         cout << "Z_ref = " << Z_ref_tmp << ", V_ref = " << V_ref_tmp << ", I_ref = " << I_ref_tmp 
             << ", |Z_ref| = " << abs(Z_ref_tmp) 
@@ -5474,7 +5536,9 @@ void EmfieldModule::update_energy_profile(Params &pm, GridCenter &gc, GridInterf
         cout << endl;
         cout << "Fwd power = " << P_fwd << " W" << endl;
         cout << "Ref power = " << P_ref << " W" << endl;
-        cout << "Transmitted power = " << P_fwd - P_ref << " W" << endl;
+        cout << "Abs power = " << power_sum << " W" << endl;
+        cout << "Loss power = " << P_loss << " W" << endl;
+        cout << "Error (Fwd - Ref - Abs - Loss) = " << P_fwd - P_ref - power_sum - P_loss << " W, "<< (P_fwd - P_ref - power_sum)/P_fwd*100 << " %"<<endl;
         
         double ratio = pm.Pmw/P_fwd;
 
@@ -5492,6 +5556,10 @@ void EmfieldModule::update_energy_profile(Params &pm, GridCenter &gc, GridInterf
         }
        
     }else{
+
+
+        cout << "---------------------------------" << endl;
+        cout << "Total power = " << power_sum << " W" << endl;
 
         double ratio = pm.Pmw/power_sum;
         
@@ -5518,3 +5586,99 @@ void EmfieldModule::update_energy_profile(Params &pm, GridCenter &gc, GridInterf
 
 }
 
+
+
+//===========================================================================
+//                           private functions
+//===========================================================================
+
+//*****************************************************************
+//**                                                             **
+//**           void mWLoss_at_boundary_rR()                      **
+//**                                                             **
+//*****************************************************************
+void EmfieldModule::mWLoss_at_boundary_rR(double &P_loss
+    , int j
+    , int iMin, int iMax
+    , vector<vector<complex<double> > > E1x
+    , vector<vector<complex<double> > > E1r
+    , vector<vector<complex<double> > > E1p
+    , vector<double> x
+    , vector<double> r
+    , Params &pm
+){
+
+    for (int i = iMin;i<=iMax;i++){
+            
+        double r_tmp = (r[j] + r[j+1])/2.0;
+        complex<double> dE1rdx_Lx = (E1r[i][j] - E1r[i-1][j])/pm.dx;
+        complex<double> dE1xdr_Lx = (E1x[i][j+1] - E1x[i][j])/pm.dr;
+        complex<double> dE1rdx_Rx = (E1r[i+1][j] - E1r[i][j])/pm.dx;
+        complex<double> dE1xdr_Rx = (E1x[i+1][j+1] - E1x[i+1][j])/pm.dr;
+        
+        complex<double> H1p_Lx = complex<double>(0.0,1.0/(pm.omegam*ph::mu0))*(dE1rdx_Lx - dE1xdr_Lx);
+        complex<double> H1p_Rx = complex<double>(0.0,1.0/(pm.omegam*ph::mu0))*(dE1rdx_Rx - dE1xdr_Rx);
+        complex<double> H1p_tmp = (H1p_Rx + H1p_Lx)/2.0;
+        
+        complex<double> dE1pdr = (r[j+1]*E1p[i][j+1] - r[j]*E1p[i][j])/(r_tmp*pm.dr);
+        complex<double> H1x_tmp = complex<double>(0.0,-1.0/(pm.omegam*ph::mu0))*dE1pdr;
+        
+        complex<double> E1p_tmp = (r[j+1]*E1p[i][j+1] + r[j]*E1p[i][j])/(2.0*r_tmp);
+        
+        complex<double> E1x_Lx = (r[j+1]*E1x[i][j+1] + r[j]*E1x[i][j])/(2.0*r_tmp);
+        complex<double> E1x_Rx = (r[j+1]*E1x[i+1][j+1] + r[j]*E1x[i+1][j])/(2.0*r_tmp);
+        complex<double> E1x_tmp = (E1x_Rx + E1x_Lx)/2.0;
+        
+        complex<double> ExH = E1p_tmp*conj(H1x_tmp) - E1x_tmp*conj(H1p_tmp);
+        double S = 0.5*real(ExH);
+        
+        P_loss = P_loss + 2.0*M_PI*r_tmp*S*pm.dx;
+        //cout << i << ","<<j << ","<< E1x_tmp << ","<< E1p_tmp << ","<<H1x_tmp  << ","<< H1p_tmp << ","<< ExH << ","<<S << ","<<P_loss << endl;
+    }
+}
+
+
+//*****************************************************************
+//**                                                             **
+//**           void output_residual_for_PC                       **
+//**                                                             **
+//*****************************************************************
+void EmfieldModule::mWLoss_at_boundary_xL(double &P_loss
+    , int i
+    , int jMin, int jMax
+    , vector<vector<complex<double> > > E1x
+    , vector<vector<complex<double> > > E1r
+    , vector<vector<complex<double> > > E1p
+    , vector<double> x
+    , vector<double> r
+    , Params &pm
+){
+
+    for (int i = jMin;i<=jMax;i++){
+        
+        //double r_tmp = (r[j] + r[j+1])/2.0;
+        complex<double> dE1rdx_Lx = (E1r[i][j] - E1r[i-1][j])/pm.dx;
+        complex<double> dE1xdr_Lx = (E1x[i][j+1] - E1x[i][j])/pm.dr;
+        complex<double> dE1rdx_Rx = (E1r[i+1][j] - E1r[i][j])/pm.dx;
+        complex<double> dE1xdr_Rx = (E1x[i+1][j+1] - E1x[i+1][j])/pm.dr;
+        
+        complex<double> H1p_Lx = complex<double>(0.0,1.0/(pm.omegam*ph::mu0))*(dE1rdx_Lx - dE1xdr_Lx);
+        complex<double> H1p_Rx = complex<double>(0.0,1.0/(pm.omegam*ph::mu0))*(dE1rdx_Rx - dE1xdr_Rx);
+        complex<double> H1p_tmp = (H1p_Rx + H1p_Lx)/2.0;
+        
+        complex<double> dE1pdr = (r[j+1]*E1p[i][j+1] - r[j]*E1p[i][j])/(r_tmp*pm.dr);
+        complex<double> H1x_tmp = complex<double>(0.0,-1.0/(pm.omegam*ph::mu0))*dE1pdr;
+        
+        complex<double> E1p_tmp = (r[j+1]*E1p[i][j+1] + r[j]*E1p[i][j])/(2.0*r_tmp);
+        
+        complex<double> E1x_Lx = (r[j+1]*E1x[i][j+1] + r[j]*E1x[i][j])/(2.0*r_tmp);
+        complex<double> E1x_Rx = (r[j+1]*E1x[i+1][j+1] + r[j]*E1x[i+1][j])/(2.0*r_tmp);
+        complex<double> E1x_tmp = (E1x_Rx + E1x_Lx)/2.0;
+        
+        complex<double> ExH = E1p_tmp*conj(H1x_tmp) - E1x_tmp*conj(H1p_tmp);
+        double S = 0.5*real(ExH);
+        
+        P_loss = P_loss + 2.0*M_PI*r_tmp*S*pm.dx;
+    }
+
+}
