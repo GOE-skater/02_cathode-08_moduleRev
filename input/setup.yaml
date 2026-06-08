@@ -86,8 +86,8 @@ collisionless_heating_model:
 initial_condition:
 # --------------------------------
   rhon_ini: 2.41432e19           # (double) Initial neutral density [m^-3]
-  rhoe_ini: 5e16                 # (double) Initial electron density
-  Te_ini: 6.0                    # (double) Initial electron temperature [eV]
+  rhoe_ini: 1e15                 # (double) Initial electron density [m^-3] 5e18
+  Te_ini: 6.0                    # (double) Initial electron temperature [eV] 6eV
   J1r_exc: 0.212687              # (double) Microwave excitation current
 # --------------------------------
 
