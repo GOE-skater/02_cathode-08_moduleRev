@@ -2,15 +2,26 @@
 # Input Parameters
 # ============================================================
 
-domain:
+domain: #for cathode
 # --------------------------------
-  ni: 194                        # (int) Number of cells in x-direction
-  nj: 70                         # (int) Number of cells in r-direction
-  xL: 0.00                       # (double) Min. x in domain
-  xR: 0.0388                     # (double) Max. x in domain
-  rmin: 0.00                     # (double) Min. r in domain
-  rmax: 0.014                    # (double) Max. r in domain
+  ni: 194                        # (int) Number of cells in x-direction (typical:194)
+  nj: 70                         # (int) Number of cells in r-direction (typical:70)
+  xL: 0.00                       # (double) Min. x in domain (typical:0.00)
+  xR: 0.0388                     # (double) Max. x in domain (typical:0.0388)
+  rmin: 0.00                     # (double) Min. r in domain (typical:0.00)
+  rmax: 0.014                    # (double) Max. r in domain (typical:0.014)
   width_neutIn: 0.0055           # (double) Neutral inlet width [m]
+# --------------------------------
+
+#domain: #for test
+# --------------------------------
+#  ni: 194                        # (int) Number of cells in x-direction (typical:194)
+#  nj: 7                          # (int) Number of cells in r-direction (typical:70)
+#  xL: 0.00                       # (double) Min. x in domain (typical:0.00)
+#  xR: 0.0388                     # (double) Max. x in domain (typical:0.0388)
+#  rmin: 0.0006                   # (double) Min. r in domain (typical:0.00)
+#  rmax: 0.002                    # (double) Max. r in domain (typical:0.014)
+#  width_neutIn: 0.0055           # (double) Neutral inlet width [m]
 # --------------------------------
 
 operating_condition:
@@ -19,7 +30,7 @@ operating_condition:
   Q_neutIn_mgs: 0.069            # (double) Neutral particle flow rate [mg/s], 1 sccm = 0.098 mg/s, previous/example: 0.04881367984087
   fmw: 4.25e9                    # (double) Microwave frequency [Hz]
   Pmw: 8.0                       # (double) Microwave power [W], previous/example: 8
-  flag_mwRef: 0                  # (int) Whether to include the microwave reflection
+  flag_mwRef: 1                  # (int) Whether to include the microwave reflection
 # --------------------------------
 
 physical_parameter:
@@ -30,7 +41,7 @@ physical_parameter:
   Ti: 300.0                      # (double) Ion temperature
   Tn: 300.0                      # (double) Neutral particle temperature
   DmN: 5.2e19                    # (double) Diffusion coefficient of metastable species, Wieme 1974 [1/ms]
-  epsr_diele: 1.20900093980893   # (double) Relative permittivity of the dielectric material 2.1
+  epsr_diele: 2.083825280349     # (double) Relative permittivity of the dielectric material 2.1
 # --------------------------------
 
 transmission_line:
@@ -43,7 +54,7 @@ transmission_line:
   S12_arg_deg: 0.0               # (double) Argument of S12 (deg)
   S22_mag: 0.0                   # (double) Magnitude of S22
   S22_arg_deg: 0.0               # (double) Argument of S22 (deg)
-  Z0_base: 38.4885               # (double) Base impedance (Ohm) 38.4885 54.4052
+  Z0_base: 50.0                  # (double) Base impedance (Ohm) 38.4885 54.4052
 # --------------------------------
 
 secondary_electron_emission:
@@ -120,7 +131,7 @@ simulation_control:
   flag_adp_dt: 0                 # (int) Whether to use adaptive dt; 0: fixed dt, 1: variable dt
   dt_ini: 1.0e-10                # (double) Initial time step, previous/example: 2.0e-10
   CFL: 1.0                       # (double) CFL number, previous/example: 0.001
-  ntime: 200                     # (int) Number of time steps, previous/example: 3000000
+  ntime: 1                     # (int) Number of time steps, previous/example: 3000000
   ndt_i: 1                       # (int) Ion time-step multiplier relative to the electron time step
   ndt_m: 1                       # (int) Metastable neutral time-step multiplier relative to the electron time step
   ndt_n: 1                       # (int) Neutral particle time-step multiplier relative to the electron time step
