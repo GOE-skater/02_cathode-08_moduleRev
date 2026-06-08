@@ -81,7 +81,9 @@ struct Params{
 
     //initial_condition
     //--------------------------------
-    double rhon_ini = 2.41432e19; //中性粒子密度 (初期値) m^-3 @1Pa
+    double rhon_ini = 2.41432e19; //中性粒子密度 (初期値)
+    double rhoe_ini = 5e18; //電子密度 (初期値)
+    double Te_ini = 3.0*ph::e0/ph::Boltz; //電子密度 (初期値)
     double J1r_exc = 0.212687; //励起電流
     //--------------------------------
 

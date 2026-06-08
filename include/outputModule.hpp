@@ -48,23 +48,34 @@ void OutputModule::output_phase(Params &pm, GridCenter &gc, GridInterfaceX &gx, 
         ofstream outputfile1(char1+char2+char_csv);
         //outputfile1<<"x,rho,Ui,rhoUix,Ue,rhoUex,rhoUex_E,rhoUex_D,E,phi,psi,rho_th,U_th,E_th,phi_th,psi_th,rate_ionize,divi,dive1,dive2,dive3, div_poisson, LHS, RHS,zero" << endl;
         //outputfile1<<"x,rhon,rho,rhoe(test),Uix,rhoUix,Uex,Uey,rhoUex,rhoUey,Te,heat_flux,Bz,E,phi,nu_m,nu_en,nu_ei,nu_ionz,nu_exc,nu_wall,nu_ano,mue_parae,mue_perp,Halle,jd,Id,rate_eloss,rate_ionize,divi,dive,divn,engy_LHS,engy_LHS1,engy_LHS2,engy_LHS3,engy_LHS4,engy_RHS,engy_RHS1,engy_RHS2,engy_RHS3,zero" << endl;
-        outputfile1<<"i,j,x,r,Ex(R),Ex(I),|Ex|,arg(Ex),Er(R),Er(I),|Er|,arg(Er),Ep(R),Ep(I),|Ep|,arg(Ep),sigma_xx(R),sigma_xx(I),|sigma_xx|,arg(sigma_xx),sigma_rr(R),sigma_rr(I),|sigma_rr|,arg(sigma_rr),sigma_pp(R),sigma_pp(I),|sigma_pp|,arg(sigma_pp),sigma_xr(R),sigma_xr(I),|sigma_xr|,arg(sigma_xr),sigma_xp(R),sigma_xp(I),|sigma_xp|,arg(sigma_xp),sigma_rp(R),sigma_rp(I),|sigma_rp|,arg(sigma_rp),Jx(R),Jx(I),|Jx|,arg(Jx),Jr(R),Jr(I),|Jr|,arg(Jr),Jp(R),Jp(I),|Jp|,arg(Jp),Jx_exc(R),Jx_exc(I),|Jx_exc|,arg(Jx_exc),Jr_exc(R),Jr_exc(I),|Jr_exc|,arg(Jr_exc),Jp_exc(R),Jp_exc(I),|Jp_exc|,arg(Jp_exc),divE,jdgBnd_Ex,jdgBnd_Er,jdgBnd_Ep,Pabs,rho,Te,nu_m,Bx,Br,Bmag,Ap,epsr,zero" << endl;
+        outputfile1<<"i,j,x,r,Ex(R),Ex(I),|Ex|,arg(Ex),Er(R),Er(I),|Er|,arg(Er),Ep(R),Ep(I),|Ep|,arg(Ep),sigma_xx(R),sigma_xx(I),|sigma_xx|,arg(sigma_xx),sigma_rr(R),sigma_rr(I),|sigma_rr|,arg(sigma_rr),sigma_pp(R),sigma_pp(I),|sigma_pp|,arg(sigma_pp),sigma_xr(R),sigma_xr(I),|sigma_xr|,arg(sigma_xr),sigma_xp(R),sigma_xp(I),|sigma_xp|,arg(sigma_xp),sigma_rp(R),sigma_rp(I),|sigma_rp|,arg(sigma_rp),Jx_exc(R),Jx_exc(I),|Jx_exc|,arg(Jx_exc),Jr_exc(R),Jr_exc(I),|Jr_exc|,arg(Jr_exc),Jp_exc(R),Jp_exc(I),|Jp_exc|,arg(Jp_exc),divE,divJ,div(E+J),jdgBnd_Ex,jdgBnd_Er,jdgBnd_Ep,Pabs,Pabs(x),Pabs(r),Pabs(p),rho,Te,nu_m1,Bx,Br,Bmag,Ap,epsr,zero" << endl;
         complex<double> EPS(1e-100,1e-100);
         for(int i=1;i<=pm.ni;i++){
             for(int j=1;j<=pm.nj;j++){
                 complex<double> Ex_tmp = (gx.E1x[i][j]+gx.E1x[i+1][j])/2.0*exp(complex<double>(0,deg))*double(gc.jdgBnd_Ep[i][j]);
                 complex<double> Er_tmp = (gr.E1r[i][j+1] + gr.E1r[i][j])/2.0*exp(complex<double>(0,deg))*double(gc.jdgBnd_Ep[i][j]);
                 complex<double> Ep_tmp =  gc.E1p[i][j]*exp(complex<double>(0,deg))*double(gc.jdgBnd_Ep[i][j]);
-                complex<double> Jx_exc_tmp = (gx.J1x[i][j]+gx.J1x[i+1][j])/2.0*exp(complex<double>(0,deg))*double(gc.jdgBnd_Ep[i][j]);
-                complex<double> Jr_exc_tmp = (gr.J1r[i][j+1] + gr.J1r[i][j])/2.0*exp(complex<double>(0,deg))*double(gc.jdgBnd_Ep[i][j]);
-                complex<double> Jp_exc_tmp =  gc.J1p[i][j]*exp(complex<double>(0,deg))*double(gc.jdgBnd_Ep[i][j]);
+                complex<double> J1x_tmp = (gx.J1x[i][j]+gx.J1x[i+1][j])/2.0*exp(complex<double>(0,deg))*double(gc.jdgBnd_Ep[i][j]);
+                complex<double> J1r_tmp = (gr.J1r[i][j+1] + gr.J1r[i][j])/2.0*exp(complex<double>(0,deg))*double(gc.jdgBnd_Ep[i][j]);
+                complex<double> J1p_tmp =  gc.J1p[i][j]*exp(complex<double>(0,deg))*double(gc.jdgBnd_Ep[i][j]);
                 double rL = (gc.r[j-1] + gc.r[j])/2.0;
                 double rR = (gc.r[j+1] + gc.r[j])/2.0;
-                complex<double> divE = ((rR*gr.E1r[i][j+1]-rL*gr.E1r[i][j])/(pm.dr*gc.r[j]) + (gx.E1x[i+1][j]-gx.E1x[i][j])/pm.dx)*double(gc.jdgBnd_Ep[i][j]);
+                complex<double> divE = (
+                    (rR*gr.E1r[i][j+1]-rL*gr.E1r[i][j])/(pm.dr*gc.r[j]) + (gx.E1x[i+1][j]-gx.E1x[i][j])/pm.dx
+                )*double(gc.jdgBnd_Ep[i][j]);
+                complex<double> divJ = (
+                    (rR*gr.J1r[i][j+1]-rL*gr.J1r[i][j])/(pm.dr*gc.r[j]) + (gx.J1x[i+1][j]-gx.J1x[i][j])/pm.dx
+                )*double(gc.jdgBnd_Ep[i][j]);
+                complex<double> divEJ = (
+                    divJ + complex<double>(0.0,pm.omegam*ph::eps0)*divE
+                )*double(gc.jdgBnd_Ep[i][j]);
+
+
                 //double aveE = (abs(gr.E1r[i][j+1]) + abs(gr.E1r[i][j]) + abs(gx.E1x[i+1][j]) + abs(gx.E1x[i][j]))/4.0;
                 //double aveE = sqrt(real(Ex_tmp*conj(Ex_tmp) + Er_tmp*conj(Er_tmp)));
-                double aveE = 1.0/pm.dx; //5000
-                divE = divE/((aveE+1e-100)/pm.dx);
+                //double aveE = 1.0/pm.dx; //5000
+                //divE = divE/((aveE+1e-100)/pm.dx);
+
 
                 double nu_m_tmp = gc.nu_m1[i][j];
                 double rho_tmp  = gc.rhoe[i][j];
@@ -86,13 +97,14 @@ void OutputModule::output_phase(Params &pm, GridCenter &gc, GridInterfaceX &gx, 
                 complex<double> sigmaepp = coef*(1.0);
                 complex<double> sigmaepx = coef*(-Hallcmpr);
                 
+                double Pabsx_tmp = (gx.Pabsx[i][j] + gx.Pabsx[i+1][j])/2.0;
+                double Pabsr_tmp = (gr.Pabsr[i][j] + gr.Pabsr[i][j+1])/2.0;
+                
                 //cout << nu_cmp<< " , "<< 1.0/nu_cmp << endl;
 
-
-                complex<double> Jx_tmp = sigmaexr*Er_tmp + sigmaexp*Ep_tmp + sigmaexx*Ex_tmp;
-                complex<double> Jr_tmp = sigmaerr*Er_tmp + sigmaerp*Ep_tmp + sigmaerx*Ex_tmp;
-                complex<double> Jp_tmp = sigmaepr*Er_tmp + sigmaepp*Ep_tmp + sigmaepx*Ex_tmp;
-
+                //complex<double> Jx_tmp = sigmaexr*Er_tmp + sigmaexp*Ep_tmp + sigmaexx*Ex_tmp;
+                //complex<double> Jr_tmp = sigmaerr*Er_tmp + sigmaerp*Ep_tmp + sigmaerx*Ex_tmp;
+                //complex<double> Jp_tmp = sigmaepr*Er_tmp + sigmaepp*Ep_tmp + sigmaepx*Ex_tmp;
 
                 outputfile1<< i << ","<< j << "," << gc.x[i]<< ","<< gc.r[j]
                     << ","<< real(Ex_tmp) << "," << imag(Ex_tmp) << ","<< abs(Ex_tmp) << ","<< arg(Ex_tmp)
@@ -104,16 +116,16 @@ void OutputModule::output_phase(Params &pm, GridCenter &gc, GridInterfaceX &gx, 
                     << ","<< real(sigmaexr) << "," << imag(sigmaexr) << ","<< abs(sigmaexr) << ","<< arg(sigmaexr)
                     << ","<< real(sigmaexp) << "," << imag(sigmaexp) << ","<< abs(sigmaexp) << ","<< arg(sigmaexp)
                     << ","<< real(sigmaerp) << "," << imag(sigmaerp) << ","<< abs(sigmaerp) << ","<< arg(sigmaerp)
-                    << ","<< real(Jx_tmp) << "," << imag(Jx_tmp) << ","<< abs(Jx_tmp) << ","<< arg(Jx_tmp)
-                    << ","<< real(Jr_tmp) << "," << imag(Jr_tmp) << ","<< abs(Jr_tmp) << "," << arg(Jr_tmp)
-                    << ","<< real(Jp_tmp) << "," << imag(Jp_tmp) << ","<< abs(Jp_tmp) << "," << arg(Jp_tmp)
-                    << ","<< real(Jx_exc_tmp) << "," << imag(Jx_exc_tmp) << ","<< abs(Jx_exc_tmp) << "," << arg(Jx_exc_tmp)
-                    << ","<< real(Jr_exc_tmp) << "," << imag(Jr_exc_tmp) << ","<< abs(Jr_exc_tmp) << "," << arg(Jr_exc_tmp)
-                    << ","<< real(Jp_exc_tmp) << "," << imag(Jp_exc_tmp) << ","<< abs(Jp_exc_tmp) << "," << arg(Jp_exc_tmp)
-                    << ","<< abs(divE)
+                    //<< ","<< real(Jx_tmp) << "," << imag(Jx_tmp) << ","<< abs(Jx_tmp) << ","<< arg(Jx_tmp)
+                    //<< ","<< real(Jr_tmp) << "," << imag(Jr_tmp) << ","<< abs(Jr_tmp) << "," << arg(Jr_tmp)
+                    //<< ","<< real(Jp_tmp) << "," << imag(Jp_tmp) << ","<< abs(Jp_tmp) << "," << arg(Jp_tmp)
+                    << ","<< real(J1x_tmp) << "," << imag(J1x_tmp) << ","<< abs(J1x_tmp) << "," << arg(J1x_tmp)
+                    << ","<< real(J1r_tmp) << "," << imag(J1r_tmp) << ","<< abs(J1r_tmp) << "," << arg(J1r_tmp)
+                    << ","<< real(J1p_tmp) << "," << imag(J1p_tmp) << ","<< abs(J1p_tmp) << "," << arg(J1p_tmp)
+                    << ","<< abs(divE)<< ","<< abs(divJ)<< ","<< abs(divEJ)
                     << "," << gx.jdgBnd_Ex[i][j]  << "," << gr.jdgBnd_Er[i][j]  << "," << gc.jdgBnd_Ep[i][j]
-                    << ","<< gc.Pabs[i][j]*gc.jdgBnd_flc[i][j]
-                    << ","<< gc.rhoe[i][j]*gc.jdgBnd_flc[i][j] << ","<< gc.Te[i][j]*ph::Boltz/ph::e0*gc.jdgBnd_flc[i][j]<< ","<< gc.nu_m[i][j]*gc.jdgBnd_flc[i][j]
+                    << ","<< gc.Pabs[i][j]*gc.jdgBnd_flc[i][j]<< ","<< Pabsx_tmp*gc.jdgBnd_flc[i][j]<< ","<< Pabsr_tmp*gc.jdgBnd_flc[i][j]<< ","<< gc.Pabsp[i][j]*gc.jdgBnd_flc[i][j]
+                    << ","<< gc.rhoe[i][j]*gc.jdgBnd_flc[i][j] << ","<< gc.Te[i][j]*ph::Boltz/ph::e0*gc.jdgBnd_flc[i][j]<< ","<< gc.nu_m1[i][j]*gc.jdgBnd_flc[i][j]
                     << ","<< gc.Bx[i][j]*gc.jdgBnd_flc[i][j] << ","<< gc.Br[i][j]*gc.jdgBnd_flc[i][j]<< ","<< sqrt(gc.Bx[i][j]*gc.Bx[i][j]+gc.Br[i][j]*gc.Br[i][j])*gc.jdgBnd_flc[i][j]<< ","<< gc.Ap[i][j]
                     << ","<< gc.epsr[i][j]*gc.jdgBnd_Ep[i][j]
                     << "," << 0.0<< endl;

@@ -103,6 +103,7 @@ struct GridCenter{
     //current
     //--------------------------------
     vector<vector<complex<double> > > J1p;
+    vector<vector<complex<double> > > J1p_exc;
     //--------------------------------
 
     //permittivity
@@ -117,6 +118,7 @@ struct GridCenter{
 
     //power absorption density
     //--------------------------------
+    vector<vector<double> > Pabsp;
     vector<vector<double> > Pabs;
     //--------------------------------
 
@@ -236,6 +238,7 @@ struct GridCenter{
         //current
         //--------------------------------
         J1p(ni+2,vector<complex<double> >(nj+2,complex<double>(0.0,0.0))),
+        J1p_exc(ni+2,vector<complex<double> >(nj+2,complex<double>(0.0,0.0))),
         //--------------------------------
 
         //permittivity
@@ -251,6 +254,7 @@ struct GridCenter{
         //power absorption density
         //--------------------------------
         Pabs(ni+2,vector<double>(nj+2,0.0)),
+        Pabsp(ni+2,vector<double>(nj+2,0.0)),
         //--------------------------------
 
         //distance from ECR surface
@@ -336,6 +340,12 @@ struct GridInterfaceX{
     //current
     //--------------------------------
     vector<vector<complex<double> > > J1x;
+    vector<vector<complex<double> > > J1x_exc;
+    //--------------------------------
+
+    //power absorption density
+    //--------------------------------
+    vector<vector<double> > Pabsx;
     //--------------------------------
 
     //surface charge
@@ -420,6 +430,12 @@ struct GridInterfaceX{
         //current
         //--------------------------------
         J1x(ni+2,vector<complex<double> >(nj+2,complex<double>(0.0,0.0))),
+        J1x_exc(ni+2,vector<complex<double> >(nj+2,complex<double>(0.0,0.0))),
+        //--------------------------------
+
+        //power absorption density
+        //--------------------------------
+        Pabsx(ni+2,vector<double>(nj+2,0.0)),
         //--------------------------------
 
         //surface charge
@@ -508,6 +524,12 @@ struct GridInterfaceR{
     //current
     //--------------------------------
     vector<vector<complex<double> > > J1r;
+    vector<vector<complex<double> > > J1r_exc;
+    //--------------------------------
+
+    //power absorption density
+    //--------------------------------
+    vector<vector<double> > Pabsr;
     //--------------------------------
 
     //surface charge
@@ -592,6 +614,12 @@ struct GridInterfaceR{
         //current
         //--------------------------------
         J1r(ni+2,vector<complex<double> >(nj+2,complex<double>(0.0,0.0))),
+        J1r_exc(ni+2,vector<complex<double> >(nj+2,complex<double>(0.0,0.0))),
+        //--------------------------------
+
+        //power absorption density
+        //--------------------------------
+        Pabsr(ni+2,vector<double>(nj+2,0.0)),
         //--------------------------------
 
         //surface charge

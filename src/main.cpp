@@ -138,7 +138,6 @@ int main(int argc, char *argv[])
         outM.output_phase(pm, gc, gx, gr);
         //outM.output(pm, gc, gx, gr, bo); 
         return 0;
-
     }
 
     iniM.makeBoundary(pm, gc, gx, gr, mb);
@@ -153,6 +152,7 @@ int main(int argc, char *argv[])
     //マイクロ波計算
     {
         emfM.solve_Microwave(pm, gc, gx, gr, mb); //マイクロ波更新
+        //emfM.solve_Microwave_explicit(pm, gc, gx, gr, mb); //マイクロ波更新
         emfM.update_energy_profile(pm, gc, gx, gr); //電力吸収プロファイル更新
     }
 
@@ -249,6 +249,7 @@ int main(int argc, char *argv[])
 
         if(pm.itime % pm.ndiv_MW == 0){
             emfM.solve_Microwave(pm, gc, gx, gr, mb); //マイクロ波更新
+            //emfM.solve_Microwave_explicit(pm, gc, gx, gr, mb); //マイクロ波更新
             emfM.update_energy_profile(pm, gc, gx, gr); //電力吸収プロファイル更新
         }
 
@@ -355,8 +356,10 @@ int main(int argc, char *argv[])
 
         if(pm.itime >= pm.ntime){
             emfM.solve_Microwave(pm, gc, gx, gr, mb);
+            //emfM.solve_Microwave_explicit(pm, gc, gx, gr, mb); //マイクロ波更新
             emfM.update_energy_profile(pm, gc, gx, gr);
             emfM.solve_Microwave(pm, gc, gx, gr, mb);
+            //emfM.solve_Microwave_explicit(pm, gc, gx, gr, mb); //マイクロ波更新
             outM.output(pm, gc, gx, gr, bo);
 
             oneMoreTime:

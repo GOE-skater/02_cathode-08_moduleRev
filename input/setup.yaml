@@ -85,7 +85,9 @@ collisionless_heating_model:
 
 initial_condition:
 # --------------------------------
-  rhon_ini: 2.41432e19           # (double) Constant neutral particle density [m^-3] at 1 Pa
+  rhon_ini: 2.41432e19           # (double) Initial neutral density [m^-3]
+  rhoe_ini: 5e16                 # (double) Initial electron density
+  Te_ini: 6.0                    # (double) Initial electron temperature [eV]
   J1r_exc: 0.212687              # (double) Microwave excitation current
 # --------------------------------
 
@@ -131,7 +133,7 @@ simulation_control:
   flag_adp_dt: 0                 # (int) Whether to use adaptive dt; 0: fixed dt, 1: variable dt
   dt_ini: 1.0e-10                # (double) Initial time step, previous/example: 2.0e-10
   CFL: 1.0                       # (double) CFL number, previous/example: 0.001
-  ntime: 1                     # (int) Number of time steps, previous/example: 3000000
+  ntime: 200                     # (int) Number of time steps, previous/example: 3000000
   ndt_i: 1                       # (int) Ion time-step multiplier relative to the electron time step
   ndt_m: 1                       # (int) Metastable neutral time-step multiplier relative to the electron time step
   ndt_n: 1                       # (int) Neutral particle time-step multiplier relative to the electron time step

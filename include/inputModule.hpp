@@ -204,6 +204,9 @@ void InputModule::inputParam(Params &pm, string inputFileName)
 
         category = "initial_condition";
         READ_DOUBLE(category, pm.rhon_ini);
+        READ_DOUBLE(category, pm.rhoe_ini);
+        READ_DOUBLE(category, pm.Te_ini); //in eV
+        pm.Te_ini = pm.Te_ini*ph::e0/ph::Boltz;  //in K
         READ_DOUBLE(category, pm.J1r_exc);
         
         category = "numerical_scheme";

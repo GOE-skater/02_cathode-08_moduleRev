@@ -75,12 +75,11 @@ void InitialModule::iniParam(Params &pm,GridCenter &gc,GridInterfaceX &gx,GridIn
         //J1r[i_exc][j] = J1r_exc;
 
         double r_tmp = (gc.r[j] + gc.r[j-1])/2.0;
-        gr.J1r[i_exc][j] = pm.J1r_exc/r_tmp/pm.dx;
+        gr.J1r_exc[i_exc][j] = pm.J1r_exc/r_tmp/pm.dx;
         //cout << j << ","<< gc.r[j] << ", gr.J1r[i_exc][j] = " << gr.J1r[i_exc][j] << endl;
         //std::cout << i_exc << ","<< j <<","<<gr.J1r[i_exc][j] << std::endl;
     }
-        */
-
+    */
 
     std::string folder_name = ("./results");
     mkdir(folder_name.c_str(), 0777);
@@ -924,7 +923,7 @@ void InitialModule::makeBoundary(Params &pm, GridCenter &gc, GridInterfaceX &gx,
     //    mb.jBndNp.push_back(j);
     //    mb.sBndNp.push_back(0); //ディリクレ
     //}
-    
+
     //出力
     if(pm.flag_chk == 1){
         std::ofstream outputfileNp("results/BCp3.csv");
@@ -1422,7 +1421,8 @@ void InitialModule::makeProfile(Params &pm, GridCenter &gc, GridInterfaceX &gx, 
             double z_x = (gc.x[i]-xCen_rho)/sigmax_rho;
             double z_r = (gc.r[j]-rCen_rho)/sigmar_rho;
             gc.rate_ionize[i][j] = 6.0e21*exp(-z_x*z_x/0.12-z_r*z_r/0.12)*gc.jdgBnd_flc[i][j];
-            gc.rhoi[i][j] = 1e17*exp(-z_x*z_x/0.12-z_r*z_r/0.12)*gc.jdgBnd_flc[i][j];
+            //gc.rhoi[i][j] = 1e17*exp(-z_x*z_x/0.12-z_r*z_r/0.12)*gc.jdgBnd_flc[i][j];
+            gc.rhoi[i][j] = pm.rhoe_ini*gc.jdgBnd_flc[i][j];
             //Pabs[i][j] = 2e9*exp(-z_x*z_x/0.12-z_r*z_r/0.12); //nablaGのテスト用
             gc.rhom[i][j] = 1e-10*gc.jdgBnd_flc[i][j];
         }
@@ -1453,12 +1453,14 @@ void InitialModule::makeProfile(Params &pm, GridCenter &gc, GridInterfaceX &gx, 
             double z_x = (gc.x[i]-xCen_Te)/sigmax_Te;
             double z_r = (gc.r[j]-rCen_Te)/sigmar_Te;
             
-            gc.Te[i][j] = ((Te_max-Te_min)*exp(-z_x*z_x/0.12-z_r*z_r/0.12) + Te_min)*gc.jdgBnd_flc[i][j];
+            //gc.Te[i][j] = ((Te_max-Te_min)*exp(-z_x*z_x/0.12-z_r*z_r/0.12) + Te_min)*gc.jdgBnd_flc[i][j];
+            gc.Te[i][j] = pm.Te_ini*gc.jdgBnd_flc[i][j];
             //Te[i][j] = (Te_max-Te_min)*pow(fmax(Ap[i][j],0.0)/0.0000466606,0.5) + Te_min;
             gc.rhoeps[i][j] = 3.0/2.0*gc.rhoe[i][j]*ph::Boltz*gc.Te[i][j]*gc.jdgBnd_flc[i][j];
         }
     }
 
+    /*
     //左 壁2
     //std::cout << " Left2 "<< std::endl;
     //std::cout << " i = "  << i_flc_bl[1][0]   << std::endl;
@@ -1476,6 +1478,7 @@ void InitialModule::makeProfile(Params &pm, GridCenter &gc, GridInterfaceX &gx, 
         int j = gc.j_flc_bl[0][0];
         gc.Te[i][j-1] = gc.Te[i][j];
     }
+    */
 
     //比誘電率プロファイル作成
     for (int i=gc.i_flc_bl[pm.n_bl-1][0];i<=gc.i_flc_bl[pm.n_bl-1][1];i++){ 
@@ -1484,7 +1487,6 @@ void InitialModule::makeProfile(Params &pm, GridCenter &gc, GridInterfaceX &gx, 
         }
     }
     
-
     //基底中性粒子密度プロファイル作成
     for (int i=0;i<=pm.ni+1;i++){
         for (int j=0;j<=pm.nj+1;j++){
