@@ -2,26 +2,26 @@
 # Input Parameters
 # ============================================================
 
-domain: #for cathode
-# --------------------------------
-  ni: 194                        # (int) Number of cells in x-direction (typical:194)
-  nj: 70                         # (int) Number of cells in r-direction (typical:70)
-  xL: 0.00                       # (double) Min. x in domain (typical:0.00)
-  xR: 0.0388                     # (double) Max. x in domain (typical:0.0388)
-  rmin: 0.00                     # (double) Min. r in domain (typical:0.00)
-  rmax: 0.014                    # (double) Max. r in domain (typical:0.014)
-  width_neutIn: 0.0055           # (double) Neutral inlet width [m]
-# --------------------------------
-
-#domain: #for test (coaxial cable)
+#domain: #for cathode
 # --------------------------------
 #  ni: 194                        # (int) Number of cells in x-direction (typical:194)
-#  nj: 7                          # (int) Number of cells in r-direction (typical:70)
+#  nj: 70                         # (int) Number of cells in r-direction (typical:70)
 #  xL: 0.00                       # (double) Min. x in domain (typical:0.00)
 #  xR: 0.0388                     # (double) Max. x in domain (typical:0.0388)
-#  rmin: 0.0006                   # (double) Min. r in domain (typical:0.00)
-#  rmax: 0.002                    # (double) Max. r in domain (typical:0.014)
+#  rmin: 0.00                     # (double) Min. r in domain (typical:0.00)
+#  rmax: 0.014                    # (double) Max. r in domain (typical:0.014)
 #  width_neutIn: 0.0055           # (double) Neutral inlet width [m]
+# --------------------------------
+
+domain: #for test (coaxial cable)
+# --------------------------------
+  ni: 194                        # (int) Number of cells in x-direction (typical:194)
+  nj: 7                          # (int) Number of cells in r-direction (typical:70)
+  xL: 0.00                       # (double) Min. x in domain (typical:0.00)
+  xR: 0.0388                     # (double) Max. x in domain (typical:0.0388)
+  rmin: 0.0006                   # (double) Min. r in domain (typical:0.00)
+  rmax: 0.002                    # (double) Max. r in domain (typical:0.014)
+  width_neutIn: 0.0055           # (double) Neutral inlet width [m]
 # --------------------------------
 
 operating_condition:
@@ -29,7 +29,7 @@ operating_condition:
   V_bias: 35.0                   # (double) Bias voltage, previous/example: 20
   Q_neutIn_mgs: 0.069            # (double) Neutral particle flow rate [mg/s], 1 sccm = 0.098 mg/s, previous/example: 0.04881367984087
   fmw: 4.25e9                    # (double) Microwave frequency [Hz]
-  Pmw: 12.5748                   # (double) Microwave power [W], previous/example: 8
+  Pmw: 8.0                       # (double) Microwave power [W], previous/example: 8
   flag_mwRef: 1                  # (int) Whether to include the microwave reflection (0: fix abosorbed power, 1: fix input power)
 # --------------------------------
 
@@ -168,5 +168,5 @@ output_control:
 
 test_mode:
 # --------------------------------
-  flag_impTest: 0                # (int) conduct impedance test
+  flag_impTest: 1                # (int) conduct impedance test
 # --------------------------------

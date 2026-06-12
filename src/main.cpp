@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
         
         iniM.makeBoundary_impedanceTest(pm, gc, gx, gr, mb);
         //emfM.solve_Microwave(pm, gc, gx, gr, mb); //マイクロ波更新
-        emfM.solve_Microwave_impedanceTest_org(pm, gc, gx, gr, mb); //マイクロ波更新
+        emfM.solve_Microwave_impedanceTest(pm, gc, gx, gr, mb); //マイクロ波更新
         outM.output_phase(pm, gc, gx, gr);
         //outM.output(pm, gc, gx, gr, bo); 
         return 0;
