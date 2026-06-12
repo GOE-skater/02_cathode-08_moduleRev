@@ -5197,7 +5197,6 @@ void solve_Microwave_old(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInt
     solver.compute(A);
     xv = solver.solve(b);
 
-
     // 実際の誤差を計算
     //Eigen::VectorXcd residual = A*xv- b;
     //cout << residual<< endl;
@@ -6012,13 +6011,8 @@ void EmfieldModule::solve_Microwave_impedanceTest(Params &pm, GridCenter &gc, Gr
             << ", |Z_ref| = " << abs(Z_ref_tmp) 
             << ", arg(Z_ref) = " << arg(Z_ref_tmp)*180/M_PI << " deg"<< endl;
 
-        complex<double> a2 = (V_ref_tmp - pm.Z0_base*I_ref_tmp)/(2.0*sqrt(2.0*pm.Z0_base));
-        complex<double> b2 = (V_ref_tmp + pm.Z0_base*I_ref_tmp)/(2.0*sqrt(2.0*pm.Z0_base));
-
-        complex<double> S11(pm.S11_mag * cos(pm.S11_arg_deg/180.0*M_PI), pm.S11_mag * sin(pm.S11_arg_deg/180.0*M_PI));
-        complex<double> S21(pm.S21_mag * cos(pm.S21_arg_deg/180.0*M_PI), pm.S21_mag * sin(pm.S21_arg_deg/180.0*M_PI));
-        complex<double> S12(pm.S12_mag * cos(pm.S12_arg_deg/180.0*M_PI), pm.S12_mag * sin(pm.S12_arg_deg/180.0*M_PI));
-        complex<double> S22(pm.S22_mag * cos(pm.S22_arg_deg/180.0*M_PI), pm.S22_mag * sin(pm.S22_arg_deg/180.0*M_PI));
+        complex<double> a2 = (V_ref_tmp - pm.Z0*I_ref_tmp)/(2.0*sqrt(2.0*pm.Z0));
+        complex<double> b2 = (V_ref_tmp + pm.Z0*I_ref_tmp)/(2.0*sqrt(2.0*pm.Z0));
 
         //complex<double> a1 = (b2 - S22*a2)/S21;
         //complex<double> b1 = S11*a1 + S12*a2;
@@ -6523,13 +6517,8 @@ void EmfieldModule::solve_Microwave_impedanceTest_org(Params &pm, GridCenter &gc
             << ", |Z_ref| = " << abs(Z_ref_tmp) 
             << ", arg(Z_ref) = " << arg(Z_ref_tmp)*180/M_PI << " deg"<< endl;
 
-        complex<double> a2 = (V_ref_tmp - pm.Z0_base*I_ref_tmp)/(2.0*sqrt(2.0*pm.Z0_base));
-        complex<double> b2 = (V_ref_tmp + pm.Z0_base*I_ref_tmp)/(2.0*sqrt(2.0*pm.Z0_base));
-
-        complex<double> S11(pm.S11_mag * cos(pm.S11_arg_deg/180.0*M_PI), pm.S11_mag * sin(pm.S11_arg_deg/180.0*M_PI));
-        complex<double> S21(pm.S21_mag * cos(pm.S21_arg_deg/180.0*M_PI), pm.S21_mag * sin(pm.S21_arg_deg/180.0*M_PI));
-        complex<double> S12(pm.S12_mag * cos(pm.S12_arg_deg/180.0*M_PI), pm.S12_mag * sin(pm.S12_arg_deg/180.0*M_PI));
-        complex<double> S22(pm.S22_mag * cos(pm.S22_arg_deg/180.0*M_PI), pm.S22_mag * sin(pm.S22_arg_deg/180.0*M_PI));
+        complex<double> a2 = (V_ref_tmp - pm.Z0*I_ref_tmp)/(2.0*sqrt(2.0*pm.Z0));
+        complex<double> b2 = (V_ref_tmp + pm.Z0*I_ref_tmp)/(2.0*sqrt(2.0*pm.Z0));
 
         //complex<double> a1 = (b2 - S22*a2)/S21;
         //complex<double> b1 = S11*a1 + S12*a2;
@@ -6996,13 +6985,8 @@ void solve_Microwave_impedanceTest_original(Params &pm, GridCenter &gc, GridInte
             << ", |Z_ref| = " << abs(Z_ref_tmp) 
             << ", arg(Z_ref) = " << arg(Z_ref_tmp)*180/M_PI << " deg"<< endl;
 
-        complex<double> a2 = (V_ref_tmp - pm.Z0_base*I_ref_tmp)/(2.0*sqrt(pm.Z0_base));
-        complex<double> b2 = (V_ref_tmp + pm.Z0_base*I_ref_tmp)/(2.0*sqrt(pm.Z0_base));
-
-        complex<double> S11(pm.S11_mag * cos(pm.S11_arg_deg/180.0*M_PI), pm.S11_mag * sin(pm.S11_arg_deg/180.0*M_PI));
-        complex<double> S21(pm.S21_mag * cos(pm.S21_arg_deg/180.0*M_PI), pm.S21_mag * sin(pm.S21_arg_deg/180.0*M_PI));
-        complex<double> S12(pm.S12_mag * cos(pm.S12_arg_deg/180.0*M_PI), pm.S12_mag * sin(pm.S12_arg_deg/180.0*M_PI));
-        complex<double> S22(pm.S22_mag * cos(pm.S22_arg_deg/180.0*M_PI), pm.S22_mag * sin(pm.S22_arg_deg/180.0*M_PI));
+        complex<double> a2 = (V_ref_tmp - pm.Z0*I_ref_tmp)/(2.0*sqrt(pm.Z0));
+        complex<double> b2 = (V_ref_tmp + pm.Z0*I_ref_tmp)/(2.0*sqrt(pm.Z0));
 
         //complex<double> a1 = (b2 - S22*a2)/S21;
         //complex<double> b1 = S11*a1 + S12*a2;
@@ -7318,27 +7302,33 @@ void EmfieldModule::update_energy_profile(Params &pm, GridCenter &gc, GridInterf
 
         complex<double> Z_ref_tmp = V_ref_tmp/(I_ref_tmp + 1e-100);
         
-        cout << "---------------------------------" << endl;
-        cout << "Impedance at reference plane x = " << x_tmp << endl;
-        cout << "Z_ref = " << Z_ref_tmp << ", V_ref = " << V_ref_tmp << ", I_ref = " << I_ref_tmp 
-            << ", |Z_ref| = " << abs(Z_ref_tmp) 
-            << ", arg(Z_ref) = " << arg(Z_ref_tmp)*180/M_PI << " deg"<< endl;
+       
+        //cout << "Impedance at reference plane x = " << x_tmp << endl;
+        //cout << "Z_ref = " << Z_ref_tmp << ", V_ref = " << V_ref_tmp << ", I_ref = " << I_ref_tmp 
+        //    << ", |Z_ref| = " << abs(Z_ref_tmp) 
+        //    << ", arg(Z_ref) = " << arg(Z_ref_tmp)*180/M_PI << " deg"<< endl;
 
-        complex<double> a2 = (V_ref_tmp - pm.Z0_base*I_ref_tmp)/(2.0*sqrt(2.0*pm.Z0_base));
-        complex<double> b2 = (V_ref_tmp + pm.Z0_base*I_ref_tmp)/(2.0*sqrt(2.0*pm.Z0_base));
-
-        complex<double> S11(pm.S11_mag * cos(pm.S11_arg_deg/180.0*M_PI), pm.S11_mag * sin(pm.S11_arg_deg/180.0*M_PI));
-        complex<double> S21(pm.S21_mag * cos(pm.S21_arg_deg/180.0*M_PI), pm.S21_mag * sin(pm.S21_arg_deg/180.0*M_PI));
-        complex<double> S12(pm.S12_mag * cos(pm.S12_arg_deg/180.0*M_PI), pm.S12_mag * sin(pm.S12_arg_deg/180.0*M_PI));
-        complex<double> S22(pm.S22_mag * cos(pm.S22_arg_deg/180.0*M_PI), pm.S22_mag * sin(pm.S22_arg_deg/180.0*M_PI));
-
-        complex<double> a1 = (b2 - S22*a2)/S21;
-        complex<double> b1 = S11*a1 + S12*a2;
-        double P_fwd = norm(a1);
-        double P_ref = norm(b1);
+        complex<double> a2 = (V_ref_tmp - pm.Z0*I_ref_tmp)/(2.0*sqrt(2.0*pm.Z0));
+        complex<double> b2 = (V_ref_tmp + pm.Z0*I_ref_tmp)/(2.0*sqrt(2.0*pm.Z0));
+        double P_fwd = norm(b2);
+        double P_ref = norm(a2);
         double P_err = P_fwd - P_ref - power_sum + P_out;
 
+        //cout << "S11 = " << pm.S11 << endl;
+        //cout << "S21 = " << pm.S21 << endl;
+        //cout << "S12 = " << pm.S12 << endl;
+        //cout << "S22 = " << pm.S22 << endl;
+
+        complex<double> a1 = (b2 - pm.S22*a2)/pm.S21;
+        complex<double> b1 = pm.S11*a1 + pm.S12*a2;
+
+        double P_fwd_all = norm(a1);
+        double P_ref_all = norm(b1);
+
         cout << endl;
+
+        /*
+        //before tuning
         cout << "Fwd power = " << P_fwd << " W" << endl;
         cout << "Ref power = " << P_ref << " W" << endl;
         cout << "Abs power = " << power_sum << " W" << endl;
@@ -7350,6 +7340,8 @@ void EmfieldModule::update_energy_profile(Params &pm, GridCenter &gc, GridInterf
         cout << "P_in (VI) = " << 0.5*real(V_ref_tmp*conj(I_ref_tmp)) << " W" << endl;
 
         cout <<  endl;
+        */
+
         //cout << "P_z0 = " << P_z0 << " W" << endl;
         //cout << "P_z1 = " << P_z1 << " W" << endl;
         //cout << "P_z2 = " << P_z2 << " W" << endl;
@@ -7366,44 +7358,91 @@ void EmfieldModule::update_energy_profile(Params &pm, GridCenter &gc, GridInterf
         //cout << "P_sum = " << P_sum << " W" << endl;
         //cout <<  endl;
 
-        cout << "norm(a2) = " << norm(a2) << " W" << ", a2 = " << a2 << endl;
-        cout << "norm(b2) = " << norm(b2) << " W" << ", b2 = " << b2 << endl;
+        //cout << "norm(a2) = " << norm(a2) << " W" << ", a2 = " << a2 << endl;
+        //cout << "norm(b2) = " << norm(b2) << " W" << ", b2 = " << b2 << endl;
 
-        double ratio = pm.Pmw/P_fwd;
+        //calculated power ratio
+        //---------------------------------
+        double ratio = pm.Pmw/P_fwd_all;
+        //---------------------------------
 
+        //tuning of abosorbed power and excitation
+        //---------------------------------
+        for (int i=0;i<pm.ni+1;i++){
+            for (int j=0;j<pm.nj+1;j++){
+                
+                double ratio_eff = ratio*(power_sum + P_err)/power_sum;
+                
+                gc.Pabs[i][j] = gc.Pabs[i][j]*ratio_eff;
+
+                gx.E1x[i][j] = gx.E1x[i][j]*sqrt(ratio_eff);
+                gr.E1r[i][j] = gr.E1r[i][j]*sqrt(ratio_eff);
+                gc.E1p[i][j] = gc.E1p[i][j]*sqrt(ratio_eff);
+
+                gx.J1x[i][j] = gx.J1x[i][j]*sqrt(ratio_eff);
+                gr.J1r[i][j] = gr.J1r[i][j]*sqrt(ratio_eff);
+                gc.J1p[i][j] = gc.J1p[i][j]*sqrt(ratio_eff);
+
+                gx.J1x_exc[i][j] = gx.J1x_exc[i][j]*sqrt(ratio_eff);
+                gr.J1r_exc[i][j] = gr.J1r_exc[i][j]*sqrt(ratio_eff);
+                gc.J1p_exc[i][j] = gc.J1p_exc[i][j]*sqrt(ratio_eff);
+
+            }
+        }
+
+        cout << "[Microwave calculation]" << endl;
         cout << "power ratio = " << ratio << endl;
         cout << "J1r_exc ="  << pm.J1r_exc;
         pm.J1r_exc = pm.J1r_exc*sqrt(ratio);
         cout << " -> " << pm.J1r_exc << endl;
-
-        cout << endl;
-        cout << "[modifield]" << endl;
-        cout << "Fwd power = " << P_fwd*ratio << " W" << endl;
-        cout << "Ref power = " << P_ref*ratio << " W" << endl;
-        cout << "Abs power = " << (power_sum + P_err)*ratio << " W (" << P_err/P_fwd*100 << " % fixled)"<< endl;
-        cout << "Loss power = " << P_out*ratio << " W" << endl;
-        
-        
-        //tuning of abosorbed power
-        //---------------------------------
-        for (int i=0;i<pm.ni+1;i++){
-            for (int j=0;j<pm.nj+1;j++){
-                gc.Pabs[i][j] = gc.Pabs[i][j]*ratio*(power_sum + P_err)/power_sum;
-            }
-        }
         //---------------------------------
 
         /*
         //check
+        //---------------------------------
         double power_sum_mod = 0.0;
         for (int i=0;i<pm.ni+1;i++){
             for (int j=0;j<pm.nj+1;j++){
-                power_sum_mod = power_sum_mod +gc.Pabs[i][j]*(pm.dx*pm.dr*2.0*M_PI*gc.r[j]);
+                power_sum_mod = power_sum_mod + gc.Pabs[i][j]*(pm.dx*pm.dr*2.0*M_PI*gc.r[j]);
             }
         }
         cout << "check = " << power_sum_mod <<" W" << endl;
+        //---------------------------------
         */
-       
+
+
+        //increase the abosorbed power for consistency
+        //---------------------------------
+        power_sum = (power_sum + P_err);
+        //---------------------------------
+
+
+        P_fwd = P_fwd*ratio;
+        P_ref = P_ref*ratio;
+        P_fwd_all = P_fwd_all*ratio;
+        P_ref_all = P_ref_all*ratio;
+        power_sum = power_sum*ratio;
+        P_err = P_err*ratio;
+        P_out = P_out*ratio;
+
+        cout << "---------------------------------" << endl;
+        //cout << "[modifield]" << endl;
+        //cout << "Fwd power = " << P_fwd*ratio << " W" << endl;
+        //cout << "Ref power = " << P_ref*ratio << " W" << endl;
+        //cout << "Abs power = " << (power_sum + P_err)*ratio << " W (" << P_err/P_fwd*100 << " % fixled)"<< endl;
+        //cout << "Loss power = " << P_out*ratio << " W" << endl;
+        //cout << setprecision(numeric_limits<double>::max_digits10) << scientific;
+        //cout << "Absorbed power = " << power_sum << " W (" << P_err/P_fwd*100 << " % fixled)" << endl;
+        cout << "Absorbed power = " << power_sum << " W (" << P_err << " W increased)" << endl;
+        cout << "Boudary loss = " << P_out << " W" << endl;
+        cout << "FWD. power (cathode port) = " << P_fwd << " W" << endl;
+        cout << "REF. power (cathode port) = " << P_ref << " W" << endl;
+        cout << "FWD. power (end) = " << P_fwd_all << " W" << endl;
+        cout << "REF. power (end) = " << P_ref_all << " W" << endl;
+        //cout << std::setprecision(6) << scientific;
+
+        
+        
     }else{
 
 
@@ -7721,16 +7760,11 @@ void EmfieldModule::update_energy_profile_org(Params &pm, GridCenter &gc, GridIn
             << ", |Z_ref| = " << abs(Z_ref_tmp) 
             << ", arg(Z_ref) = " << arg(Z_ref_tmp)*180/M_PI << " deg"<< endl;
 
-        complex<double> a2 = (V_ref_tmp - pm.Z0_base*I_ref_tmp)/(2.0*sqrt(2.0*pm.Z0_base));
-        complex<double> b2 = (V_ref_tmp + pm.Z0_base*I_ref_tmp)/(2.0*sqrt(2.0*pm.Z0_base));
+        complex<double> a2 = (V_ref_tmp - pm.Z0*I_ref_tmp)/(2.0*sqrt(2.0*pm.Z0));
+        complex<double> b2 = (V_ref_tmp + pm.Z0*I_ref_tmp)/(2.0*sqrt(2.0*pm.Z0));
 
-        complex<double> S11(pm.S11_mag * cos(pm.S11_arg_deg/180.0*M_PI), pm.S11_mag * sin(pm.S11_arg_deg/180.0*M_PI));
-        complex<double> S21(pm.S21_mag * cos(pm.S21_arg_deg/180.0*M_PI), pm.S21_mag * sin(pm.S21_arg_deg/180.0*M_PI));
-        complex<double> S12(pm.S12_mag * cos(pm.S12_arg_deg/180.0*M_PI), pm.S12_mag * sin(pm.S12_arg_deg/180.0*M_PI));
-        complex<double> S22(pm.S22_mag * cos(pm.S22_arg_deg/180.0*M_PI), pm.S22_mag * sin(pm.S22_arg_deg/180.0*M_PI));
-
-        complex<double> a1 = (b2 - S22*a2)/S21;
-        complex<double> b1 = S11*a1 + S12*a2;
+        complex<double> a1 = (b2 - pm.S22*a2)/pm.S21;
+        complex<double> b1 = pm.S11*a1 + pm.S12*a2;
         double P_fwd = norm(a1);
         double P_ref = norm(b1);
 

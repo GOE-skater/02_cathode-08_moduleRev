@@ -257,7 +257,6 @@ int main(int argc, char *argv[])
             emfM.update_energy_profile(pm, gc, gx, gr); //電力吸収プロファイル更新
         }
 
-
         if(pm.itime % ndiv_out == 0){
             cout << "error_rhoi = "    << pm.error_rhoi 
                 <<  " error_Uix = "    << pm.error_Uix

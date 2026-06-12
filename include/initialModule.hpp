@@ -8,6 +8,7 @@
 #include "params.hpp"
 #include "miniFuncs.hpp"
 #include "arrays.hpp"
+#include "cmpMat2.hpp"
 
 using namespace std;
 
@@ -19,12 +20,30 @@ using namespace std;
 class InitialModule
 {
     private:
+        void sParamToABCD(
+            CmpMat2& T,
+            const complex<double>& S11,
+            const complex<double>& S21,
+            const complex<double>& S12,
+            const complex<double>& S22,
+            const double Z0
+        );
+
+        void ABCDToSParam(
+            complex<double>& S11,
+            complex<double>& S21,
+            complex<double>& S12,
+            complex<double>& S22,
+            const CmpMat2& T,
+            const double Z0
+        );
 
     public:
         void iniParam(Params &pm,GridCenter &gc,GridInterfaceX &gx,GridInterfaceR &gr);
         void makeBoundary(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr, MicrowaveBC &mb);
         void makeBoundary_impedanceTest(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr, MicrowaveBC &mb);
         void makeProfile(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr);
+        
 };
 
 //*****************************************************************
@@ -36,6 +55,10 @@ void InitialModule::iniParam(Params &pm,GridCenter &gc,GridInterfaceX &gx,GridIn
 {
     
     //******************* Initialization **************************
+
+    std::cout << "Inizialization" << std::endl;
+    cout << "---------------------------------" << endl;
+
     //domain setting
     //--------------------------------
     pm.Lx = pm.xR - pm.xL;
@@ -81,9 +104,97 @@ void InitialModule::iniParam(Params &pm,GridCenter &gc,GridInterfaceX &gx,GridIn
     }
     */
 
+    //initialize S-parameter
+    //--------------------------------
+    pm.S11 = complex<double>(pm.S11_mag*cos(pm.S11_arg_deg/180.0*M_PI), pm.S11_mag*sin(pm.S11_arg_deg/180.0*M_PI));
+    pm.S21 = complex<double>(pm.S21_mag*cos(pm.S21_arg_deg/180.0*M_PI), pm.S21_mag*sin(pm.S21_arg_deg/180.0*M_PI));
+    pm.S12 = complex<double>(pm.S12_mag*cos(pm.S12_arg_deg/180.0*M_PI), pm.S12_mag*sin(pm.S12_arg_deg/180.0*M_PI));
+    pm.S22 = complex<double>(pm.S22_mag*cos(pm.S22_arg_deg/180.0*M_PI), pm.S22_mag*sin(pm.S22_arg_deg/180.0*M_PI));
+    //--------------------------------
+
+    cout << "S-para (original), S11 = " << pm.S11 << ", S21 = " <<pm.S21 << ", S12 = " << pm.S12<< ", S22 = " << pm.S22<<endl;
+    double phase_pre = pm.phase_pre_deg/180.0*M_PI;
+
+    CmpMat2 Tpre{
+        complex<double>(cos(phase_pre), 0.0),          complex<double>(0.0,1.0)*pm.Z0*sin(phase_pre),
+        complex<double>(0.0,1.0)*sin(phase_pre)/pm.Z0, complex<double>(cos(phase_pre), 0.0)
+    };
+
+    //Convert measured/base S-parameters to ABCD matrix.
+    //---------------------------------
+    CmpMat2 Tbase;
+    sParamToABCD(Tbase, pm.S11, pm.S21, pm.S12, pm.S22, pm.Z0);
+    //---------------------------------
+
+    //Compute the short-stub admittance before and after changing the stub length.
+    //---------------------------------
+    double c0 = sqrt(1.0/(ph::eps0*pm.epsr_diele*ph::mu0));
+    double beta = pm.omegam/c0;
+    const double Y0Stub = 1.0/pm.Z0;
+
+    double tan0 = tan(beta*pm.h0_stab);
+    double tanNew = tan(beta*(pm.h0_stab + pm.dh_stab));
+
+    if (abs(tan0) < 1.0e-14 || abs(tanNew) < 1.0e-14) {
+        throw runtime_error("short-stub admittance: tan(beta*l) is too small.");
+    }
+
+    const complex<double> Ys0 =
+        -complex<double>(0.0,1.0)*Y0Stub/tan0;
+
+    const complex<double> YsNew =
+        -complex<double>(0.0,1.0)*Y0Stub/tanNew;
+
+    const complex<double> dYs = YsNew - Ys0;
+    //---------------------------------
+
+    // ABCD matrix of the shunt admittance correction.
+    //---------------------------------
+    const CmpMat2 Tcorr{
+        1.0,  0.0,
+        dYs,  1.0
+    };
+    //---------------------------------
+
+    //Apply the correction at the original stub junction.
+    //---------------------------------
+    const CmpMat2 Tstub =
+        Tpre*Tcorr*Tpre.inv()*Tbase;
+    //---------------------------------
+
+    //Convert corrected ABCD matrix back to S-parameters.
+    //---------------------------------
+    ABCDToSParam(pm.S11, pm.S21, pm.S12, pm.S22, Tstub, pm.Z0);
+    //---------------------------------
+
+    cout << "S-para (w/ stab), S11 = " << pm.S11 << ", S21 = " <<pm.S21 << ", S12 = " << pm.S12<< ", S22 = " << pm.S22<<endl;
+    
+    //S-parameter change by stab length dH
+    //--------------------------------
+    //complex<double> A_base = ((1.0 + pm.S11)*(1.0 - pm.S22) + pm.S12*pm.S21)/(2.0*pm.S21 + 1e-100);
+    //complex<double> B_base = pm.Z0*((1.0 + pm.S11)*(1.0 + pm.S22) - pm.S12*pm.S21)/(2.0*pm.S21 + 1e-100);
+    //complex<double> C_base = 1.0/pm.Z0*((1.0 - pm.S11)*(1.0 - pm.S22) - pm.S12*pm.S21)/(2.0*pm.S21 + 1e-100);
+    //complex<double> D_base = ((1.0 - pm.S11)*(1.0 + pm.S22) + pm.S12*pm.S21)/(2.0*pm.S21 + 1e-100);
+    //--------------------------------
+
+    //S-parameter change by cable length dL
+    //--------------------------------
+    complex<double> p = exp(complex<double>(0,-beta)*pm.dl_cable);
+
+    pm.S11 = pm.S11;
+    pm.S21 = pm.S21*p;
+    pm.S12 = pm.S12*p;
+    pm.S22 = pm.S22*p*p;
+    cout << "S-para (w/ stab & cable), S11 = " << pm.S11 << ", S21 = " <<pm.S21 << ", S12 = " << pm.S12<< ", S22 = " << pm.S22<<endl;
+    
+
+    cout << "Phase Deley (by cable length) = " << beta*pm.dl_cable/M_PI*180 << " deg" << endl;
+    //--------------------------------
+    cout << "---------------------------------" << endl;
+    
     std::string folder_name = ("./results");
     mkdir(folder_name.c_str(), 0777);
-
+    
 }
 
 //*****************************************************************
@@ -1561,4 +1672,66 @@ void InitialModule::makeProfile(Params &pm, GridCenter &gc, GridInterfaceX &gx, 
 
         }
     }
+}
+
+
+//===========================================================================
+//                           private functions
+//===========================================================================
+
+//*****************************************************************
+//**                                                             **
+//**           CmpMat2 sParamToABCD()                            **
+//**                                                             **
+//*****************************************************************
+void InitialModule::sParamToABCD(
+    CmpMat2& T,
+    const complex<double>& S11,
+    const complex<double>& S21,
+    const complex<double>& S12,
+    const complex<double>& S22,
+    const double Z0
+){
+    
+    if (abs(S21) < 1.0e-14) {
+        throw runtime_error("sParamToABCD: S21 is too small.");
+    }
+
+    const complex<double> one(1.0, 0.0);
+    const complex<double> two(2.0, 0.0);
+    const complex<double> denom = 2.0*S21;
+
+    T.A = ((1.0 + S11)*(1.0 - S22) + S12*S21)/denom;
+    T.B = Z0*((1.0 + S11)*(1.0 + S22) - S12*S21)/denom;
+    T.C = 1.0/Z0*((1.0 - S11)*(1.0 - S22) - S12*S21)/denom;
+    T.D = ((1.0 - S11)*(1.0 + S22) + S12*S21)/denom;
+}
+
+//*****************************************************************
+//**                                                             **
+//**           void ABCDToSParam()                               **
+//**                                                             **
+//*****************************************************************
+void InitialModule::ABCDToSParam(
+    complex<double>& S11,
+    complex<double>& S21,
+    complex<double>& S12,
+    complex<double>& S22,
+    const CmpMat2& T,
+    const double Z0
+){
+
+    const complex<double> denom = T.A + T.B/Z0 + T.C*Z0 + T.D;
+
+    if (abs(denom) < 1.0e-14) {
+        throw runtime_error("ABCDToSParam: denominator is too small.");
+    }
+
+    S11 = (T.A + T.B/Z0 - T.C*Z0 - T.D)/denom;
+
+    S21 = 2.0/denom;
+
+    S12 = 2.0*(T.A*T.D - T.B*T.C)/denom;
+
+    S22 = (-T.A + T.B/Z0 - T.C*Z0 + T.D)/denom;
 }

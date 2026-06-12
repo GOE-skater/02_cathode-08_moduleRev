@@ -174,15 +174,19 @@ void InputModule::inputParam(Params &pm, string inputFileName)
         READ_DOUBLE(category, pm.epsr_diele);
         
         category = "transmission_line";
-        READ_DOUBLE(category, pm.S11_mag);     // (double) Magnitude of S11
-        READ_DOUBLE(category, pm.S11_arg_deg); // (double) Argument of S11 (deg)
-        READ_DOUBLE(category, pm.S21_mag);     // (double) Magnitude of S21
-        READ_DOUBLE(category, pm.S21_arg_deg); // (double) Argument of S21 (deg)
-        READ_DOUBLE(category, pm.S12_mag);     // (double) Magnitude of S12
-        READ_DOUBLE(category, pm.S12_arg_deg); // (double) Argument of S12 (deg)
-        READ_DOUBLE(category, pm.S22_mag);     // (double) Magnitude of S22
-        READ_DOUBLE(category, pm.S22_arg_deg); // (double) Argument of S22 (deg)
-        READ_DOUBLE(category, pm.Z0_base); // (double) Argument of S22 (deg)
+        READ_DOUBLE(category, pm.S11_mag);     
+        READ_DOUBLE(category, pm.S11_arg_deg); 
+        READ_DOUBLE(category, pm.S21_mag);     
+        READ_DOUBLE(category, pm.S21_arg_deg); 
+        READ_DOUBLE(category, pm.S12_mag);     
+        READ_DOUBLE(category, pm.S12_arg_deg); 
+        READ_DOUBLE(category, pm.S22_mag);     
+        READ_DOUBLE(category, pm.S22_arg_deg); 
+        READ_DOUBLE(category, pm.Z0);
+        READ_DOUBLE(category, pm.h0_stab);
+        READ_DOUBLE(category, pm.dh_stab);
+        READ_DOUBLE(category, pm.dl_cable);
+        READ_DOUBLE(category, pm.phase_pre_deg);
 
         category = "secondary_electron_emission";
         READ_DOUBLE(category, pm.coefIISEE_ts);
@@ -385,7 +389,7 @@ void inputParam_old(Params &pm, string inputFileName)
         READ_DOUBLE(category, pm.S12_arg_deg); // (double) Argument of S12 (deg)
         READ_DOUBLE(category, pm.S22_mag);     // (double) Magnitude of S22
         READ_DOUBLE(category, pm.S22_arg_deg); // (double) Argument of S22 (deg)
-        READ_DOUBLE(category, pm.Z0_base); // (double) Argument of S22 (deg)
+        READ_DOUBLE(category, pm.Z0); // (double) Argument of S22 (deg)
 
         category = "plasma";
         READ_DOUBLE(category, pm.Ti);

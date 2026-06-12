@@ -42,15 +42,19 @@ struct Params{
 
     //transmission_line
     //--------------------------------
-    double S11_mag = 0.0;     // (double) Magnitude of S11
-    double S11_arg_deg = 0.0; // (double) Argument of S11 (deg)
-    double S21_mag = 1.0;     // (double) Magnitude of S21
-    double S21_arg_deg = 0.0; // (double) Argument of S21 (deg)
-    double S12_mag = 1.0;     // (double) Magnitude of S12
-    double S12_arg_deg = 0.0; // (double) Argument of S12 (deg)
-    double S22_mag = 0.0;     // (double) Magnitude of S22
-    double S22_arg_deg = 0.0; // (double) Argument of S22 (deg)
-    double Z0_base = 0.0;     // (double) Base impedance (Ohm)
+    double S11_mag = 0.0;         // (double) Magnitude of S11
+    double S11_arg_deg = 0.0;     // (double) Argument of S11 (deg)
+    double S21_mag = 1.0;         // (double) Magnitude of S21
+    double S21_arg_deg = 0.0;     // (double) Argument of S21 (deg)
+    double S12_mag = 1.0;         // (double) Magnitude of S12
+    double S12_arg_deg = 0.0;     // (double) Argument of S12 (deg)
+    double S22_mag = 0.0;         // (double) Magnitude of S22
+    double S22_arg_deg = 0.0;     // (double) Argument of S22 (deg)
+    double Z0 = 0.0;              // (double) Base impedance (Ohm)
+    double h0_stab  = 250e-3;     // (double) Original stab length (m)
+    double dh_stab  = 10e-3;      // (double) Change in stab length (m)
+    double dl_cable = 10e-3;      // (double) Change in cable length (m)
+    double phase_pre_deg  = 60.0; // (double) Phase delay in pre-line cable (deg)
     //--------------------------------
     
     //secondary_electron_emission
@@ -227,5 +231,11 @@ struct Params{
     double r4 = 0.0;
     double r5 = 0.0;
     double r6 = 0.0;
+
+    //S-parameter
+    complex<double> S11;
+    complex<double> S21;
+    complex<double> S12;
+    complex<double> S22;
     
 };

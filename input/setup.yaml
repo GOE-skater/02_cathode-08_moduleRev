@@ -44,17 +44,34 @@ physical_parameter:
   epsr_diele: 2.083825280349     # (double) Relative permittivity of the dielectric material 2.1
 # --------------------------------
 
-transmission_line:
+#transmission_line: #for simple test
 # --------------------------------
-  S11_mag: 0.0                   # (double) Magnitude of S11
-  S11_arg_deg: 0.0               # (double) Argument of S11 (deg)
-  S21_mag: 1.0                   # (double) Magnitude of S21
-  S21_arg_deg: 0.0               # (double) Argument of S21 (deg)
-  S12_mag: 1.0                   # (double) Magnitude of S12
-  S12_arg_deg: 0.0               # (double) Argument of S12 (deg)
-  S22_mag: 0.0                   # (double) Magnitude of S22
-  S22_arg_deg: 0.0               # (double) Argument of S22 (deg)
-  Z0_base: 50.0                  # (double) Base impedance (Ohm) 38.4885 54.4052
+#  S11_mag: 0.1                   # (double) Magnitude of S11
+#  S11_arg_deg: 0.0               # (double) Argument of S11 (deg)
+#  S21_mag: 0.9                   # (double) Magnitude of S21
+#  S21_arg_deg: 0.0               # (double) Argument of S21 (deg)
+#  S12_mag: 0.9                   # (double) Magnitude of S12
+#  S12_arg_deg: 0.0               # (double) Argument of S12 (deg)
+#  S22_mag: 0.1                   # (double) Magnitude of S22
+#  S22_arg_deg: 0.0               # (double) Argument of S22 (deg)
+#  Z0: 50.0                  # (double) Base impedance (Ohm) 38.4885 54.4052
+# --------------------------------
+
+transmission_line: #for measured
+# --------------------------------
+  S11_mag: 0.24403462            # (double) Magnitude of S11
+  S11_arg_deg: -552.4800212      # (double) Argument of S11 (deg)
+  S21_mag: 0.797613913           # (double) Magnitude of S21
+  S21_arg_deg: -619.4434408      # (double) Argument of S21 (deg)
+  S12_mag: 0.813217659           # (double) Magnitude of S12
+  S12_arg_deg: -619.9129232      # (double) Argument of S12 (deg)
+  S22_mag: 0.126026294           # (double) Magnitude of S22
+  S22_arg_deg: -850.3272909      # (double) Argument of S22 (deg)
+  Z0: 50.0                       # (double) Base impedance (Ohm) 38.4885 54.4052
+  h0_stab: 250e-3                # (double) Original stab length (m)
+  dh_stab: 0e-3                  # (double) Change in stab length (m)
+  dl_cable: 0e-3                 # (double) Change in cable length (m)
+  phase_pre_deg: 4605.30         # (double) phase delay in pre-line cable (deg) NOTE: positive value
 # --------------------------------
 
 secondary_electron_emission:
