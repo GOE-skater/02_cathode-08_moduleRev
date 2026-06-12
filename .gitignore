@@ -14,6 +14,9 @@ results/*
 restart/*
 !restart/.gitkeep
 
+# Generated results
+test/*
+
 # Python cache
 __pycache__/
 *.pyc
