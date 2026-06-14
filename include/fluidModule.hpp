@@ -3,6 +3,8 @@
 #include <iostream>
 #include <vector>
 #include <sys/stat.h>
+#include <iomanip>
+#include <limits>
 
 #include "constants.hpp"
 #include "params.hpp"
@@ -19,7 +21,7 @@ using namespace std;
 //*****************************************************************
 class FluidModule{
     private:
-        void output_residual_for_PC(std::string name
+        void output_residual_for_PC(string name
             , double gtime
             , int itime
             , double error_val
@@ -395,7 +397,7 @@ void FluidModule::solve_Uix_tmp(Params &pm,GridCenter &gc, GridInterfaceX &gx, G
         //------------------------------------
 
         //for (int iblock=0;iblock<pm.n_bl-1;iblock++){
-        //    std::cout << iblock << "("<<gx.i_flx_bl[iblock][0] << ","<<gx.j_flx_bl[iblock][0] <<") -> ("<<gx.i_flx_bl[iblock][1]<<","<<gx.j_flx_bl[iblock][1]<<")"<<std::endl;
+        //    cout << iblock << "("<<gx.i_flx_bl[iblock][0] << ","<<gx.j_flx_bl[iblock][0] <<") -> ("<<gx.i_flx_bl[iblock][1]<<","<<gx.j_flx_bl[iblock][1]<<")"<<endl;
         //}
     }
     //=====================================================================
@@ -567,12 +569,12 @@ void FluidModule::solve_Uix_tmp(Params &pm,GridCenter &gc, GridInterfaceX &gx, G
 
     //check coefficients
     if(0==1){
-        std::ofstream outputfile1("results/Uix_coef0.csv");
-        //std::ofstream outputfile1_1(char1+"_tmp"+char2+char_csv);
-        //outputfile1<<"x,rho,Ui,rhoUix,Ue,rhoUex,rhoUex_E,rhoUex_D,E,phi,psi,rho_th,U_th,E_th,phi_th,psi_th,rate_ionize,divi,dive1,dive2,dive3, div_poisson, LHS, RHS,zero" << std::endl;
-        //outputfile1<<"x,rhon,rho,rhoe(test),Uix,rhoUix,Uex,Uey,rhoUex,rhoUey,Te,heat_flux,Bz,E,phi,nu_m,nu_en,nu_ei,nu_ionz,nu_exc,nu_wall,nu_ano,mue_parae,mue_perp,Halle,jd,Id,rate_eloss,rate_ionize,divi,dive,divn,engy_LHS,engy_LHS1,engy_LHS2,engy_LHS3,engy_LHS4,engy_RHS,engy_RHS1,engy_RHS2,engy_RHS3,zero" << std::endl;
-        outputfile1<<"i,j,x,r,aP,aW,aE,aN,aS,b,zero" << std::endl;
-        //outputfile1_1 << "i,j,x,r,rhom,rhoUmx,rhoUmr,nabla_rhoUm,rhon,rhoUnx,rhoUnr,nabla_rhoUn,zero" << std::endl;
+        ofstream outputfile1("results/Uix_coef0.csv");
+        //ofstream outputfile1_1(char1+"_tmp"+char2+char_csv);
+        //outputfile1<<"x,rho,Ui,rhoUix,Ue,rhoUex,rhoUex_E,rhoUex_D,E,phi,psi,rho_th,U_th,E_th,phi_th,psi_th,rate_ionize,divi,dive1,dive2,dive3, div_poisson, LHS, RHS,zero" << endl;
+        //outputfile1<<"x,rhon,rho,rhoe(test),Uix,rhoUix,Uex,Uey,rhoUex,rhoUey,Te,heat_flux,Bz,E,phi,nu_m,nu_en,nu_ei,nu_ionz,nu_exc,nu_wall,nu_ano,mue_parae,mue_perp,Halle,jd,Id,rate_eloss,rate_ionize,divi,dive,divn,engy_LHS,engy_LHS1,engy_LHS2,engy_LHS3,engy_LHS4,engy_RHS,engy_RHS1,engy_RHS2,engy_RHS3,zero" << endl;
+        outputfile1<<"i,j,x,r,aP,aW,aE,aN,aS,b,zero" << endl;
+        //outputfile1_1 << "i,j,x,r,rhom,rhoUmx,rhoUmr,nabla_rhoUm,rhon,rhoUnx,rhoUnr,nabla_rhoUn,zero" << endl;
         
         for(int i=1;i<=pm.ni;i++){
             for(int j=1;j<=pm.nj;j++){
@@ -584,7 +586,7 @@ void FluidModule::solve_Uix_tmp(Params &pm,GridCenter &gc, GridInterfaceX &gx, G
                     << "," << aS[i][j] 
                     << "," << b[i][j]  
                     << "," << 0.0
-                    <<std::endl;
+                    <<endl;
             }
         }
     }
@@ -1502,7 +1504,7 @@ void FluidModule::solve_rhoi_constTe(Params &pm,GridCenter &gc, GridInterfaceX &
                     double um = sqrt(2.0*ph::Boltz*pm.Ti/pm.massi);
                     double utx = gx.Uix[i][j]/(um + 1e-100);
                     GammaPerN_wall_Lx = -0.25*vth*(exp(-utx*utx) + utx*sqrt(M_PI)*(erf(utx) - 1.0));
-                    //if(i == gc.i_flc_bl[2][0]) std::cout << "before,"<< j << ","<<GammaPerN_wall_Lx<<endl;
+                    //if(i == gc.i_flc_bl[2][0]) cout << "before,"<< j << ","<<GammaPerN_wall_Lx<<endl;
                 }
                 if(bRx_wall == 0){
                     double vth = sqrt(8.0*ph::Boltz*pm.Ti/(M_PI*pm.massi));
@@ -1607,9 +1609,9 @@ void FluidModule::solve_rhoi_constTe(Params &pm,GridCenter &gc, GridInterfaceX &
         double um = sqrt(2.0*ph::Boltz*pm.Ti/pm.massi);
         double utx = gx.Uix[i][j]/(um + 1e-100);
         double GammaPerN_wall_Lx = -0.25*vth*(exp(-utx*utx) + utx*sqrt(M_PI)*(erf(utx) - 1.0));
-        //std::cout << "after,"<< j << ","<< gc.rhoi[i][j] << ","<<GammaPerN_wall_Lx << ",";
+        //cout << "after,"<< j << ","<< gc.rhoi[i][j] << ","<<GammaPerN_wall_Lx << ",";
         gx.rhoUix_wall[i][j] = gc.rhoi[i][j]*GammaPerN_wall_Lx;
-        //std::cout <<gx.rhoUix_wall[i][j] <<endl;
+        //cout <<gx.rhoUix_wall[i][j] <<endl;
     }
     //------------------------------------
 
@@ -2077,22 +2079,22 @@ void FluidModule::correct_Ui_constTe(Params &pm,GridCenter &gc, GridInterfaceX &
 //*****************************************************************
 void FluidModule::solve_phi_couple_wdTe_wSEE_PC(Params &pm,GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr, SeeVec &se){
 
-    std::vector<std::vector<double> > aW(pm.ni+2,std::vector<double>(pm.nj+2,0.0)); //係数
-    std::vector<std::vector<double> > aE(pm.ni+2,std::vector<double>(pm.nj+2,0.0)); //係数
-    std::vector<std::vector<double> > aS(pm.ni+2,std::vector<double>(pm.nj+2,0.0)); //係数
-    std::vector<std::vector<double> > aN(pm.ni+2,std::vector<double>(pm.nj+2,0.0)); //係数
-    std::vector<std::vector<double> > aP(pm.ni+2,std::vector<double>(pm.nj+2,0.0)); //係数
-    std::vector<std::vector<double> > b (pm.ni+2,std::vector<double>(pm.nj+2,0.0)); //ソース
-    std::vector<std::vector<double> > phi_new (pm.ni+2,std::vector<double>(pm.nj+2,0.0)); //ソース
-    std::vector<std::vector<double> > phi_old_tmp(pm.ni+2,std::vector<double>(pm.nj+2,0.0));
-    std::vector<std::vector<double> > nUex_old_tmp(pm.ni+2,std::vector<double>(pm.nj+2,0.0));
-    std::vector<std::vector<double> > nUer_old_tmp(pm.ni+2,std::vector<double>(pm.nj+2,0.0));
-    std::vector<std::vector<double> > dphi(pm.ni+2,std::vector<double>(pm.nj+2,0.0));
-    std::vector<std::vector<double> > dnUex(pm.ni+2,std::vector<double>(pm.nj+2,0.0));
-    std::vector<std::vector<double> > dnUer(pm.ni+2,std::vector<double>(pm.nj+2,0.0));
+    vector<vector<double> > aW(pm.ni+2,vector<double>(pm.nj+2,0.0)); //係数
+    vector<vector<double> > aE(pm.ni+2,vector<double>(pm.nj+2,0.0)); //係数
+    vector<vector<double> > aS(pm.ni+2,vector<double>(pm.nj+2,0.0)); //係数
+    vector<vector<double> > aN(pm.ni+2,vector<double>(pm.nj+2,0.0)); //係数
+    vector<vector<double> > aP(pm.ni+2,vector<double>(pm.nj+2,0.0)); //係数
+    vector<vector<double> > b (pm.ni+2,vector<double>(pm.nj+2,0.0)); //ソース
+    vector<vector<double> > phi_new (pm.ni+2,vector<double>(pm.nj+2,0.0)); //ソース
+    vector<vector<double> > phi_old_tmp(pm.ni+2,vector<double>(pm.nj+2,0.0));
+    vector<vector<double> > nUex_old_tmp(pm.ni+2,vector<double>(pm.nj+2,0.0));
+    vector<vector<double> > nUer_old_tmp(pm.ni+2,vector<double>(pm.nj+2,0.0));
+    vector<vector<double> > dphi(pm.ni+2,vector<double>(pm.nj+2,0.0));
+    vector<vector<double> > dnUex(pm.ni+2,vector<double>(pm.nj+2,0.0));
+    vector<vector<double> > dnUer(pm.ni+2,vector<double>(pm.nj+2,0.0));
 
-    std::vector<std::vector<double> > Ex_old(pm.ni+2,std::vector<double>(pm.nj+2,0.0));
-    std::vector<std::vector<double> > Er_old(pm.ni+2,std::vector<double>(pm.nj+2,0.0));
+    vector<vector<double> > Ex_old(pm.ni+2,vector<double>(pm.nj+2,0.0));
+    vector<vector<double> > Er_old(pm.ni+2,vector<double>(pm.nj+2,0.0));
 
     //Numerical treatment for exponential overflow and zero-division
     //------------------------------------
@@ -3048,12 +3050,12 @@ void FluidModule::solve_phi_couple_wdTe_wSEE_PC(Params &pm,GridCenter &gc, GridI
         double error_global = fmax(fmax(error_phi2,error_nUex2),error_nUer2);
         
         if(ncount % ndiv_out == 0){
-            std::cout << "ncount = "<<ncount<<std::endl;
-            std::cout << "error_phi = " << error_phi2
+            cout << "ncount = "<<ncount<<endl;
+            cout << "error_phi = " << error_phi2
                 <<  " error_nUex = " << error_nUex2
                 <<  " error_nUer= " << error_nUer2
                 <<  " error_max = " << fmax(fmax(error_phi2,error_nUex2),error_nUer2)
-                << std::endl;
+                << endl;
         }
 
         if(error_global < pm.error_cnv_HES_phi || ncount >= pm.maxITR_HES_phi){
@@ -3079,17 +3081,17 @@ void FluidModule::solve_phi_couple_wdTe_wSEE_PC(Params &pm,GridCenter &gc, GridI
 //*****************************************************************
 void FluidModule::solve_rhoe_wdTe_wSEE_PC(Params &pm,GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr, SeeVec &se){
 
-    std::vector<std::vector<double> > aW(pm.ni+2,std::vector<double>(pm.nj+2,0.0)); //係数
-    std::vector<std::vector<double> > aE(pm.ni+2,std::vector<double>(pm.nj+2,0.0)); //係数
-    std::vector<std::vector<double> > aS(pm.ni+2,std::vector<double>(pm.nj+2,0.0)); //係数
-    std::vector<std::vector<double> > aN(pm.ni+2,std::vector<double>(pm.nj+2,0.0)); //係数
-    std::vector<std::vector<double> > aP(pm.ni+2,std::vector<double>(pm.nj+2,0.0)); //係数
-    std::vector<std::vector<double> > b (pm.ni+2,std::vector<double>(pm.nj+2,0.0)); //ソース
-    std::vector<std::vector<double> > rhoe_new(pm.ni+2,std::vector<double>(pm.nj+2,0.0)); //ソース
-    std::vector<std::vector<double> > rhoe_old_tmp(pm.ni+2,std::vector<double>(pm.nj+2,0.0));
-    std::vector<std::vector<double> > rhoUex_old_tmp(pm.ni+2,std::vector<double>(pm.nj+2,0.0));
-    std::vector<std::vector<double> > rhoUer_old_tmp(pm.ni+2,std::vector<double>(pm.nj+2,0.0));
-    std::vector<std::vector<double> > drhoe(pm.ni+2,std::vector<double>(pm.nj+2,0.0));
+    vector<vector<double> > aW(pm.ni+2,vector<double>(pm.nj+2,0.0)); //係数
+    vector<vector<double> > aE(pm.ni+2,vector<double>(pm.nj+2,0.0)); //係数
+    vector<vector<double> > aS(pm.ni+2,vector<double>(pm.nj+2,0.0)); //係数
+    vector<vector<double> > aN(pm.ni+2,vector<double>(pm.nj+2,0.0)); //係数
+    vector<vector<double> > aP(pm.ni+2,vector<double>(pm.nj+2,0.0)); //係数
+    vector<vector<double> > b (pm.ni+2,vector<double>(pm.nj+2,0.0)); //ソース
+    vector<vector<double> > rhoe_new(pm.ni+2,vector<double>(pm.nj+2,0.0)); //ソース
+    vector<vector<double> > rhoe_old_tmp(pm.ni+2,vector<double>(pm.nj+2,0.0));
+    vector<vector<double> > rhoUex_old_tmp(pm.ni+2,vector<double>(pm.nj+2,0.0));
+    vector<vector<double> > rhoUer_old_tmp(pm.ni+2,vector<double>(pm.nj+2,0.0));
+    vector<vector<double> > drhoe(pm.ni+2,vector<double>(pm.nj+2,0.0));
 
     //Numerical treatment for exponential overflow and zero-division
     //------------------------------------
@@ -3770,12 +3772,12 @@ void FluidModule::solve_rhoe_wdTe_wSEE_PC(Params &pm,GridCenter &gc, GridInterfa
         double error_global = fmax(fmax(error_rhoe2,error_rhoUex2),error_rhoUer2);
         
         if(ncount % ndiv_out == 0){
-            std::cout << "ncount = "<<ncount<<std::endl;
-            std::cout << "error_rhoe = " << error_rhoe2
+            cout << "ncount = "<<ncount<<endl;
+            cout << "error_rhoe = " << error_rhoe2
                 <<  " error_rhoUex = " << error_rhoUex2
                 <<  " error_rhoUer= " << error_rhoUer2
                 <<  " error_max = " << fmax(fmax(error_rhoe2,error_rhoUex2),error_rhoUer2)
-                << std::endl;
+                << endl;
         }
 
         if(error_global < pm.error_cnv_HES_rhoe || ncount >= pm.maxITR_HES_rhoe){
@@ -3856,14 +3858,14 @@ void FluidModule::solve_rhoe_wdTe_wSEE_PC(Params &pm,GridCenter &gc, GridInterfa
 
         //output particle balance for electron
         //------------------------------------
-        std::string char1="results/particle_balance_electron";
-        std::string char2=std::to_string(pm.nOut);
-        std::string char_csv=".csv";
-        std::ofstream outputfile8(char1+char2+char_csv);
-        outputfile8 << std::setprecision(std::numeric_limits<double>::max_digits10) << std::scientific;
-        outputfile8<< "dN/dt (pcl/s), loss_to_bnd (pcl/s), direct-iz (pcl/s), sw-iz (pcl/s), sum (pcl/s)"<< std::endl;
+        string char1="results/particle_balance_electron";
+        string char2=to_string(pm.nOut);
+        string char_csv=".csv";
+        ofstream outputfile8(char1+char2+char_csv);
+        outputfile8 << setprecision(numeric_limits<double>::max_digits10) << scientific;
+        outputfile8<< "dN/dt (pcl/s), loss_to_bnd (pcl/s), direct-iz (pcl/s), sw-iz (pcl/s), sum (pcl/s)"<< endl;
         outputfile8<< dNedt_sum << "," << -nabla_rhoUe_sum << "," << rate_d_ionz_sum << ","<< rate_s_ionz_sum 
-            << ","<< -dNedt_sum + (-nabla_rhoUe_sum + rate_d_ionz_sum + rate_s_ionz_sum)<< std::endl;
+            << ","<< -dNedt_sum + (-nabla_rhoUe_sum + rate_d_ionz_sum + rate_s_ionz_sum)<< endl;
         outputfile8.close();
         //------------------------------------
     }
@@ -3951,9 +3953,11 @@ void FluidModule::solve_rhoe_wdTe_wSEE_PC(Params &pm,GridCenter &gc, GridInterfa
 
         double rhoUix_tmp = gc.rhoi[i][j]*0.25*vth*(exp(-utx_R*utx_R) + utx_R*sqrt(M_PI)*(erf(utx_R) + 1.0));
         
-        double delta_Ii = rhoUix_tmp  *2.0*M_PI*gc.r[j]*pm.dr*( ph::e0);
-        double delta_Ie = gx.rhoUex[i+1][j]*2.0*M_PI*gc.r[j]*pm.dr*(-ph::e0);
-
+        //double delta_Ii = rhoUix_tmp  *2.0*M_PI*gc.r[j]*pm.dr*( ph::e0);
+        //double delta_Ie = gx.rhoUex[i+1][j]*2.0*M_PI*gc.r[j]*pm.dr*(-ph::e0);
+        double delta_Ii = gx.rhoUix_wall[i+1][j]*2.0*M_PI*gc.r[j]*pm.dr*( ph::e0);
+        double delta_Ie = gx.rhoUex_wall[i+1][j]*2.0*M_PI*gc.r[j]*pm.dr*(-ph::e0);
+        
         pm.Ii_Anode = pm.Ii_Anode + delta_Ii;
         pm.Ie_Anode = pm.Ie_Anode + delta_Ie;
         pm.I_Anode =  pm.I_Anode + delta_Ii + delta_Ie;
@@ -4001,16 +4005,16 @@ void FluidModule::solve_rhoe_wdTe_wSEE_PC(Params &pm,GridCenter &gc, GridInterfa
 //*****************************************************************
 void FluidModule::solve_Te_wdTe_wSEE_PC(Params &pm,GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr, SeeVec &se){
 
-    std::vector<std::vector<double> > aW(pm.ni+2,std::vector<double>(pm.nj+2,0.0)); //係数
-    std::vector<std::vector<double> > aE(pm.ni+2,std::vector<double>(pm.nj+2,0.0)); //係数
-    std::vector<std::vector<double> > aS(pm.ni+2,std::vector<double>(pm.nj+2,0.0)); //係数
-    std::vector<std::vector<double> > aN(pm.ni+2,std::vector<double>(pm.nj+2,0.0)); //係数
-    std::vector<std::vector<double> > aP(pm.ni+2,std::vector<double>(pm.nj+2,0.0)); //係数
-    std::vector<std::vector<double> > b (pm.ni+2,std::vector<double>(pm.nj+2,0.0)); //ソース
-    std::vector<std::vector<double> > rhoeps_old_tmp(pm.ni+2,std::vector<double>(pm.nj+2,0.0));
-    std::vector<std::vector<double> > Gx_old_tmp(pm.ni+2,std::vector<double>(pm.nj+2,0.0));
-    std::vector<std::vector<double> > Gr_old_tmp(pm.ni+2,std::vector<double>(pm.nj+2,0.0));
-    std::vector<std::vector<double> > drhoeps(pm.ni+2,std::vector<double>(pm.nj+2,0.0));
+    vector<vector<double> > aW(pm.ni+2,vector<double>(pm.nj+2,0.0)); //係数
+    vector<vector<double> > aE(pm.ni+2,vector<double>(pm.nj+2,0.0)); //係数
+    vector<vector<double> > aS(pm.ni+2,vector<double>(pm.nj+2,0.0)); //係数
+    vector<vector<double> > aN(pm.ni+2,vector<double>(pm.nj+2,0.0)); //係数
+    vector<vector<double> > aP(pm.ni+2,vector<double>(pm.nj+2,0.0)); //係数
+    vector<vector<double> > b (pm.ni+2,vector<double>(pm.nj+2,0.0)); //ソース
+    vector<vector<double> > rhoeps_old_tmp(pm.ni+2,vector<double>(pm.nj+2,0.0));
+    vector<vector<double> > Gx_old_tmp(pm.ni+2,vector<double>(pm.nj+2,0.0));
+    vector<vector<double> > Gr_old_tmp(pm.ni+2,vector<double>(pm.nj+2,0.0));
+    vector<vector<double> > drhoeps(pm.ni+2,vector<double>(pm.nj+2,0.0));
 
     //Numerical treatment for exponential overflow and zero-division
     //------------------------------------
@@ -4746,12 +4750,12 @@ void FluidModule::solve_Te_wdTe_wSEE_PC(Params &pm,GridCenter &gc, GridInterface
         double error_global = fmax(fmax(error_rhoeps2,error_Gx2),error_Gr2);
         
         if(ncount % ndiv_out == 0){
-            std::cout << "ncount = "<<ncount<<std::endl;
-            std::cout << "error_rhoeps = " << error_rhoeps2
+            cout << "ncount = "<<ncount<<endl;
+            cout << "error_rhoeps = " << error_rhoeps2
                 <<  " error_Gx = " << error_Gx2
                 <<  " error_Gr= " << error_Gr2
                 <<  " error_max = " << fmax(fmax(error_rhoeps2,error_Gx2),error_Gr2)
-                << std::endl;
+                << endl;
         }
 
         if(error_global < pm.error_cnv_HES_rhoeps || ncount >= pm.maxITR_HES_rhoeps){
@@ -4845,21 +4849,21 @@ void FluidModule::solve_Te_wdTe_wSEE_PC(Params &pm,GridCenter &gc, GridInterface
 
         //output energy balance for electron
         //------------------------------------
-        std::string char1="results/energy_balance_electron";
-        std::string char2=std::to_string(pm.nOut);
-        std::string char_csv=".csv";
-        std::ofstream outputfile11(char1+char2+char_csv);
-        outputfile11 << std::setprecision(std::numeric_limits<double>::max_digits10) << std::scientific;
-        outputfile11<< "dE/dt (J/s), loss_to_bnd (J/s), collision_loss (J/s), Joule (J/s), input (J/s), sum (J/s)"<< std::endl;
+        string char1="results/energy_balance_electron";
+        string char2=to_string(pm.nOut);
+        string char_csv=".csv";
+        ofstream outputfile11(char1+char2+char_csv);
+        outputfile11 << setprecision(numeric_limits<double>::max_digits10) << scientific;
+        outputfile11<< "dE/dt (J/s), loss_to_bnd (J/s), collision_loss (J/s), Joule (J/s), input (J/s), sum (J/s)"<< endl;
         outputfile11<< dEdt_sum << "," << -nabla_G_sum << "," << rate_eloss_sum 
             << "," << Joule_sum << "," << input_sum 
-            << ","<< -dEdt_sum + (-nabla_G_sum + rate_eloss_sum + Joule_sum + input_sum)<<std::endl;
+            << ","<< -dEdt_sum + (-nabla_G_sum + rate_eloss_sum + Joule_sum + input_sum)<<endl;
         outputfile11.close();
         //------------------------------------
     }
 
     
-    //std::cout << "ncount_Te = "<<ncount<<std::endl;
+    //cout << "ncount_Te = "<<ncount<<endl;
 
     //Don’t update unless the value is positive.
     //------------------------------------
@@ -4959,12 +4963,12 @@ void FluidModule::solve_Te_wdTe_wSEE_PC(Params &pm,GridCenter &gc, GridInterface
 void FluidModule::update_rhon(Params &pm,GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr){
 
 
-    std::vector<std::vector<double> > aW(pm.ni+2,std::vector<double>(pm.nj+2,0.0)); //係数
-    std::vector<std::vector<double> > aE(pm.ni+2,std::vector<double>(pm.nj+2,0.0)); //係数
-    std::vector<std::vector<double> > aS(pm.ni+2,std::vector<double>(pm.nj+2,0.0)); //係数
-    std::vector<std::vector<double> > aN(pm.ni+2,std::vector<double>(pm.nj+2,0.0)); //係数
-    std::vector<std::vector<double> > aP(pm.ni+2,std::vector<double>(pm.nj+2,0.0)); //係数
-    std::vector<std::vector<double> > b (pm.ni+2,std::vector<double>(pm.nj+2,0.0)); //ソース
+    vector<vector<double> > aW(pm.ni+2,vector<double>(pm.nj+2,0.0)); //係数
+    vector<vector<double> > aE(pm.ni+2,vector<double>(pm.nj+2,0.0)); //係数
+    vector<vector<double> > aS(pm.ni+2,vector<double>(pm.nj+2,0.0)); //係数
+    vector<vector<double> > aN(pm.ni+2,vector<double>(pm.nj+2,0.0)); //係数
+    vector<vector<double> > aP(pm.ni+2,vector<double>(pm.nj+2,0.0)); //係数
+    vector<vector<double> > b (pm.ni+2,vector<double>(pm.nj+2,0.0)); //ソース
 
     //time step for metastable neutral
     //------------------------------------
@@ -4979,9 +4983,9 @@ void FluidModule::update_rhon(Params &pm,GridCenter &gc, GridInterfaceX &gx, Gri
 
     //double di_tmp = 2.0*ri;
     //double DnN2 = 3.0/(8.0*di_tmp*di_tmp)*sqrt(ph::Boltz*pm.Tn/(M_PI*pm.massi));
-    //std::cout << "DnN = " <<DnN << " DnN2 = " << DnN2 << std::endl;
+    //cout << "DnN = " <<DnN << " DnN2 = " << DnN2 << endl;
 
-    //std::cout << "DnN = " << DnN <<std::endl;
+    //cout << "DnN = " << DnN <<endl;
 
     //double Dn = pm.DmN/rhon_ini;
 
@@ -5072,7 +5076,7 @@ void FluidModule::update_rhon(Params &pm,GridCenter &gc, GridInterfaceX &gx, Gri
                 double Gamma_in_Rr = 0.0;
                 if(bRr_in== 0){
                     Gamma_in_Rr = -gr.rhoUir_wall[i][j+1] - gr.rhoUmr_wall[i][j+1] - pm.fn_In;
-                    //std::cout << Gamma_in_Rr << ","<<pm.fn_In << std::endl;
+                    //cout << Gamma_in_Rr << ","<<pm.fn_In << endl;
                 }
                 double Gamma_open_Rr = 0.0;
                 if(bRr_open== 0){
@@ -5259,7 +5263,7 @@ void FluidModule::update_rhon(Params &pm,GridCenter &gc, GridInterfaceX &gx, Gri
         //double GammaPerN_open_Rr = 0.25*vth;
         //gr.rhoUnr[i][j+1] = gc.rhon[i][j]*GammaPerN_open_Rr ;
         
-        //std::cout << Gamma_open_Rr << std::endl;
+        //cout << Gamma_open_Rr << endl;
     }
 
     //calculation of particle balance
@@ -5327,7 +5331,7 @@ void FluidModule::update_rhon(Params &pm,GridCenter &gc, GridInterfaceX &gx, Gri
                     double Gamma_in_Rr = 0.0;
                     if(bRr_in== 0){
                         Gamma_in_Rr = -gr.rhoUir_wall[i][j+1] - gr.rhoUmr_wall[i][j+1] - pm.fn_In;
-                        //std::cout << Gamma_in_Rr << ","<<pm.fn_In << std::endl;
+                        //cout << Gamma_in_Rr << ","<<pm.fn_In << endl;
                     }
 
                     double nabla_rhoUn = (gx.rhoUnx[i+1][j]*bRx_wall - gx.rhoUnx[i][j]*bLx_wall)/pm.dx 
@@ -5352,12 +5356,12 @@ void FluidModule::update_rhon(Params &pm,GridCenter &gc, GridInterfaceX &gx, Gri
 
         //output particle balance for metastable
         //------------------------------------
-        std::string char1="results/particle_balance_ground";
-        std::string char2=std::to_string(pm.nOut);
-        std::string char_csv=".csv";
-        std::ofstream outputfile10(char1+char2+char_csv);
-        outputfile10 << std::setprecision(std::numeric_limits<double>::max_digits10) << std::scientific;
-        outputfile10<< "dN/dt (pcl/s), loss_to_bnd (pcl/s), sw-ex (pcl/s), super (pcl/s), ex-to-m (pcl/s), ex-to-h (pcl/s), direct-iz (pcl/s), sum (pcl/s)"<< std::endl;
+        string char1="results/particle_balance_ground";
+        string char2=to_string(pm.nOut);
+        string char_csv=".csv";
+        ofstream outputfile10(char1+char2+char_csv);
+        outputfile10 << setprecision(numeric_limits<double>::max_digits10) << scientific;
+        outputfile10<< "dN/dt (pcl/s), loss_to_bnd (pcl/s), sw-ex (pcl/s), super (pcl/s), ex-to-m (pcl/s), ex-to-h (pcl/s), direct-iz (pcl/s), sum (pcl/s)"<< endl;
         outputfile10 << dNndt_sum 
             << "," << -nabla_rhoUn_sum 
             << "," << rate_exc_m_to_r_sum  
@@ -5374,7 +5378,7 @@ void FluidModule::update_rhon(Params &pm,GridCenter &gc, GridInterfaceX &gx, Gri
                     + rate_exc_g_to_h_sum 
                     + rate_d_ionz_sum
                 )
-            << std::endl;
+            << endl;
         outputfile10.close();
         //------------------------------------
     }
@@ -5386,7 +5390,7 @@ void FluidModule::update_rhon(Params &pm,GridCenter &gc, GridInterfaceX &gx, Gri
         for (int i=gc.i_flc_bl[iblock][0];i<=gc.i_flc_bl[iblock][1];i++){ 
             for (int j=gc.j_flc_bl[iblock][0];j<=gc.j_flc_bl[iblock][1];j++){
                 if(gc.rhon[i][j]<0.0){
-                    //std::cout << "Warning negative density at (" << i <<","<<j<<") ne = " << gc.rhon[i][j]<< std::endl; 
+                    //cout << "Warning negative density at (" << i <<","<<j<<") ne = " << gc.rhon[i][j]<< endl; 
                     ncount ++;
                     gc.rhon[i][j] = fmax(gc.rhon_old[i][j],0.0);
                 }
@@ -5394,7 +5398,7 @@ void FluidModule::update_rhon(Params &pm,GridCenter &gc, GridInterfaceX &gx, Gri
         }
     }
     if(ncount!=0){
-        std::cout << "negative rhon count = " << ncount << std::endl;
+        cout << "negative rhon count = " << ncount << endl;
     }
 
     //Caluculate residuals
@@ -5412,12 +5416,12 @@ void FluidModule::update_rhon(Params &pm,GridCenter &gc, GridInterfaceX &gx, Gri
 void FluidModule::update_rhom(Params &pm,GridCenter &gc, GridInterfaceX &gx, GridInterfaceR &gr){
 
 
-    std::vector<std::vector<double> > aW(pm.ni+2,std::vector<double>(pm.nj+2,0.0)); //係数
-    std::vector<std::vector<double> > aE(pm.ni+2,std::vector<double>(pm.nj+2,0.0)); //係数
-    std::vector<std::vector<double> > aS(pm.ni+2,std::vector<double>(pm.nj+2,0.0)); //係数
-    std::vector<std::vector<double> > aN(pm.ni+2,std::vector<double>(pm.nj+2,0.0)); //係数
-    std::vector<std::vector<double> > aP(pm.ni+2,std::vector<double>(pm.nj+2,0.0)); //係数
-    std::vector<std::vector<double> > b (pm.ni+2,std::vector<double>(pm.nj+2,0.0)); //ソース
+    vector<vector<double> > aW(pm.ni+2,vector<double>(pm.nj+2,0.0)); //係数
+    vector<vector<double> > aE(pm.ni+2,vector<double>(pm.nj+2,0.0)); //係数
+    vector<vector<double> > aS(pm.ni+2,vector<double>(pm.nj+2,0.0)); //係数
+    vector<vector<double> > aN(pm.ni+2,vector<double>(pm.nj+2,0.0)); //係数
+    vector<vector<double> > aP(pm.ni+2,vector<double>(pm.nj+2,0.0)); //係数
+    vector<vector<double> > b (pm.ni+2,vector<double>(pm.nj+2,0.0)); //ソース
 
     //time step for metastable neutral
     //------------------------------------
@@ -5578,7 +5582,7 @@ void FluidModule::update_rhom(Params &pm,GridCenter &gc, GridInterfaceX &gx, Gri
         for (int i=gc.i_flc_bl[iblock][0];i<=gc.i_flc_bl[iblock][1];i++){ 
             for (int j=gc.j_flc_bl[iblock][0];j<=gc.j_flc_bl[iblock][1];j++){
                 if(gc.rhom[i][j]<0.0){
-                    //std::cout << "Warning negative density at (" << i <<","<<j<<") ne = " << gc.rhom[i][j]<< std::endl; 
+                    //cout << "Warning negative density at (" << i <<","<<j<<") ne = " << gc.rhom[i][j]<< endl; 
                     ncount ++;
                     gc.rhom[i][j] = fmax(gc.rhom_old[i][j],0.0);
                 }
@@ -5586,7 +5590,7 @@ void FluidModule::update_rhom(Params &pm,GridCenter &gc, GridInterfaceX &gx, Gri
         }
     }
     if(ncount!=0){
-        std::cout << "negative rhom count = " << ncount << std::endl;
+        cout << "negative rhom count = " << ncount << endl;
     }
 
     //rhoUmx更新
@@ -5767,15 +5771,15 @@ void FluidModule::update_rhom(Params &pm,GridCenter &gc, GridInterfaceX &gx, Gri
 
         //output particle balance for metastable
         //------------------------------------
-        std::string char1="results/particle_balance_meta";
-        std::string char2=std::to_string(pm.nOut);
-        std::string char_csv=".csv";
-        std::ofstream outputfile10(char1+char2+char_csv);
-        outputfile10 << std::setprecision(std::numeric_limits<double>::max_digits10) << std::scientific;
-        outputfile10<< "dN/dt (pcl/s), loss_to_bnd (pcl/s), sw-iz (pcl/s), sw-ex (pcl/s), super (pcl/s), direct-ex (pcl/s), drop (pcl/s), sum (pcl/s)"<< std::endl;
+        string char1="results/particle_balance_meta";
+        string char2=to_string(pm.nOut);
+        string char_csv=".csv";
+        ofstream outputfile10(char1+char2+char_csv);
+        outputfile10 << setprecision(numeric_limits<double>::max_digits10) << scientific;
+        outputfile10<< "dN/dt (pcl/s), loss_to_bnd (pcl/s), sw-iz (pcl/s), sw-ex (pcl/s), super (pcl/s), direct-ex (pcl/s), drop (pcl/s), sum (pcl/s)"<< endl;
         outputfile10<< dNmdt_sum << ","<< -nabla_rhoUm_sum <<  ","<< -rate_s_ionz_sum  
             <<"," << -rate_exc_to_h_sum << "," << -rate_super_sum << "," <<  rate_exc_to_m_sum << "," <<  rate_drop_sum
-            << "," << -dNmdt_sum + (-nabla_rhoUm_sum - rate_s_ionz_sum - rate_exc_to_h_sum - rate_super_sum + rate_exc_to_m_sum + rate_drop_sum)<< std::endl;
+            << "," << -dNmdt_sum + (-nabla_rhoUm_sum - rate_s_ionz_sum - rate_exc_to_h_sum - rate_super_sum + rate_exc_to_m_sum + rate_drop_sum)<< endl;
         outputfile10.close();
         //------------------------------------
     }
@@ -5980,14 +5984,14 @@ void FluidModule::update_transport_coef(Params &pm,GridCenter &gc, GridInterface
 //**           void output_residual_for_PC                       **
 //**                                                             **
 //*****************************************************************
-void FluidModule::output_residual_for_PC(std::string name, double gtime, int itime, double error_val, double error_Fx, double error_Fr, int itime_PC, int ncount){
+void FluidModule::output_residual_for_PC(string name, double gtime, int itime, double error_val, double error_Fx, double error_Fr, int itime_PC, int ncount){
     
-    std::ofstream outputfile1;
+    ofstream outputfile1;
     if(itime_PC == 1){
         outputfile1.open("results/residuals_PC_" + name + ".csv");
-        outputfile1 << "gtime,itime,ncount,itime_PC,err_val,err_Fx,err_Fr" << std::endl;
+        outputfile1 << "gtime,itime,ncount,itime_PC,err_val,err_Fx,err_Fr" << endl;
     }else{
-        outputfile1.open("results/residuals_PC_" + name + ".csv",std::ios::app);
+        outputfile1.open("results/residuals_PC_" + name + ".csv",ios::app);
     }
     outputfile1 << gtime
                 <<","<< itime
@@ -5996,7 +6000,7 @@ void FluidModule::output_residual_for_PC(std::string name, double gtime, int iti
                 <<","<< error_val
                 <<","<< error_Fx
                 <<","<< error_Fr
-                << std::endl;
+                << endl;
     
     outputfile1.close();      
 }

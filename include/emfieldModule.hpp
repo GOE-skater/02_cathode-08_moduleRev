@@ -8045,6 +8045,12 @@ void EmfieldModule::update_energy_profile(Params &pm, GridCenter &gc, GridInterf
         P_err = P_err*ratio;
         P_out = P_out*ratio;
 
+        //reflection coefficient of plasma
+        complex<double> Gamma_p = a2/b2;
+        complex<double> Zp = pm.Z0*(1.0 + Gamma_p)/(1.0 - Gamma_p);
+        complex<double> Gamma_all = b1/a1;
+        complex<double> Zall = pm.Z0*(1.0 + Gamma_all)/(1.0 - Gamma_all);
+
         cout << "---------------------------------" << endl;
         //cout << "[modifield]" << endl;
         //cout << "Fwd power = " << P_fwd*ratio << " W" << endl;
@@ -8059,6 +8065,10 @@ void EmfieldModule::update_energy_profile(Params &pm, GridCenter &gc, GridInterf
         cout << "REF. power (cathode port) = " << P_ref << " W" << endl;
         cout << "FWD. power (amp) = " << P_fwd_all << " W" << endl;
         cout << "REF. power (amp) = " << P_ref_all << " W" << endl;
+        cout << "Reflection coef of plasma = " << Gamma_p << " (mag = " << abs(Gamma_p) << ", phase = "<< arg(Gamma_p)/M_PI*180.0 <<  " deg)"  << endl;
+        cout << "Impedance of plasma = " << Zp  << " (mag = " << abs(Zp) << ", phase = "<< arg(Zp)/M_PI*180.0 <<  " deg)"  << endl;
+        cout << "Reflection coef of all = " << Gamma_all << " (mag = " << abs(Gamma_all) << ", phase = "<< arg(Gamma_all)/M_PI*180.0 <<  " deg)"  << endl;
+        cout << "Impedance of all = " << Zall << " (mag = " << abs(Zall) << ", phase = "<< arg(Zall)/M_PI*180.0 <<  " deg)"  << endl;
         //cout << std::setprecision(6) << scientific;
 
         

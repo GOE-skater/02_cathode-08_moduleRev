@@ -15,3 +15,4 @@ EXE_NAME = a.out
 # executables
 Normal: ./src/main.cpp
 	$(CC) $(CFLAGS) $(CINCLUDES) $(CLIBS) $(OPTIMIZE) ./src/main.cpp -o $(EXE_NAME) $(CLIBOPTIONS)
+ 

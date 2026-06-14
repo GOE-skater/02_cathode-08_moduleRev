@@ -13,23 +13,12 @@ domain: #for cathode
   width_neutIn: 0.0055           # (double) Neutral inlet width [m]
 # --------------------------------
 
-#domain: #for test (coaxial cable)
-# --------------------------------
-#  ni: 194                        # (int) Number of cells in x-direction (typical:194)
-#  nj: 7                          # (int) Number of cells in r-direction (typical:70)
-#  xL: 0.00                       # (double) Min. x in domain (typical:0.00)
-#  xR: 0.0388                     # (double) Max. x in domain (typical:0.0388)
-#  rmin: 0.0006                   # (double) Min. r in domain (typical:0.00)
-#  rmax: 0.002                    # (double) Max. r in domain (typical:0.014)
-#  width_neutIn: 0.0055           # (double) Neutral inlet width [m]
-# --------------------------------
-
 operating_condition:
 # --------------------------------
   V_bias: 35.0                   # (double) Bias voltage, previous/example: 20
   Q_neutIn_mgs: 0.069            # (double) Neutral particle flow rate [mg/s], 1 sccm = 0.098 mg/s, previous/example: 0.04881367984087
   fmw: 4.25e9                    # (double) Microwave frequency [Hz]
-  Pmw: 12.5748                   # (double) Microwave power [W], previous/example: 8
+  Pmw: 15.7024                       # (double) Microwave power [W], previous/example: 8 12.5748, 12.5619 W
   flag_mwRef: 1                  # (int) Whether to include the microwave reflection (0: fix abosorbed power, 1: fix input power)
 # --------------------------------
 
@@ -57,7 +46,7 @@ physical_parameter:
 #  Z0: 50.0                  # (double) Base impedance (Ohm) 38.4885 54.4052
 # --------------------------------
 
-transmission_line: #for measured
+transmission_line: #for measured w/stab
 # --------------------------------
   S11_mag: 0.24403462            # (double) Magnitude of S11
   S11_arg_deg: -552.4800212      # (double) Argument of S11 (deg)
@@ -69,8 +58,25 @@ transmission_line: #for measured
   S22_arg_deg: -850.3272909      # (double) Argument of S22 (deg)
   Z0: 50.0                       # (double) Base impedance (Ohm) 38.4885 54.4052
   h0_stab: 250e-3                # (double) Original stab length (m)
-  dh_stab: 0e-3                  # (double) Change in stab length (m)
-  dl_cable: 0e-3                 # (double) Change in cable length (m)
+  dh_stab: 7e-4                 # (double) Change in stab length (m) 7e-4
+  dl_cable: 8e-3                 # (double) Change in cable length (m) 8e-3 
+  phase_pre_deg: 4605.30         # (double) phase delay in pre-line cable (deg) NOTE: positive value
+# --------------------------------
+
+#transmission_line: #for measured w/o stab
+# --------------------------------
+  S11_mag: 0.291502416            # (double) Magnitude of S11
+  S11_arg_deg: -784.1502075      # (double) Argument of S11 (deg)
+  S21_mag: 0.871767775           # (double) Magnitude of S21
+  S21_arg_deg: -630.5781453      # (double) Argument of S21 (deg)
+  S12_mag: 0.846639799           # (double) Magnitude of S12
+  S12_arg_deg: -631.617452      # (double) Argument of S12 (deg)
+  S22_mag: 0.233506543           # (double) Magnitude of S22
+  S22_arg_deg: -677.461792      # (double) Argument of S22 (deg)
+  Z0: 50.0                       # (double) Base impedance (Ohm) 38.4885 54.4052
+  h0_stab: 250e-3                # (double) Original stab length (m)
+  dh_stab: 0e-4                 # (double) Change in stab length (m) 7e-4
+  dl_cable: 0e-3                 # (double) Change in cable length (m) 8e-3 
   phase_pre_deg: 4605.30         # (double) phase delay in pre-line cable (deg) NOTE: positive value
 # --------------------------------
 
@@ -168,5 +174,5 @@ output_control:
 
 test_mode:
 # --------------------------------
-  flag_impTest: 0                # (int) conduct impedance test
+  flag_impTest: 0                # (int) conduct impedance test w/o plasma
 # --------------------------------

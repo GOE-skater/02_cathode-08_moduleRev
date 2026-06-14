@@ -7,6 +7,8 @@
 #include <time.h>
 #include <vector>
 #include <sstream>
+#include <iomanip>
+#include <limits>
 
 #include "constants.hpp"
 #include "params.hpp"
@@ -128,12 +130,12 @@ void OutputModule::output_phase(Params &pm, GridCenter &gc, GridInterfaceX &gx, 
                 double Pabsx_tmp = (gx.Pabsx[i][j] + gx.Pabsx[i+1][j])/2.0;
                 double Pabsr_tmp = (gr.Pabsr[i][j] + gr.Pabsr[i][j+1])/2.0;
                 
-                std::complex<double> Er_anly(0.0,0.0);
-                std::complex<double> Er_err(0.0,0.0);
+                complex<double> Er_anly(0.0,0.0);
+                complex<double> Er_err(0.0,0.0);
                 
                 if(pm.flag_impTest == 1){
                     double c0 = sqrt(1.0/(ph::eps0*gc.epsr[i][j]*ph::mu0));
-                    Er_anly = pm.J1r_exc/gc.r[j]*1e3/log(pm.r2/pm.r1)*exp(std::complex<double>(0,-pm.omegam/c0*gc.x[i]+deg))*double(gc.jdgBnd_Ep[i][j]);
+                    Er_anly = pm.J1r_exc/gc.r[j]*1e3/log(pm.r2/pm.r1)*exp(complex<double>(0,-pm.omegam/c0*gc.x[i]+deg))*double(gc.jdgBnd_Ep[i][j]);
                 }
                 Er_err = Er_tmp - Er_anly;
                 
@@ -204,20 +206,20 @@ void OutputModule::output(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridIn
     double dt_n = pm.dt*double(pm.ndt_n);
     //------------------------------------
 
-    std::string char_cnv,char1,char2,char_csv;
+    string char_cnv,char1,char2,char_csv;
 
     char1="results/result";
-    char2=std::to_string(pm.nOut);
+    char2=to_string(pm.nOut);
     char_csv=".csv";
 
-    std::cout<<"output!"<<std::endl;
+    cout<<"output!"<<endl;
 
-    std::ofstream outputfile1(char1+char2+char_csv);
-    //std::ofstream outputfile1_1(char1+"_tmp"+char2+char_csv);
-    //outputfile1<<"x,rho,Ui,rhoUix,Ue,rhoUex,rhoUex_E,rhoUex_D,E,phi,psi,rho_th,U_th,E_th,phi_th,psi_th,rate_ionize,divi,dive1,dive2,dive3, div_poisson, LHS, RHS,zero" << std::endl;
-    //outputfile1<<"x,rhon,rho,rhoe(test),Uix,rhoUix,Uex,Uey,rhoUex,rhoUey,Te,heat_flux,Bz,E,phi,nu_m,nu_en,nu_ei,nu_ionz,nu_exc,nu_wall,nu_ano,mue_parae,mue_perp,Halle,jd,Id,rate_eloss,rate_ionize,divi,dive,divn,engy_LHS,engy_LHS1,engy_LHS2,engy_LHS3,engy_LHS4,engy_RHS,engy_RHS1,engy_RHS2,engy_RHS3,zero" << std::endl;
-    outputfile1<<"i,j,x,r,rhoi,rhoe,Uix,Uir,Uip,Ui_mag,rhoUix,rhoUir,rhoUip,Te,Te_eff,rhoeps,Gx,Gr,phi,Ex,Er,rhoUex,rhoUer,rhoUep,Uex,Uer,Uep,Ue_mag,rate_ionize,nu_m,nu_m1,nu_ionz,nu_ionzStep,nu_excStep,nu_exc,nu_excMeta,nui_m,mu_para,mu_perp,mu_x,mu_r,mu_c,Ap,Bx,Br,Bmag,Omega,Omegax,Omegar,Pabs,rate_eloss,Loss,P_ES,Pnet,nabla_rhoUe,nabla_rhoUa,nabla_rhoUi,nabla_rhoUm,rate_rhom,rateG_rhom,rateL_rhom,nabla_G,nabla_Ga,rhom,rhoUmx,rhoUmr,Umx,Umr,Debye,phi_analytical,|Ex_mw|,|Er_mw|,|Ep_mw|,rate_ionize_direct,rate_ionize_stepwise,rhon,d|B|/dx,d|B|/dr,rate_eloss_n,rate_eloss_m,distECR,nu_eff,Jx_exc,Jr_exc,Jp_exc,scx,scr,rhoq_sc,nUex,nUer,nabla_nUe,rhoUnx,rhoUnr,nabla_rhoUn,rate_rhon,nu_super,deltaB,nu_ano,nu_ano_IAT,jdgBnd_flc,Mache,zero" << std::endl;
-    //outputfile1_1 << "i,j,x,r,rhom,rhoUmx,rhoUmr,nabla_rhoUm,rhon,rhoUnx,rhoUnr,nabla_rhoUn,zero" << std::endl;
+    ofstream outputfile1(char1+char2+char_csv);
+    //ofstream outputfile1_1(char1+"_tmp"+char2+char_csv);
+    //outputfile1<<"x,rho,Ui,rhoUix,Ue,rhoUex,rhoUex_E,rhoUex_D,E,phi,psi,rho_th,U_th,E_th,phi_th,psi_th,rate_ionize,divi,dive1,dive2,dive3, div_poisson, LHS, RHS,zero" << endl;
+    //outputfile1<<"x,rhon,rho,rhoe(test),Uix,rhoUix,Uex,Uey,rhoUex,rhoUey,Te,heat_flux,Bz,E,phi,nu_m,nu_en,nu_ei,nu_ionz,nu_exc,nu_wall,nu_ano,mue_parae,mue_perp,Halle,jd,Id,rate_eloss,rate_ionize,divi,dive,divn,engy_LHS,engy_LHS1,engy_LHS2,engy_LHS3,engy_LHS4,engy_RHS,engy_RHS1,engy_RHS2,engy_RHS3,zero" << endl;
+    outputfile1<<"i,j,x,r,rhoi,rhoe,Uix,Uir,Uip,Ui_mag,rhoUix,rhoUir,rhoUip,Te,Te_eff,rhoeps,Gx,Gr,phi,Ex,Er,rhoUex,rhoUer,rhoUep,Uex,Uer,Uep,Ue_mag,rate_ionize,nu_m,nu_m1,nu_ionz,nu_ionzStep,nu_excStep,nu_exc,nu_excMeta,nui_m,mu_para,mu_perp,mu_x,mu_r,mu_c,Ap,Bx,Br,Bmag,Omega,Omegax,Omegar,Pabs,rate_eloss,Loss,P_ES,Pnet,nabla_rhoUe,nabla_rhoUa,nabla_rhoUi,nabla_rhoUm,rate_rhom,rateG_rhom,rateL_rhom,nabla_G,nabla_Ga,rhom,rhoUmx,rhoUmr,Umx,Umr,Debye,phi_analytical,|Ex_mw|,|Er_mw|,|Ep_mw|,rate_ionize_direct,rate_ionize_stepwise,rhon,d|B|/dx,d|B|/dr,rate_eloss_n,rate_eloss_m,distECR,nu_eff,Jx_exc,Jr_exc,Jp_exc,scx,scr,rhoq_sc,nUex,nUer,nabla_nUe,rhoUnx,rhoUnr,nabla_rhoUn,rate_rhon,nu_super,deltaB,nu_ano,nu_ano_IAT,jdgBnd_flc,Mache,zero" << endl;
+    //outputfile1_1 << "i,j,x,r,rhom,rhoUmx,rhoUmr,nabla_rhoUm,rhon,rhoUnx,rhoUnr,nabla_rhoUn,zero" << endl;
     
     for(int i=1;i<=pm.ni;i++){
         for(int j=1;j<=pm.nj;j++){
@@ -313,7 +315,7 @@ void OutputModule::output(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridIn
             double rhoi_Lr = (gc.rhoi[i][j] + gc.rhoi[i][j-1])/(2.0);
             double rhoi_Rr = (gc.rhoi[i][j] + gc.rhoi[i][j+1])/(2.0);
 
-            //if(j==1) std::cout << gr.rhoUer[i][j-1] << std::endl;
+            //if(j==1) cout << gr.rhoUer[i][j-1] << endl;
 
             //double nabla_rhoUe = (gx.rhoUex[i+1][j]-gx.rhoUex[i][j])/pm.dx + (qR*gr.rhoUer[i][j+1]-qL*gr.rhoUer[i][j])/pm.dr;
             double nabla_rhoUe = (gx.rhoUex[i+1][j] - gx.rhoUex[i][j])/pm.dx 
@@ -345,13 +347,13 @@ void OutputModule::output(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridIn
 
             double P_ES = -RHS2;
 
-            double Ex_mw_tmp = std::abs(gx.E1x[i][j] + gx.E1x[i+1][j])/2.0;
-            double Er_mw_tmp = std::abs(rL*gr.E1r[i][j+1] + rR*gr.E1r[i][j])/(2.0*gc.r[j]);
-            double Ep_mw_tmp = std::abs(gc.E1p[i][j]);
+            double Ex_mw_tmp = abs(gx.E1x[i][j] + gx.E1x[i+1][j])/2.0;
+            double Er_mw_tmp = abs(rL*gr.E1r[i][j+1] + rR*gr.E1r[i][j])/(2.0*gc.r[j]);
+            double Ep_mw_tmp = abs(gc.E1p[i][j]);
 
-            double Jx_exc_tmp = std::abs(gx.J1x[i][j] + gx.J1x[i+1][j])/2.0;
-            double Jr_exc_tmp = std::abs(rL*gr.J1r[i][j+1] + rR*gr.J1r[i][j])/(2.0*gc.r[j]);
-            double Jp_exc_tmp = std::abs(gc.J1p[i][j]);
+            double Jx_exc_tmp = abs(gx.J1x[i][j] + gx.J1x[i+1][j])/2.0;
+            double Jr_exc_tmp = abs(rL*gr.J1r[i][j+1] + rR*gr.J1r[i][j])/(2.0*gc.r[j]);
+            double Jp_exc_tmp = abs(gc.J1p[i][j]);
 
             double ut = sqrt(2.0*ph::Boltz*(gc.Te[i][j]+1.0*ph::e0/ph::Boltz)/pm.masse);
             double Mache_tmp = sqrt(pow(Uex_tmp,2) + pow(Uer_tmp,2))/(ut + 100.0);
@@ -417,7 +419,7 @@ void OutputModule::output(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridIn
                 << ","<< gc.nu_ano_IAT[i][j]*gc.jdgBnd_flc[i][j]
                 << ","<< gc.jdgBnd_flc[i][j]
                 << ","<< Mache_tmp*gc.jdgBnd_flc[i][j]
-                << "," << 0.0<< std::endl;
+                << "," << 0.0<< endl;
         }
     }
 
@@ -425,14 +427,14 @@ void OutputModule::output(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridIn
     //outputfile1_1.close();
 
     char1="results/restart";
-    std::string char_num = + "_ni" + std::to_string(pm.ni) + "_nj" + std::to_string(pm.nj)+ "_";
-    char2=std::to_string(pm.nOut);
+    string char_num = + "_ni" + to_string(pm.ni) + "_nj" + to_string(pm.nj)+ "_";
+    char2=to_string(pm.nOut);
     char_csv=".csv";
 
-    std::ofstream outputfile2(char1+char2+char_csv);
+    ofstream outputfile2(char1+char2+char_csv);
 
-    outputfile2<<"i,j,x,r,rhoi,rhoi_old,Uix,Uix_old,Uir,Uir_old,Uip,Uip_old,rhoe,rhoe_old,rhoUex,rhoUex_old,rhoUer,rhoUer_old,Te,Te_old,Gx,Gx_old,Gr,Gr_old,phi,phi_old,rhom,rhom_old,rhoUmx,rhoUmr,rate_ionize,scx,scr,nUex,nUex_old,nUer,nUer_old,rhon,rhon_old,rhoUnx,rhoUnr,rhoeps,rhoeps_old,rhoUix_wall,rhoUir_wall,rhoUex_wall,rhoUer_wall,rhoUmx_wall,rhoUmr_wall,rhoUnx_wall,rhoUnr_wall,Gx_wall,Gr_wall,zero"<< std::endl;
-    outputfile2 << std::setprecision(std::numeric_limits<double>::max_digits10) << std::scientific;
+    outputfile2<<"i,j,x,r,rhoi,rhoi_old,Uix,Uix_old,Uir,Uir_old,Uip,Uip_old,rhoe,rhoe_old,rhoUex,rhoUex_old,rhoUer,rhoUer_old,Te,Te_old,Gx,Gx_old,Gr,Gr_old,phi,phi_old,rhom,rhom_old,rhoUmx,rhoUmr,rate_ionize,scx,scr,nUex,nUex_old,nUer,nUer_old,rhon,rhon_old,rhoUnx,rhoUnr,rhoeps,rhoeps_old,rhoUix_wall,rhoUir_wall,rhoUex_wall,rhoUer_wall,rhoUmx_wall,rhoUmr_wall,rhoUnx_wall,rhoUnr_wall,Gx_wall,Gr_wall,zero"<< endl;
+    outputfile2 << setprecision(numeric_limits<double>::max_digits10) << scientific;
     
     for(int i=0;i<pm.ni+2;i++){
         for(int j=0;j<pm.nj+2;j++){
@@ -463,8 +465,8 @@ void OutputModule::output(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridIn
                 << "," << truncate(gx.rhoUmx_wall[i][j]) << "," << truncate(gr.rhoUmr_wall[i][j]) 
                 << "," << truncate(gx.rhoUnx_wall[i][j]) << "," << truncate(gr.rhoUnr_wall[i][j]) 
                 << "," << truncate(gx.Gx_wall[i][j])     << "," << truncate(gr.Gr_wall[i][j]) 
-                << "," << 0.0<< std::endl;
-                //if(i == gc.i_flc_bl[2][0]) std::cout << "output, j = "<<j << " , " << truncate(gx.rhoUix_wall[i][j]) << ","<<gx.rhoUix_wall[i][j]<<endl;
+                << "," << 0.0<< endl;
+                //if(i == gc.i_flc_bl[2][0]) cout << "output, j = "<<j << " , " << truncate(gx.rhoUix_wall[i][j]) << ","<<gx.rhoUix_wall[i][j]<<endl;
         }
     }
     outputfile2.close();
@@ -474,8 +476,8 @@ void OutputModule::output(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridIn
     //setup for sum of current per wall
     //------------------------------------
     char1="results/current_sum";
-    std::ofstream outputfile3(char1+char2+char_csv);
-    outputfile3 << std::setprecision(std::numeric_limits<double>::max_digits10) << std::scientific;
+    ofstream outputfile3(char1+char2+char_csv);
+    outputfile3 << setprecision(numeric_limits<double>::max_digits10) << scientific;
 
     pm.Ii_Anode = 0.0;
     pm.Ie_Anode = 0.0;
@@ -569,24 +571,24 @@ void OutputModule::output(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridIn
     //setup for boundary current and electric field
     //------------------------------------
     char1="results/bnd_I_and_E";
-    std::ofstream outputfile4(char1+char2+char_csv);
-    outputfile4 << std::setprecision(std::numeric_limits<double>::max_digits10) << std::scientific;
-    outputfile4 << "i,j,x,r, Ii (mA), Ie (mA), I (mA), ji (mA/mm^2), je (mA/mm^2), j (mA/mm^2), En, zero"<< std::endl;
+    ofstream outputfile4(char1+char2+char_csv);
+    outputfile4 << setprecision(numeric_limits<double>::max_digits10) << scientific;
+    outputfile4 << "i,j,x,r, Ii (mA), Ie (mA), I (mA), ji (mA/mm^2), je (mA/mm^2), j (mA/mm^2), En, zero"<< endl;
     //------------------------------------
 
     //setup for boundary velocity for kinetic flux
     //------------------------------------
     //char1="results/bnd_KF_shift";
-    //std::ofstream outputfile6(char1+char2+char_csv);
-    //outputfile6 << std::setprecision(std::numeric_limits<double>::max_digits10) << std::scientific;
-    //outputfile6 << "i,j,x,r, uten, Uten, uten_cc,uten_cc, utin, Utin, utin_cc, Utin_cc, utmn, vth2, omega_ce, Larmor, LarmorFactor, angle, sin(angle), LarmorFactor*cos(angle),coef,coef_mirror,zero"<< std::endl;
+    //ofstream outputfile6(char1+char2+char_csv);
+    //outputfile6 << setprecision(numeric_limits<double>::max_digits10) << scientific;
+    //outputfile6 << "i,j,x,r, uten, Uten, uten_cc,uten_cc, utin, Utin, utin_cc, Utin_cc, utmn, vth2, omega_ce, Larmor, LarmorFactor, angle, sin(angle), LarmorFactor*cos(angle),coef,coef_mirror,zero"<< endl;
     //------------------------------------
     
     //setup for sum of current per wall
     //------------------------------------
     char1="results/energy_flux_sum";
-    std::ofstream outputfile7(char1+char2+char_csv);
-    outputfile7 << std::setprecision(std::numeric_limits<double>::max_digits10) << std::scientific;
+    ofstream outputfile7(char1+char2+char_csv);
+    outputfile7 << setprecision(numeric_limits<double>::max_digits10) << scientific;
     //------------------------------------
     //===============================================
 
@@ -609,7 +611,7 @@ void OutputModule::output(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridIn
         outputfile4<< i << ","<< j << "," << x_tmp << "," << gc.r[j] 
             << ","<< Ii*1000 << ","<< Ie*1000<< ","<< (Ii+Ie)*1000 
             << ","<< ji/1000 << ","<< je/1000<< ","<< (ji+je)/1000 
-            << ","<< En << ","<< 0 << std::endl;
+            << ","<< En << ","<< 0 << endl;
 
         Ii_z0_leftInWall = Ii_z0_leftInWall - ( ph::e0)*gx.rhoUix_wall[i][j]*2.0*M_PI*gc.r[j]*pm.dr;
         Ie_z0_leftInWall = Ie_z0_leftInWall - (-ph::e0)*gx.rhoUex_wall[i][j]*2.0*M_PI*gc.r[j]*pm.dr;
@@ -638,7 +640,7 @@ void OutputModule::output(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridIn
         outputfile4<< i << ","<< j << "," << x_tmp << "," << gc.r[j] 
             << ","<< Ii*1000 << ","<< Ie*1000<< ","<< (Ii+Ie)*1000 
             << ","<< ji/1000 << ","<< je/1000<< ","<< (ji+je)/1000 
-            << ","<< En << ","<< 0 << std::endl;
+            << ","<< En << ","<< 0 << endl;
 
         Ii_z1_leftAntBaseWall = Ii_z1_leftAntBaseWall - ( ph::e0)*gx.rhoUix_wall[i][j]*2.0*M_PI*gc.r[j]*pm.dr;
         Ie_z1_leftAntBaseWall = Ie_z1_leftAntBaseWall - (-ph::e0)*gx.rhoUex_wall[i][j]*2.0*M_PI*gc.r[j]*pm.dr;
@@ -668,7 +670,7 @@ void OutputModule::output(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridIn
         outputfile4<< i << ","<< j << "," << x_tmp << "," << gc.r[j] 
             << ","<< Ii*1000 << ","<< Ie*1000<< ","<< (Ii+Ie)*1000 
             << ","<< ji/1000 << ","<< je/1000<< ","<< (ji+je)/1000 
-            << ","<< En << ","<< 0 << std::endl;
+            << ","<< En << ","<< 0 << endl;
 
         Ii_z2_leftAntTopWall = Ii_z2_leftAntTopWall - ( ph::e0)*gx.rhoUix_wall[i][j]*2.0*M_PI*gc.r[j]*pm.dr;
         Ie_z2_leftAntTopWall = Ie_z2_leftAntTopWall - (-ph::e0)*gx.rhoUex_wall[i][j]*2.0*M_PI*gc.r[j]*pm.dr;
@@ -698,7 +700,7 @@ void OutputModule::output(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridIn
         outputfile4<< i << ","<< j << "," << x_tmp << "," << gc.r[j] 
             << ","<< Ii*1000 << ","<< Ie*1000<< ","<< (Ii+Ie)*1000 
             << ","<< ji/1000 << ","<< je/1000<< ","<< (ji+je)/1000 
-            << ","<< En << ","<< 0 << std::endl;
+            << ","<< En << ","<< 0 << endl;
 
         Ii_z4_leftOutWall = Ii_z4_leftOutWall - ( ph::e0)*gx.rhoUix_wall[i][j]*2.0*M_PI*gc.r[j]*pm.dr;
         Ie_z4_leftOutWall = Ie_z4_leftOutWall - (-ph::e0)*gx.rhoUex_wall[i][j]*2.0*M_PI*gc.r[j]*pm.dr;
@@ -719,7 +721,7 @@ void OutputModule::output(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridIn
         double x_tmp = (gc.x[i] + gc.x[i+1])/2.0;
 
         double En = (+1.0)*gx.Ex[i+1][j];
-        //std::cout << gx.Ex[i+1][j] << ","<<Ex_old[i+1][j] << std::endl;
+        //cout << gx.Ex[i+1][j] << ","<<Ex_old[i+1][j] << endl;
 
         double ji = (+1.0)*( ph::e0)*gx.rhoUix_wall[i+1][j];
         double je = (+1.0)*(-ph::e0)*gx.rhoUex_wall[i+1][j];
@@ -729,7 +731,7 @@ void OutputModule::output(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridIn
         outputfile4<< i+1 << ","<< j << "," << x_tmp << "," << gc.r[j] 
             << ","<< Ii*1000 << ","<< Ie*1000<< ","<< (Ii+Ie)*1000 
             << ","<< ji/1000 << ","<< je/1000<< ","<< (ji+je)/1000 
-            << ","<< En << ","<< 0 << std::endl;
+            << ","<< En << ","<< 0 << endl;
 
         Ii_z3_rightInWall = Ii_z3_rightInWall + ( ph::e0)*gx.rhoUix_wall[i+1][j]*2.0*M_PI*gc.r[j]*pm.dr;
         Ie_z3_rightInWall = Ie_z3_rightInWall + (-ph::e0)*gx.rhoUex_wall[i+1][j]*2.0*M_PI*gc.r[j]*pm.dr;
@@ -750,7 +752,7 @@ void OutputModule::output(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridIn
         double x_tmp = (gc.x[i] + gc.x[i+1])/2.0;
 
         double En = (+1.0)*gx.Ex[i+1][j];
-        //std::cout << gx.Ex[i+1][j] << ","<<Ex_old[i+1][j] << std::endl;
+        //cout << gx.Ex[i+1][j] << ","<<Ex_old[i+1][j] << endl;
 
         double ji = (+1.0)*( ph::e0)*gx.rhoUix_wall[i+1][j];
         double je = (+1.0)*(-ph::e0)*gx.rhoUex_wall[i+1][j];
@@ -760,7 +762,7 @@ void OutputModule::output(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridIn
         outputfile4<< i+1 << ","<< j << "," << x_tmp << "," << gc.r[j] 
             << ","<< Ii*1000 << ","<< Ie*1000<< ","<< (Ii+Ie)*1000 
             << ","<< ji/1000 << ","<< je/1000<< ","<< (ji+je)/1000 
-            << ","<< En << ","<< 0 << std::endl;
+            << ","<< En << ","<< 0 << endl;
 
         Ii_z5_rightAnodeWall = Ii_z5_rightAnodeWall + ( ph::e0)*gx.rhoUix_wall[i+1][j]*2.0*M_PI*gc.r[j]*pm.dr;
         Ie_z5_rightAnodeWall = Ie_z5_rightAnodeWall + (-ph::e0)*gx.rhoUex_wall[i+1][j]*2.0*M_PI*gc.r[j]*pm.dr;
@@ -790,7 +792,7 @@ void OutputModule::output(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridIn
         outputfile4<< i << ","<< j << "," << gc.x[i] << "," << r_tmp 
             << ","<< Ii*1000 << ","<< Ie*1000<< ","<< (Ii+Ie)*1000 
             << ","<< ji/1000 << ","<< je/1000<< ","<< (ji+je)/1000 
-            << ","<< En << ","<< 0 << std::endl;
+            << ","<< En << ","<< 0 << endl;
 
         Ii_x0_botInWall = Ii_x0_botInWall - ( ph::e0)*gr.rhoUir_wall[i][j]*2.0*M_PI*r_tmp*pm.dx;
         Ie_x0_botInWall = Ie_x0_botInWall - (-ph::e0)*gr.rhoUer_wall[i][j]*2.0*M_PI*r_tmp*pm.dx;
@@ -820,7 +822,7 @@ void OutputModule::output(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridIn
         outputfile4<< i << ","<< j << "," << gc.x[i] << "," << r_tmp 
             << ","<< Ii*1000 << ","<< Ie*1000<< ","<< (Ii+Ie)*1000 
             << ","<< ji/1000 << ","<< je/1000<< ","<< (ji+je)/1000 
-            << ","<< En << ","<< 0 << std::endl;
+            << ","<< En << ","<< 0 << endl;
 
         Ii_x2_botAntSideWall = Ii_x2_botAntSideWall - ( ph::e0)*gr.rhoUir_wall[i][j]*2.0*M_PI*r_tmp*pm.dx;
         Ie_x2_botAntSideWall = Ie_x2_botAntSideWall - (-ph::e0)*gr.rhoUer_wall[i][j]*2.0*M_PI*r_tmp*pm.dx;
@@ -850,7 +852,7 @@ void OutputModule::output(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridIn
         outputfile4<< i << ","<< j+1 << "," << gc.x[i] << "," << r_tmp 
             << ","<< Ii*1000 << ","<< Ie*1000<< ","<< (Ii+Ie)*1000 
             << ","<< ji/1000 << ","<< je/1000<< ","<< (ji+je)/1000 
-            << ","<< En << ","<< 0 << std::endl;
+            << ","<< En << ","<< 0 << endl;
 
         Ii_x1_topInWall = Ii_x1_topInWall + ( ph::e0)*gr.rhoUir_wall[i][j+1]*2.0*M_PI*r_tmp*pm.dx;
         Ie_x1_topInWall = Ie_x1_topInWall + (-ph::e0)*gr.rhoUer_wall[i][j+1]*2.0*M_PI*r_tmp*pm.dx;
@@ -881,7 +883,7 @@ void OutputModule::output(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridIn
         outputfile4<< i << ","<< j+1 << "," << gc.x[i] << "," << r_tmp 
             << ","<< Ii*1000 << ","<< Ie*1000<< ","<< (Ii+Ie)*1000 
             << ","<< ji/1000 << ","<< je/1000<< ","<< (ji+je)/1000 
-            << ","<< En << ","<< 0 << std::endl;
+            << ","<< En << ","<< 0 << endl;
 
         Ii_x4_topOrfWall = Ii_x4_topOrfWall + ( ph::e0)*gr.rhoUir_wall[i][j+1]*2.0*M_PI*r_tmp*pm.dx;
         Ie_x4_topOrfWall = Ie_x4_topOrfWall + (-ph::e0)*gr.rhoUer_wall[i][j+1]*2.0*M_PI*r_tmp*pm.dx;
@@ -912,7 +914,7 @@ void OutputModule::output(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridIn
         outputfile4<< i << ","<< j+1 << "," << gc.x[i] << "," << r_tmp 
             << ","<< Ii*1000 << ","<< Ie*1000<< ","<< (Ii+Ie)*1000 
             << ","<< ji/1000 << ","<< je/1000<< ","<< (ji+je)/1000 
-            << ","<< En << ","<< 0 << std::endl;
+            << ","<< En << ","<< 0 << endl;
 
         Ii_x5_topOpen = Ii_x5_topOpen + ( ph::e0)*rhoUir_Rr*2.0*M_PI*r_tmp*pm.dx;
         Ie_x5_topOpen = Ie_x5_topOpen + (-ph::e0)*gr.rhoUer[i][j+1]*2.0*M_PI*r_tmp*pm.dx;
@@ -990,20 +992,20 @@ void OutputModule::output(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridIn
     double In_sum = In_z0_leftInWall + In_z1_leftAntBaseWall + In_z2_leftAntTopWall + In_z3_rightInWall + In_z4_leftOutWall + In_z5_rightAnodeWall 
             + In_x0_botInWall+ In_x1_topInWall + In_x2_botAntSideWall + In_x4_topOrfWall + In_x5_topOpen;
     
-    outputfile3<< "No, wall, Ii (mA), Ie (mA), I (mA), Ndoti (pcl/s), Ndote (pcl/s), Ndotm (pcl/s), Ndotn (pcl/s)"<< std::endl;
-    outputfile3<< "z0 , leftInWall, " << Ii_z0_leftInWall*1000 << "," << Ie_z0_leftInWall*1000 << "," << (Ii_z0_leftInWall + Ie_z0_leftInWall)*1000 << "," << 1.0/ph::e0*Ii_z0_leftInWall << "," << 1.0/(-ph::e0)*Ie_z0_leftInWall << "," << Im_z0_leftInWall << "," << In_z0_leftInWall  << std::endl;
-    outputfile3<< "z1 , leftAntBaseWall, " << Ii_z1_leftAntBaseWall*1000 << "," << Ie_z1_leftAntBaseWall*1000 << "," << (Ii_z1_leftAntBaseWall + Ie_z1_leftAntBaseWall)*1000 << "," << 1.0/ph::e0*Ii_z1_leftAntBaseWall << "," << 1.0/(-ph::e0)*Ie_z1_leftAntBaseWall << "," << Im_z1_leftAntBaseWall << "," << In_z1_leftAntBaseWall  << std::endl;
-    outputfile3<< "z2 , leftAntTopWall, " << Ii_z2_leftAntTopWall*1000 << "," << Ie_z2_leftAntTopWall*1000 << "," << (Ii_z2_leftAntTopWall + Ie_z2_leftAntTopWall)*1000 << "," << 1.0/ph::e0*Ii_z2_leftAntTopWall << "," << 1.0/(-ph::e0)*Ie_z2_leftAntTopWall << "," << Im_z2_leftAntTopWall << "," << In_z2_leftAntTopWall  << std::endl;
-    outputfile3<< "z3 , rightInWall, " << Ii_z3_rightInWall*1000 << "," << Ie_z3_rightInWall*1000 << "," << (Ii_z3_rightInWall + Ie_z3_rightInWall)*1000 << "," << 1.0/ph::e0*Ii_z3_rightInWall << "," << 1.0/(-ph::e0)*Ie_z3_rightInWall << "," << Im_z3_rightInWall << "," << In_z3_rightInWall  << std::endl;
-    outputfile3<< "z4 , leftOutWall, " << Ii_z4_leftOutWall*1000 << "," << Ie_z4_leftOutWall*1000 << "," << (Ii_z4_leftOutWall + Ie_z4_leftOutWall)*1000 << "," << 1.0/ph::e0*Ii_z4_leftOutWall << "," << 1.0/(-ph::e0)*Ie_z4_leftOutWall << "," << Im_z4_leftOutWall << "," << In_z4_leftOutWall  << std::endl;
-    outputfile3<< "z5 , rightAnodeWall, " << Ii_z5_rightAnodeWall*1000 << "," << Ie_z5_rightAnodeWall*1000 << "," << (Ii_z5_rightAnodeWall + Ie_z5_rightAnodeWall)*1000 << "," << 1.0/ph::e0*Ii_z5_rightAnodeWall << "," << 1.0/(-ph::e0)*Ie_z5_rightAnodeWall << "," << Im_z5_rightAnodeWall << "," << In_z5_rightAnodeWall  << std::endl;
-    outputfile3<< "x0 , botInWall, " << Ii_x0_botInWall*1000 << "," << Ie_x0_botInWall*1000 << "," << (Ii_x0_botInWall + Ie_x0_botInWall)*1000 << "," << 1.0/ph::e0*Ii_x0_botInWall << "," << 1.0/(-ph::e0)*Ie_x0_botInWall << "," << Im_x0_botInWall << "," << In_x0_botInWall  << std::endl;
-    outputfile3<< "x1 , topInWall, " << Ii_x1_topInWall*1000 << "," << Ie_x1_topInWall*1000 << "," << (Ii_x1_topInWall + Ie_x1_topInWall)*1000 << "," << 1.0/ph::e0*Ii_x1_topInWall << "," << 1.0/(-ph::e0)*Ie_x1_topInWall << "," << Im_x1_topInWall << "," << In_x1_topInWall  << std::endl;
-    outputfile3<< "x2 , botAntSideWall, " << Ii_x2_botAntSideWall*1000 << "," << Ie_x2_botAntSideWall*1000 << "," << (Ii_x2_botAntSideWall + Ie_x2_botAntSideWall)*1000 << "," << 1.0/ph::e0*Ii_x2_botAntSideWall << "," << 1.0/(-ph::e0)*Ie_x2_botAntSideWall << "," << Im_x2_botAntSideWall << "," << In_x2_botAntSideWall  << std::endl;
-    outputfile3<< "x4 , topOrfWall, " << Ii_x4_topOrfWall*1000 << "," << Ie_x4_topOrfWall*1000 << "," << (Ii_x4_topOrfWall + Ie_x4_topOrfWall)*1000 << "," << 1.0/ph::e0*Ii_x4_topOrfWall << "," << 1.0/(-ph::e0)*Ie_x4_topOrfWall << "," << Im_x4_topOrfWall << "," << In_x4_topOrfWall  << std::endl;
-    outputfile3<< "x5 , topOpen, " << Ii_x5_topOpen*1000 << "," << Ie_x5_topOpen*1000 << "," << (Ii_x5_topOpen + Ie_x5_topOpen)*1000 << "," << 1.0/ph::e0*Ii_x5_topOpen << "," << 1.0/(-ph::e0)*Ie_x5_topOpen << "," << Im_x5_topOpen << "," << In_x5_topOpen  << std::endl;
-    outputfile3<< "*  , Nozzle , " << pm.Ii_Nozzle*1000 << "," << pm.Ie_Nozzle*1000 << "," << (pm.Ii_Nozzle + pm.Ie_Nozzle)*1000 << "," << 1.0/ph::e0*pm.Ii_Nozzle << "," << 1.0/(-ph::e0)*pm.Ie_Nozzle << "," << Im_Nozzle << "," << In_Nozzle  << std::endl;
-    outputfile3<< "*  , sum, " << Ii_sum*1000 << "," << Ie_sum*1000 << "," << (Ii_sum + Ie_sum)*1000 << "," << 1.0/ph::e0*Ii_sum << "," << 1.0/(-ph::e0)*Ie_sum << "," << Im_sum << "," << In_sum  << std::endl;
+    outputfile3<< "No, wall, Ii (mA), Ie (mA), I (mA), Ndoti (pcl/s), Ndote (pcl/s), Ndotm (pcl/s), Ndotn (pcl/s)"<< endl;
+    outputfile3<< "z0 , leftInWall, " << Ii_z0_leftInWall*1000 << "," << Ie_z0_leftInWall*1000 << "," << (Ii_z0_leftInWall + Ie_z0_leftInWall)*1000 << "," << 1.0/ph::e0*Ii_z0_leftInWall << "," << 1.0/(-ph::e0)*Ie_z0_leftInWall << "," << Im_z0_leftInWall << "," << In_z0_leftInWall  << endl;
+    outputfile3<< "z1 , leftAntBaseWall, " << Ii_z1_leftAntBaseWall*1000 << "," << Ie_z1_leftAntBaseWall*1000 << "," << (Ii_z1_leftAntBaseWall + Ie_z1_leftAntBaseWall)*1000 << "," << 1.0/ph::e0*Ii_z1_leftAntBaseWall << "," << 1.0/(-ph::e0)*Ie_z1_leftAntBaseWall << "," << Im_z1_leftAntBaseWall << "," << In_z1_leftAntBaseWall  << endl;
+    outputfile3<< "z2 , leftAntTopWall, " << Ii_z2_leftAntTopWall*1000 << "," << Ie_z2_leftAntTopWall*1000 << "," << (Ii_z2_leftAntTopWall + Ie_z2_leftAntTopWall)*1000 << "," << 1.0/ph::e0*Ii_z2_leftAntTopWall << "," << 1.0/(-ph::e0)*Ie_z2_leftAntTopWall << "," << Im_z2_leftAntTopWall << "," << In_z2_leftAntTopWall  << endl;
+    outputfile3<< "z3 , rightInWall, " << Ii_z3_rightInWall*1000 << "," << Ie_z3_rightInWall*1000 << "," << (Ii_z3_rightInWall + Ie_z3_rightInWall)*1000 << "," << 1.0/ph::e0*Ii_z3_rightInWall << "," << 1.0/(-ph::e0)*Ie_z3_rightInWall << "," << Im_z3_rightInWall << "," << In_z3_rightInWall  << endl;
+    outputfile3<< "z4 , leftOutWall, " << Ii_z4_leftOutWall*1000 << "," << Ie_z4_leftOutWall*1000 << "," << (Ii_z4_leftOutWall + Ie_z4_leftOutWall)*1000 << "," << 1.0/ph::e0*Ii_z4_leftOutWall << "," << 1.0/(-ph::e0)*Ie_z4_leftOutWall << "," << Im_z4_leftOutWall << "," << In_z4_leftOutWall  << endl;
+    outputfile3<< "z5 , rightAnodeWall, " << Ii_z5_rightAnodeWall*1000 << "," << Ie_z5_rightAnodeWall*1000 << "," << (Ii_z5_rightAnodeWall + Ie_z5_rightAnodeWall)*1000 << "," << 1.0/ph::e0*Ii_z5_rightAnodeWall << "," << 1.0/(-ph::e0)*Ie_z5_rightAnodeWall << "," << Im_z5_rightAnodeWall << "," << In_z5_rightAnodeWall  << endl;
+    outputfile3<< "x0 , botInWall, " << Ii_x0_botInWall*1000 << "," << Ie_x0_botInWall*1000 << "," << (Ii_x0_botInWall + Ie_x0_botInWall)*1000 << "," << 1.0/ph::e0*Ii_x0_botInWall << "," << 1.0/(-ph::e0)*Ie_x0_botInWall << "," << Im_x0_botInWall << "," << In_x0_botInWall  << endl;
+    outputfile3<< "x1 , topInWall, " << Ii_x1_topInWall*1000 << "," << Ie_x1_topInWall*1000 << "," << (Ii_x1_topInWall + Ie_x1_topInWall)*1000 << "," << 1.0/ph::e0*Ii_x1_topInWall << "," << 1.0/(-ph::e0)*Ie_x1_topInWall << "," << Im_x1_topInWall << "," << In_x1_topInWall  << endl;
+    outputfile3<< "x2 , botAntSideWall, " << Ii_x2_botAntSideWall*1000 << "," << Ie_x2_botAntSideWall*1000 << "," << (Ii_x2_botAntSideWall + Ie_x2_botAntSideWall)*1000 << "," << 1.0/ph::e0*Ii_x2_botAntSideWall << "," << 1.0/(-ph::e0)*Ie_x2_botAntSideWall << "," << Im_x2_botAntSideWall << "," << In_x2_botAntSideWall  << endl;
+    outputfile3<< "x4 , topOrfWall, " << Ii_x4_topOrfWall*1000 << "," << Ie_x4_topOrfWall*1000 << "," << (Ii_x4_topOrfWall + Ie_x4_topOrfWall)*1000 << "," << 1.0/ph::e0*Ii_x4_topOrfWall << "," << 1.0/(-ph::e0)*Ie_x4_topOrfWall << "," << Im_x4_topOrfWall << "," << In_x4_topOrfWall  << endl;
+    outputfile3<< "x5 , topOpen, " << Ii_x5_topOpen*1000 << "," << Ie_x5_topOpen*1000 << "," << (Ii_x5_topOpen + Ie_x5_topOpen)*1000 << "," << 1.0/ph::e0*Ii_x5_topOpen << "," << 1.0/(-ph::e0)*Ie_x5_topOpen << "," << Im_x5_topOpen << "," << In_x5_topOpen  << endl;
+    outputfile3<< "*  , Nozzle , " << pm.Ii_Nozzle*1000 << "," << pm.Ie_Nozzle*1000 << "," << (pm.Ii_Nozzle + pm.Ie_Nozzle)*1000 << "," << 1.0/ph::e0*pm.Ii_Nozzle << "," << 1.0/(-ph::e0)*pm.Ie_Nozzle << "," << Im_Nozzle << "," << In_Nozzle  << endl;
+    outputfile3<< "*  , sum, " << Ii_sum*1000 << "," << Ie_sum*1000 << "," << (Ii_sum + Ie_sum)*1000 << "," << 1.0/ph::e0*Ii_sum << "," << 1.0/(-ph::e0)*Ie_sum << "," << Im_sum << "," << In_sum  << endl;
     outputfile3.close();
     //------------------------------------
 
@@ -1014,19 +1016,19 @@ void OutputModule::output(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridIn
     double We_sum = We_z0_leftInWall + We_z1_leftAntBaseWall + We_z3_rightInWall + We_z4_leftOutWall + We_z5_rightAnodeWall 
             + We_x0_botInWall+ We_x1_topInWall + We_x2_botAntSideWall + We_x4_topOrfWall + We_x5_topOpen;
 
-    outputfile7<< "No, wall, Wi (J/s), We (J/s), W (J/s)"<< std::endl;
-    outputfile7<< "z0 , leftInWall, "      << Wi_z0_leftInWall      << "," << We_z0_leftInWall      << "," << (Wi_z0_leftInWall      + We_z0_leftInWall)       << std::endl;
-    outputfile7<< "z1 , leftAntBaseWall, " << Wi_z1_leftAntBaseWall << "," << We_z1_leftAntBaseWall << "," << (Wi_z1_leftAntBaseWall + We_z1_leftAntBaseWall)  << std::endl;
-    outputfile7<< "z2 , leftAntTopWall, "  << Wi_z2_leftAntTopWall  << "," << We_z2_leftAntTopWall  << "," << (Wi_z2_leftAntTopWall  + We_z2_leftAntTopWall)   << std::endl;
-    outputfile7<< "z3 , rightInWall, "     << Wi_z3_rightInWall     << "," << We_z3_rightInWall     << "," << (Wi_z3_rightInWall     + We_z3_rightInWall)      << std::endl;
-    outputfile7<< "z4 , leftOutWall, "     << Wi_z4_leftOutWall     << "," << We_z4_leftOutWall     << "," << (Wi_z4_leftOutWall     + We_z4_leftOutWall)      << std::endl;
-    outputfile7<< "z5 , rightAnodeWall, "  << Wi_z5_rightAnodeWall  << "," << We_z5_rightAnodeWall  << "," << (Wi_z5_rightAnodeWall  + We_z5_rightAnodeWall)   << std::endl;
-    outputfile7<< "x0 , botInWall, "       << Wi_x0_botInWall       << "," << We_x0_botInWall       << "," << (Wi_x0_botInWall       + We_x0_botInWall)        << std::endl;
-    outputfile7<< "x1 , topInWall, "       << Wi_x1_topInWall       << "," << We_x1_topInWall       << "," << (Wi_x1_topInWall       + We_x1_topInWall)        << std::endl;
-    outputfile7<< "x2 , botAntSideWall, "  << Wi_x2_botAntSideWall  << "," << We_x2_botAntSideWall  << "," << (Wi_x2_botAntSideWall  + We_x2_botAntSideWall)   << std::endl;
-    outputfile7<< "x4 , topOrfWall, "      << Wi_x4_topOrfWall      << "," << We_x4_topOrfWall      << "," << (Wi_x4_topOrfWall      + We_x4_topOrfWall)       << std::endl;
-    outputfile7<< "x5 , topOpen, "         << Wi_x5_topOpen         << "," << We_x5_topOpen         << "," << (Wi_x5_topOpen         + We_x5_topOpen)          << std::endl;
-    outputfile7<< "*  , sum,"              << Wi_sum                << "," << We_sum                << "," << (Wi_sum                + We_sum)                 << std::endl;
+    outputfile7<< "No, wall, Wi (J/s), We (J/s), W (J/s)"<< endl;
+    outputfile7<< "z0 , leftInWall, "      << Wi_z0_leftInWall      << "," << We_z0_leftInWall      << "," << (Wi_z0_leftInWall      + We_z0_leftInWall)       << endl;
+    outputfile7<< "z1 , leftAntBaseWall, " << Wi_z1_leftAntBaseWall << "," << We_z1_leftAntBaseWall << "," << (Wi_z1_leftAntBaseWall + We_z1_leftAntBaseWall)  << endl;
+    outputfile7<< "z2 , leftAntTopWall, "  << Wi_z2_leftAntTopWall  << "," << We_z2_leftAntTopWall  << "," << (Wi_z2_leftAntTopWall  + We_z2_leftAntTopWall)   << endl;
+    outputfile7<< "z3 , rightInWall, "     << Wi_z3_rightInWall     << "," << We_z3_rightInWall     << "," << (Wi_z3_rightInWall     + We_z3_rightInWall)      << endl;
+    outputfile7<< "z4 , leftOutWall, "     << Wi_z4_leftOutWall     << "," << We_z4_leftOutWall     << "," << (Wi_z4_leftOutWall     + We_z4_leftOutWall)      << endl;
+    outputfile7<< "z5 , rightAnodeWall, "  << Wi_z5_rightAnodeWall  << "," << We_z5_rightAnodeWall  << "," << (Wi_z5_rightAnodeWall  + We_z5_rightAnodeWall)   << endl;
+    outputfile7<< "x0 , botInWall, "       << Wi_x0_botInWall       << "," << We_x0_botInWall       << "," << (Wi_x0_botInWall       + We_x0_botInWall)        << endl;
+    outputfile7<< "x1 , topInWall, "       << Wi_x1_topInWall       << "," << We_x1_topInWall       << "," << (Wi_x1_topInWall       + We_x1_topInWall)        << endl;
+    outputfile7<< "x2 , botAntSideWall, "  << Wi_x2_botAntSideWall  << "," << We_x2_botAntSideWall  << "," << (Wi_x2_botAntSideWall  + We_x2_botAntSideWall)   << endl;
+    outputfile7<< "x4 , topOrfWall, "      << Wi_x4_topOrfWall      << "," << We_x4_topOrfWall      << "," << (Wi_x4_topOrfWall      + We_x4_topOrfWall)       << endl;
+    outputfile7<< "x5 , topOpen, "         << Wi_x5_topOpen         << "," << We_x5_topOpen         << "," << (Wi_x5_topOpen         + We_x5_topOpen)          << endl;
+    outputfile7<< "*  , sum,"              << Wi_sum                << "," << We_sum                << "," << (Wi_sum                + We_sum)                 << endl;
     outputfile7.close();
     //------------------------------------
 
@@ -1041,9 +1043,9 @@ void OutputModule::output(Params &pm, GridCenter &gc, GridInterfaceX &gx, GridIn
         }
     }
 
-    std::cout << "direct_ionz_sum = " << direct_ionz_sum  
+    cout << "direct_ionz_sum = " << direct_ionz_sum  
         << " stepwise_ionz_sum = " << stepwise_ionz_sum << " ratio = " << stepwise_ionz_sum/(stepwise_ionz_sum+direct_ionz_sum)
-        << std::endl;
+        << endl;
 
     pm.nOut = pm.nOut + 1;
 }

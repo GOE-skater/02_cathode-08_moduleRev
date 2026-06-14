@@ -294,6 +294,14 @@ void InputModule::inputParam(Params &pm, string inputFileName)
     cout << "[All setup parameters are successfully loaded]" << endl;
     cout << endl;
 
+    //set geometry for impedance test
+    //--------------------------------
+    if(pm.flag_impTest == 1){
+        pm.nj =  pm.nj/10;
+        pm.rmin = 0.0006; //(double) Min. r in domain (typical:0.00)
+        pm.rmax = 0.002;  //(double) Max. r in domain (typical:0.014)
+    }
+    //--------------------------------
 }
 
 //*****************************************************************

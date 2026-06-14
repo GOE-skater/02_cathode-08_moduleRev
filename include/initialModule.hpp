@@ -160,6 +160,8 @@ void InitialModule::iniParam(Params &pm,GridCenter &gc,GridInterfaceX &gx,GridIn
     //---------------------------------
     const CmpMat2 Tstub =
         Tpre*Tcorr*Tpre.inv()*Tbase;
+    //const CmpMat2 Tstub =
+    //    Tcorr*Tpre.inv()*Tbase;
     //---------------------------------
 
     //Convert corrected ABCD matrix back to S-parameters.
